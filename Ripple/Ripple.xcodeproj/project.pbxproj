@@ -1,0 +1,993 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8C9F79902FA1444100A65CCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F798F2FA1444100A65CCD /* AppDelegate.swift */; };
+		8C9F79922FA1444100A65CCD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F79912FA1444100A65CCD /* SceneDelegate.swift */; };
+		8C9F79952FA1444100A65CCD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79932FA1444100A65CCD /* LaunchScreen.storyboard */; };
+		8C9F79982FA1444100A65CCD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79962FA1444100A65CCD /* Main.storyboard */; };
+		8C9F79A12FA1444100A65CCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F79A02FA1444100A65CCD /* AppDelegate.swift */; };
+		8C9F79A42FA1444100A65CCD /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79A22FA1444100A65CCD /* Main.storyboard */; };
+		8C9F79AB2FA1444100A65CCD /* Ripple Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8C9F79AA2FA1444100A65CCD /* Ripple Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8C9F79B52FA1444100A65CCD /* Ripple Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8C9F79B42FA1444100A65CCD /* Ripple Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8C9F79BA2FA1444100A65CCD /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F797F2FA1443F00A65CCD /* Main.html */; };
+		8C9F79BB2FA1444100A65CCD /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F797F2FA1443F00A65CCD /* Main.html */; };
+		8C9F79BC2FA1444100A65CCD /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79812FA1443F00A65CCD /* Icon.png */; };
+		8C9F79BD2FA1444100A65CCD /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79812FA1443F00A65CCD /* Icon.png */; };
+		8C9F79BE2FA1444100A65CCD /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79822FA1443F00A65CCD /* Style.css */; };
+		8C9F79BF2FA1444100A65CCD /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79822FA1443F00A65CCD /* Style.css */; };
+		8C9F79C02FA1444100A65CCD /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79832FA1443F00A65CCD /* Script.js */; };
+		8C9F79C12FA1444100A65CCD /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79832FA1443F00A65CCD /* Script.js */; };
+		8C9F79C22FA1444100A65CCD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F79842FA1443F00A65CCD /* ViewController.swift */; };
+		8C9F79C32FA1444100A65CCD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F79842FA1443F00A65CCD /* ViewController.swift */; };
+		8C9F79C42FA1444100A65CCD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79852FA1444100A65CCD /* Assets.xcassets */; };
+		8C9F79C52FA1444100A65CCD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79852FA1444100A65CCD /* Assets.xcassets */; };
+		8C9F79C62FA1444100A65CCD /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F79872FA1444100A65CCD /* SafariWebExtensionHandler.swift */; };
+		8C9F79C72FA1444100A65CCD /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F79872FA1444100A65CCD /* SafariWebExtensionHandler.swift */; };
+		8C9F79DF2FA1444200A65CCD /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79D92FA1444200A65CCD /* popup.js */; };
+		8C9F79E02FA1444200A65CCD /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DA2FA1444200A65CCD /* background.js */; };
+		8C9F79E12FA1444200A65CCD /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DB2FA1444200A65CCD /* popup.html */; };
+		8C9F79E22FA1444200A65CCD /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DC2FA1444200A65CCD /* icons */; };
+		8C9F79E32FA1444200A65CCD /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DD2FA1444200A65CCD /* manifest.json */; };
+		8C9F79E42FA1444200A65CCD /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DE2FA1444200A65CCD /* content.js */; };
+		8C9F79E52FA1444200A65CCD /* popup.js in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79D92FA1444200A65CCD /* popup.js */; };
+		8C9F79E62FA1444200A65CCD /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DA2FA1444200A65CCD /* background.js */; };
+		8C9F79E72FA1444200A65CCD /* popup.html in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DB2FA1444200A65CCD /* popup.html */; };
+		8C9F79E82FA1444200A65CCD /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DC2FA1444200A65CCD /* icons */; };
+		8C9F79E92FA1444200A65CCD /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DD2FA1444200A65CCD /* manifest.json */; };
+		8C9F79EA2FA1444200A65CCD /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DE2FA1444200A65CCD /* content.js */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8C9F79AC2FA1444100A65CCD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C9F79792FA1443F00A65CCD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8C9F79A92FA1444100A65CCD;
+			remoteInfo = "Ripple Extension (iOS)";
+		};
+		8C9F79B62FA1444100A65CCD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C9F79792FA1443F00A65CCD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8C9F79B32FA1444100A65CCD;
+			remoteInfo = "Ripple Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8C9F79CD2FA1444100A65CCD /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8C9F79AB2FA1444100A65CCD /* Ripple Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F79D42FA1444100A65CCD /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8C9F79B52FA1444100A65CCD /* Ripple Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8C9F79802FA1443F00A65CCD /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		8C9F79812FA1443F00A65CCD /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		8C9F79822FA1443F00A65CCD /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		8C9F79832FA1443F00A65CCD /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		8C9F79842FA1443F00A65CCD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		8C9F79852FA1444100A65CCD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8C9F79872FA1444100A65CCD /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		8C9F798C2FA1444100A65CCD /* Ripple.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ripple.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C9F798F2FA1444100A65CCD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		8C9F79912FA1444100A65CCD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		8C9F79942FA1444100A65CCD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8C9F79972FA1444100A65CCD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		8C9F79992FA1444100A65CCD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C9F799E2FA1444100A65CCD /* Ripple.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ripple.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C9F79A02FA1444100A65CCD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		8C9F79A32FA1444100A65CCD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		8C9F79A52FA1444100A65CCD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C9F79AA2FA1444100A65CCD /* Ripple Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Ripple Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C9F79AF2FA1444100A65CCD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C9F79B42FA1444100A65CCD /* Ripple Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Ripple Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C9F79B92FA1444100A65CCD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C9F79D92FA1444200A65CCD /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = ../../extension/popup.js; sourceTree = "<group>"; };
+		8C9F79DA2FA1444200A65CCD /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = ../../extension/background.js; sourceTree = "<group>"; };
+		8C9F79DB2FA1444200A65CCD /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = ../../extension/popup.html; sourceTree = "<group>"; };
+		8C9F79DC2FA1444200A65CCD /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = ../../extension/icons; sourceTree = "<group>"; };
+		8C9F79DD2FA1444200A65CCD /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../extension/manifest.json; sourceTree = "<group>"; };
+		8C9F79DE2FA1444200A65CCD /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../extension/content.js; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8C9F79892FA1444100A65CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F799B2FA1444100A65CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F79A72FA1444100A65CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F79B12FA1444100A65CCD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8C9F79782FA1443F00A65CCD = {
+			isa = PBXGroup;
+			children = (
+				8C9F797D2FA1443F00A65CCD /* Shared (App) */,
+				8C9F79862FA1444100A65CCD /* Shared (Extension) */,
+				8C9F798E2FA1444100A65CCD /* iOS (App) */,
+				8C9F799F2FA1444100A65CCD /* macOS (App) */,
+				8C9F79AE2FA1444100A65CCD /* iOS (Extension) */,
+				8C9F79B82FA1444100A65CCD /* macOS (Extension) */,
+				8C9F798D2FA1444100A65CCD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8C9F797D2FA1443F00A65CCD /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				8C9F79842FA1443F00A65CCD /* ViewController.swift */,
+				8C9F79852FA1444100A65CCD /* Assets.xcassets */,
+				8C9F797E2FA1443F00A65CCD /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		8C9F797E2FA1443F00A65CCD /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8C9F797F2FA1443F00A65CCD /* Main.html */,
+				8C9F79812FA1443F00A65CCD /* Icon.png */,
+				8C9F79822FA1443F00A65CCD /* Style.css */,
+				8C9F79832FA1443F00A65CCD /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		8C9F79862FA1444100A65CCD /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				8C9F79D82FA1444200A65CCD /* Resources */,
+				8C9F79872FA1444100A65CCD /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		8C9F798D2FA1444100A65CCD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8C9F798C2FA1444100A65CCD /* Ripple.app */,
+				8C9F799E2FA1444100A65CCD /* Ripple.app */,
+				8C9F79AA2FA1444100A65CCD /* Ripple Extension.appex */,
+				8C9F79B42FA1444100A65CCD /* Ripple Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8C9F798E2FA1444100A65CCD /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				8C9F798F2FA1444100A65CCD /* AppDelegate.swift */,
+				8C9F79912FA1444100A65CCD /* SceneDelegate.swift */,
+				8C9F79932FA1444100A65CCD /* LaunchScreen.storyboard */,
+				8C9F79962FA1444100A65CCD /* Main.storyboard */,
+				8C9F79992FA1444100A65CCD /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		8C9F799F2FA1444100A65CCD /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				8C9F79A02FA1444100A65CCD /* AppDelegate.swift */,
+				8C9F79A22FA1444100A65CCD /* Main.storyboard */,
+				8C9F79A52FA1444100A65CCD /* Info.plist */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		8C9F79AE2FA1444100A65CCD /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				8C9F79AF2FA1444100A65CCD /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		8C9F79B82FA1444100A65CCD /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				8C9F79B92FA1444100A65CCD /* Info.plist */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+		8C9F79D82FA1444200A65CCD /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8C9F79D92FA1444200A65CCD /* popup.js */,
+				8C9F79DA2FA1444200A65CCD /* background.js */,
+				8C9F79DB2FA1444200A65CCD /* popup.html */,
+				8C9F79DC2FA1444200A65CCD /* icons */,
+				8C9F79DD2FA1444200A65CCD /* manifest.json */,
+				8C9F79DE2FA1444200A65CCD /* content.js */,
+			);
+			name = Resources;
+			path = "Shared (Extension)";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8C9F798B2FA1444100A65CCD /* Ripple (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8C9F79CE2FA1444100A65CCD /* Build configuration list for PBXNativeTarget "Ripple (iOS)" */;
+			buildPhases = (
+				8C9F79882FA1444100A65CCD /* Sources */,
+				8C9F79892FA1444100A65CCD /* Frameworks */,
+				8C9F798A2FA1444100A65CCD /* Resources */,
+				8C9F79CD2FA1444100A65CCD /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8C9F79AD2FA1444100A65CCD /* PBXTargetDependency */,
+			);
+			name = "Ripple (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "Ripple (iOS)";
+			productReference = 8C9F798C2FA1444100A65CCD /* Ripple.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8C9F799D2FA1444100A65CCD /* Ripple (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8C9F79D52FA1444100A65CCD /* Build configuration list for PBXNativeTarget "Ripple (macOS)" */;
+			buildPhases = (
+				8C9F799A2FA1444100A65CCD /* Sources */,
+				8C9F799B2FA1444100A65CCD /* Frameworks */,
+				8C9F799C2FA1444100A65CCD /* Resources */,
+				8C9F79D42FA1444100A65CCD /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8C9F79B72FA1444100A65CCD /* PBXTargetDependency */,
+			);
+			name = "Ripple (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "Ripple (macOS)";
+			productReference = 8C9F799E2FA1444100A65CCD /* Ripple.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8C9F79A92FA1444100A65CCD /* Ripple Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8C9F79CA2FA1444100A65CCD /* Build configuration list for PBXNativeTarget "Ripple Extension (iOS)" */;
+			buildPhases = (
+				8C9F79A62FA1444100A65CCD /* Sources */,
+				8C9F79A72FA1444100A65CCD /* Frameworks */,
+				8C9F79A82FA1444100A65CCD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Ripple Extension (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "Ripple Extension (iOS)";
+			productReference = 8C9F79AA2FA1444100A65CCD /* Ripple Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		8C9F79B32FA1444100A65CCD /* Ripple Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8C9F79D12FA1444100A65CCD /* Build configuration list for PBXNativeTarget "Ripple Extension (macOS)" */;
+			buildPhases = (
+				8C9F79B02FA1444100A65CCD /* Sources */,
+				8C9F79B12FA1444100A65CCD /* Frameworks */,
+				8C9F79B22FA1444100A65CCD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Ripple Extension (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "Ripple Extension (macOS)";
+			productReference = 8C9F79B42FA1444100A65CCD /* Ripple Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8C9F79792FA1443F00A65CCD /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					8C9F798B2FA1444100A65CCD = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					8C9F799D2FA1444100A65CCD = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					8C9F79A92FA1444100A65CCD = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					8C9F79B32FA1444100A65CCD = {
+						CreatedOnToolsVersion = 26.3;
+					};
+				};
+			};
+			buildConfigurationList = 8C9F797C2FA1443F00A65CCD /* Build configuration list for PBXProject "Ripple" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8C9F79782FA1443F00A65CCD;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 8C9F798D2FA1444100A65CCD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8C9F798B2FA1444100A65CCD /* Ripple (iOS) */,
+				8C9F799D2FA1444100A65CCD /* Ripple (macOS) */,
+				8C9F79A92FA1444100A65CCD /* Ripple Extension (iOS) */,
+				8C9F79B32FA1444100A65CCD /* Ripple Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8C9F798A2FA1444100A65CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C9F79BC2FA1444100A65CCD /* Icon.png in Resources */,
+				8C9F79952FA1444100A65CCD /* LaunchScreen.storyboard in Resources */,
+				8C9F79BA2FA1444100A65CCD /* Main.html in Resources */,
+				8C9F79C02FA1444100A65CCD /* Script.js in Resources */,
+				8C9F79C42FA1444100A65CCD /* Assets.xcassets in Resources */,
+				8C9F79982FA1444100A65CCD /* Main.storyboard in Resources */,
+				8C9F79BE2FA1444100A65CCD /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F799C2FA1444100A65CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C9F79BD2FA1444100A65CCD /* Icon.png in Resources */,
+				8C9F79BF2FA1444100A65CCD /* Style.css in Resources */,
+				8C9F79A42FA1444100A65CCD /* Main.storyboard in Resources */,
+				8C9F79C12FA1444100A65CCD /* Script.js in Resources */,
+				8C9F79C52FA1444100A65CCD /* Assets.xcassets in Resources */,
+				8C9F79BB2FA1444100A65CCD /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F79A82FA1444100A65CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C9F79EA2FA1444200A65CCD /* content.js in Resources */,
+				8C9F79E62FA1444200A65CCD /* background.js in Resources */,
+				8C9F79E82FA1444200A65CCD /* icons in Resources */,
+				8C9F79E92FA1444200A65CCD /* manifest.json in Resources */,
+				8C9F79E72FA1444200A65CCD /* popup.html in Resources */,
+				8C9F79E52FA1444200A65CCD /* popup.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F79B22FA1444100A65CCD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C9F79E42FA1444200A65CCD /* content.js in Resources */,
+				8C9F79E02FA1444200A65CCD /* background.js in Resources */,
+				8C9F79E22FA1444200A65CCD /* icons in Resources */,
+				8C9F79E32FA1444200A65CCD /* manifest.json in Resources */,
+				8C9F79E12FA1444200A65CCD /* popup.html in Resources */,
+				8C9F79DF2FA1444200A65CCD /* popup.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8C9F79882FA1444100A65CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C9F79C22FA1444100A65CCD /* ViewController.swift in Sources */,
+				8C9F79902FA1444100A65CCD /* AppDelegate.swift in Sources */,
+				8C9F79922FA1444100A65CCD /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F799A2FA1444100A65CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C9F79C32FA1444100A65CCD /* ViewController.swift in Sources */,
+				8C9F79A12FA1444100A65CCD /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F79A62FA1444100A65CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C9F79C62FA1444100A65CCD /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C9F79B02FA1444100A65CCD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C9F79C72FA1444100A65CCD /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8C9F79AD2FA1444100A65CCD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C9F79A92FA1444100A65CCD /* Ripple Extension (iOS) */;
+			targetProxy = 8C9F79AC2FA1444100A65CCD /* PBXContainerItemProxy */;
+		};
+		8C9F79B72FA1444100A65CCD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C9F79B32FA1444100A65CCD /* Ripple Extension (macOS) */;
+			targetProxy = 8C9F79B62FA1444100A65CCD /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		8C9F797F2FA1443F00A65CCD /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C9F79802FA1443F00A65CCD /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		8C9F79932FA1444100A65CCD /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C9F79942FA1444100A65CCD /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		8C9F79962FA1444100A65CCD /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C9F79972FA1444100A65CCD /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		8C9F79A22FA1444100A65CCD /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8C9F79A32FA1444100A65CCD /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		8C9F79C82FA1444100A65CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		8C9F79C92FA1444100A65CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		8C9F79CB2FA1444100A65CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Ripple Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple.Extension;
+				PRODUCT_NAME = "Ripple Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8C9F79CC2FA1444100A65CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Ripple Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple.Extension;
+				PRODUCT_NAME = "Ripple Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		8C9F79CF2FA1444100A65CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Ripple;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple;
+				PRODUCT_NAME = Ripple;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8C9F79D02FA1444100A65CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Ripple;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple;
+				PRODUCT_NAME = Ripple;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		8C9F79D22FA1444100A65CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Ripple Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple.Extension;
+				PRODUCT_NAME = "Ripple Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8C9F79D32FA1444100A65CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Ripple Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple.Extension;
+				PRODUCT_NAME = "Ripple Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		8C9F79D62FA1444100A65CCD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Ripple;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple;
+				PRODUCT_NAME = Ripple;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8C9F79D72FA1444100A65CCD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Ripple;
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple;
+				PRODUCT_NAME = Ripple;
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8C9F797C2FA1443F00A65CCD /* Build configuration list for PBXProject "Ripple" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C9F79C82FA1444100A65CCD /* Debug */,
+				8C9F79C92FA1444100A65CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8C9F79CA2FA1444100A65CCD /* Build configuration list for PBXNativeTarget "Ripple Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C9F79CB2FA1444100A65CCD /* Debug */,
+				8C9F79CC2FA1444100A65CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8C9F79CE2FA1444100A65CCD /* Build configuration list for PBXNativeTarget "Ripple (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C9F79CF2FA1444100A65CCD /* Debug */,
+				8C9F79D02FA1444100A65CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8C9F79D12FA1444100A65CCD /* Build configuration list for PBXNativeTarget "Ripple Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C9F79D22FA1444100A65CCD /* Debug */,
+				8C9F79D32FA1444100A65CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8C9F79D52FA1444100A65CCD /* Build configuration list for PBXNativeTarget "Ripple (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8C9F79D62FA1444100A65CCD /* Debug */,
+				8C9F79D72FA1444100A65CCD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8C9F79792FA1443F00A65CCD /* Project object */;
+}
