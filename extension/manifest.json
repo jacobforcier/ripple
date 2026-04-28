@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Ripple",
+  "version": "0.1.0",
+  "description": "Share product links instantly and earn a small commission when friends buy.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Ripple"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "clipboardWrite"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
