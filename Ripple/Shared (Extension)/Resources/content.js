@@ -1,11 +1,27 @@
 (function () {
   'use strict';
 
-  // ── Demo link generator (same swap point as popup.js) ────────
-  // PRODUCTION SWAP: replace with a fetch() to your backend API
+  // ── Demo link generator with per-URL caching ─────────────────
+  // PRODUCTION SWAP: replace with a fetch() to your backend API.
+  // The cache + inFlight guard avoid duplicate API calls and
+  // produce stable links when the same URL is shared multiple times.
+  const linkCache = new Map();        // sourceUrl -> rippleUrl
+  const inFlight  = new Map();        // sourceUrl -> Promise<rippleUrl>
+
   function generateRippleLink(productUrl) {
-    const id = Math.random().toString(36).slice(2, 9);
-    return Promise.resolve(`https://sharewithripple.com/s/${id}`);
+    if (linkCache.has(productUrl)) return Promise.resolve(linkCache.get(productUrl));
+    if (inFlight.has(productUrl))  return inFlight.get(productUrl);
+
+    const promise = (async () => {
+      const id = Math.random().toString(36).slice(2, 9);
+      const rippleUrl = `https://sharewithripple.com/s/${id}`;
+      linkCache.set(productUrl, rippleUrl);
+      inFlight.delete(productUrl);
+      return rippleUrl;
+    })();
+
+    inFlight.set(productUrl, promise);
+    return promise;
   }
 
   // ── Toast notification ────────────────────────────────────────

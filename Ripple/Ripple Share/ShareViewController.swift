@@ -3,13 +3,15 @@ import UniformTypeIdentifiers
 
 class ShareViewController: UIViewController {
 
+    private var hasPresentedShareSheet = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
 
         extractURL { [weak self] url in
             DispatchQueue.main.async {
-                guard let self else { return }
+                guard let self, !self.hasPresentedShareSheet else { return }
                 guard let url else {
                     self.complete()
                     return
@@ -24,6 +26,9 @@ class ShareViewController: UIViewController {
     // MARK: - Re-share with the Ripple link
 
     private func presentShareSheet(with link: String) {
+        guard !hasPresentedShareSheet else { return }
+        hasPresentedShareSheet = true
+
         guard let rippleURL = URL(string: link) else {
             complete()
             return

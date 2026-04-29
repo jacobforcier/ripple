@@ -95,13 +95,26 @@ function setSuccess() {
   document.getElementById('product-title').textContent = meta.title || 'Product';
   showState('product');
 
-  document.getElementById('copy-btn').addEventListener('click', async () => {
+  // Cache: same source URL → same Ripple link for this popup session
+  let cachedRippleUrl = null;
+  let inFlight = false;
+
+  const btn = document.getElementById('copy-btn');
+  btn.addEventListener('click', async () => {
+    if (btn.disabled || inFlight) return;
+    inFlight = true;
+    btn.disabled = true;
     try {
-      const rippleUrl = await generateRippleLink(url);
-      await navigator.clipboard.writeText(rippleUrl);
+      if (!cachedRippleUrl) {
+        cachedRippleUrl = await generateRippleLink(url);
+      }
+      await navigator.clipboard.writeText(cachedRippleUrl);
       setSuccess();
     } catch (err) {
       console.error('[Ripple] Copy failed:', err);
+      btn.disabled = false;
+    } finally {
+      inFlight = false;
     }
   });
 })();
