@@ -296,9 +296,15 @@
     }
 
     .step-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
+      width: 40px;
+      height: 40px;
+      margin-bottom: 20px;
       display: block;
+      color: var(--accent);
+    }
+    .step-icon svg {
+      width: 40px;
+      height: 40px;
     }
 
     .step h3 {
@@ -386,6 +392,12 @@
       transition: border-color 0.2s, color 0.2s;
     }
     .store-pill:hover { border-color: var(--accent); color: var(--text); }
+    .store-pill.featured {
+      background: rgba(91,138,245,0.08);
+      border-color: rgba(91,138,245,0.35);
+      color: var(--text);
+      font-weight: 600;
+    }
     .store-pill.more {
       color: var(--accent);
       border-color: rgba(91,138,245,0.3);
@@ -470,6 +482,36 @@
     }
     .cta-form button:hover { opacity: 0.88; }
 
+    /* ── SOCIAL PROOF ── */
+    .social-proof {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+    }
+    .social-proof .avatars {
+      display: flex;
+    }
+    .social-proof .avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      margin-right: -8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .social-proof .avatar:last-child { margin-right: 0; }
+
     /* ── FOOTER ── */
     footer {
       border-top: 1px solid var(--border);
@@ -492,6 +534,13 @@
       font-size: 13px;
       color: var(--muted);
     }
+    footer a {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer a:hover { color: var(--text); }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 640px) {
@@ -545,6 +594,16 @@
       You're on the list. We'll reach out when Ripple is ready.
     </div>
 
+    <div class="social-proof" id="hero-social-proof">
+      <div class="avatars">
+        <div class="avatar">J</div>
+        <div class="avatar">M</div>
+        <div class="avatar">R</div>
+        <div class="avatar">S</div>
+      </div>
+      <span>Join <strong>200+</strong> people already on the waitlist</span>
+    </div>
+
     <p class="hero-note">No spam. Unsubscribe anytime.</p>
   </div>
 
@@ -559,19 +618,39 @@
     <div class="steps">
       <div class="step">
         <div class="step-num">01</div>
-        <span class="step-icon">🔌</span>
+        <span class="step-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="6" width="12" height="20" rx="3" stroke="#5b8af5" stroke-width="2"/>
+            <path d="M22 12h4a4 4 0 0 1 4 4v2a4 4 0 0 1-4 4h-4" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+            <path d="M14 30v4M18 30v4" stroke="#5b8af5" stroke-width="2" stroke-linecap="round"/>
+            <path d="M11 30h10" stroke="#5b8af5" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
         <h3>Install once</h3>
         <p>Add the Ripple extension to your browser. Takes about 30 seconds. You'll never think about it again.</p>
       </div>
       <div class="step">
         <div class="step-num">02</div>
-        <span class="step-icon">🔗</span>
+        <span class="step-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="10" r="4" stroke="#38bdf8" stroke-width="2"/>
+            <circle cx="30" cy="30" r="4" stroke="#38bdf8" stroke-width="2"/>
+            <circle cx="10" cy="20" r="4" stroke="#5b8af5" stroke-width="2"/>
+            <path d="M14 18l12-6M14 22l12 6" stroke="#5b8af5" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
         <h3>Share as you normally would</h3>
         <p>Find a product you love. Copy the link. Send it to your group chat, Slack, text thread — wherever. Ripple quietly handles the rest.</p>
       </div>
       <div class="step">
         <div class="step-num">03</div>
-        <span class="step-icon">💸</span>
+        <span class="step-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="13" stroke="#5b8af5" stroke-width="2"/>
+            <path d="M20 12v2M20 26v2" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+            <path d="M15.5 16.5a4.5 4.5 0 0 1 4.5-2.5c2.5 0 4.5 1.5 4.5 3.5s-2 3-4.5 3.5-4.5 1.5-4.5 3.5 2 3.5 4.5 3.5a4.5 4.5 0 0 0 4.5-2.5" stroke="#5b8af5" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
         <h3>Earn when they buy</h3>
         <p>When a friend purchases through your link, a small commission shows up in your Ripple dashboard. Accumulate until you cash out.</p>
       </div>
@@ -582,7 +661,7 @@
 
   <!-- THE HONEST PITCH -->
   <section>
-    <div class="section-label">The honest pitch</div>
+    <div class="section-label">What to expect</div>
     <h2>Not get-rich-quick.<br />Just get-something-back.</h2>
     <p class="section-sub">
       Ripple won't replace your income. But you were sharing these links for free — so why not get a small thank-you when it leads to a sale?
@@ -623,12 +702,12 @@
     </p>
 
     <div class="stores-list">
-      <div class="store-pill">Amazon</div>
-      <div class="store-pill">Target</div>
-      <div class="store-pill">Best Buy</div>
+      <div class="store-pill featured">Amazon</div>
+      <div class="store-pill featured">Target</div>
+      <div class="store-pill featured">Best Buy</div>
+      <div class="store-pill featured">Walmart</div>
       <div class="store-pill">Etsy</div>
       <div class="store-pill">REI</div>
-      <div class="store-pill">Walmart</div>
       <div class="store-pill">eBay</div>
       <div class="store-pill">Nordstrom</div>
       <div class="store-pill">Home Depot</div>
@@ -691,7 +770,10 @@
   <footer>
     <div class="footer-logo">ripple</div>
     <p>© 2026 Ripple. All rights reserved.</p>
-    <p>sharewithripple.com</p>
+    <div style="display:flex; gap: 20px; align-items: center;">
+      <a href="/privacy">Privacy Policy</a>
+      <p>sharewithripple.com</p>
+    </div>
   </footer>
 
   <script>
@@ -711,12 +793,13 @@
           if (res.ok) {
             form.style.display = 'none';
             success.style.display = 'block';
-            // Hide the hero note too
-            const note = form.nextElementSibling?.nextElementSibling;
-            if (note?.classList.contains('hero-note')) note.style.display = 'none';
+            // Hide social proof + hero note on success
+            const socialProof = document.getElementById('hero-social-proof');
+            if (socialProof) socialProof.style.display = 'none';
+            const note = form.parentElement?.querySelector('.hero-note');
+            if (note) note.style.display = 'none';
           }
         } catch (_) {
-          // Fallback: just show success anyway for demo purposes
           form.style.display = 'none';
           success.style.display = 'block';
         }
