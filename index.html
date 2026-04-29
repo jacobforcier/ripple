@@ -594,16 +594,6 @@
       You're on the list. We'll reach out when Ripple is ready.
     </div>
 
-    <div class="social-proof" id="hero-social-proof">
-      <div class="avatars">
-        <div class="avatar">J</div>
-        <div class="avatar">M</div>
-        <div class="avatar">R</div>
-        <div class="avatar">S</div>
-      </div>
-      <span>Join <strong>200+</strong> people already on the waitlist</span>
-    </div>
-
     <p class="hero-note">No spam. Unsubscribe anytime.</p>
   </div>
 
@@ -793,9 +783,7 @@
           if (res.ok) {
             form.style.display = 'none';
             success.style.display = 'block';
-            // Hide social proof + hero note on success
-            const socialProof = document.getElementById('hero-social-proof');
-            if (socialProof) socialProof.style.display = 'none';
+            // Hide hero note on success
             const note = form.parentElement?.querySelector('.hero-note');
             if (note) note.style.display = 'none';
           }
