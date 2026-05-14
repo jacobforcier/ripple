@@ -25,6 +25,9 @@ struct RootView: View {
             ShareView()
                 .tabItem { Label("Share", systemImage: "square.and.arrow.up") }
 
+            TrendingView()
+                .tabItem { Label("Trending", systemImage: "chart.line.uptrend.xyaxis") }
+
             RatesView()
                 .tabItem { Label("Rates", systemImage: "percent") }
 

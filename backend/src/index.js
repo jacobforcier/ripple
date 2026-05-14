@@ -4,6 +4,7 @@ import 'dotenv/config';
 
 import { linksRouter } from './routes/links.js';
 import { usersRouter } from './routes/users.js';
+import { trendingRouter } from './routes/trending.js';
 
 const app = express();
 const PORT = process.env.PORT || 8787;
@@ -39,6 +40,7 @@ app.get('/health', (_req, res) => {
 // ── Routes ───────────────────────────────────────────────────────────────────
 app.use('/v1/links', linksRouter);
 app.use('/v1/users', usersRouter);
+app.use('/v1/trending', trendingRouter);
 
 // ── 404 + error handling ─────────────────────────────────────────────────────
 app.use((_req, res) => {

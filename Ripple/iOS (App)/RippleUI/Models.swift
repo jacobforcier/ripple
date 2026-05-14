@@ -83,6 +83,34 @@ struct CreatedLink: Codable, Equatable {
     }
 }
 
+// MARK: - Trending
+
+/// A retailer in the trending feed. Mirrors `GET /v1/trending` — the backend
+/// returns `rank`, `retailer`, and `share_count`; `movement` is supplied by
+/// the mock for now (week-over-week rank deltas need a snapshots table the
+/// backend doesn't have yet, so the live path will just show `.steady`).
+struct TrendingMerchant: Identifiable, Codable, Equatable {
+    let rank: Int
+    let retailer: String
+    let shareCount: Int
+    var movement: TrendMovement = .steady
+
+    var id: String { retailer }
+
+    enum CodingKeys: String, CodingKey {
+        case rank, retailer
+        case shareCount = "share_count"
+    }
+}
+
+/// Week-over-week rank movement for a trending merchant.
+enum TrendMovement: Equatable {
+    case up(Int)
+    case down(Int)
+    case steady
+    case new
+}
+
 // MARK: - Retailer rate
 
 /// A typical commission rate for a retailer. Static reference data shown in

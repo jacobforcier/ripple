@@ -41,6 +41,7 @@ today; only real commission attribution is missing.
 | GET    | `/v1/links?user_id=`       | List a user's links with stats (dashboard / app)     |
 | GET    | `/v1/links/:id`            | Resolve a link + record a click (redirect page)      |
 | GET    | `/v1/users/:id/earnings`   | Earnings summary (dashboard / app)                   |
+| GET    | `/v1/trending`             | Top retailers shared in the last 7 days (Trending tab) |
 
 ### Examples
 

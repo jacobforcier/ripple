@@ -16,6 +16,7 @@ final class RippleStore: ObservableObject {
     @Published var links: [RippleLink] = []
     @Published var earnings: EarningsSummary = .zero
     @Published var rates: [RetailerRate] = []
+    @Published var trending: [TrendingMerchant] = []
 
     @Published var isLoading = false
     @Published var loadError: String?
@@ -36,9 +37,11 @@ final class RippleStore: ObservableObject {
             async let links = api.fetchLinks()
             async let earnings = api.fetchEarnings()
             async let rates = api.fetchRetailerRates()
+            async let trending = api.fetchTrending()
             self.links = try await links
             self.earnings = try await earnings
             self.rates = try await rates
+            self.trending = try await trending
         } catch {
             loadError = error.localizedDescription
         }

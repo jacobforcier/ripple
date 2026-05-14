@@ -22,6 +22,7 @@ protocol RippleAPIClient {
     func fetchEarnings() async throws -> EarningsSummary
     func createLink(sourceURL: String) async throws -> CreatedLink
     func fetchRetailerRates() async throws -> [RetailerRate]
+    func fetchTrending() async throws -> [TrendingMerchant]
 }
 
 enum RippleAPIError: LocalizedError {
@@ -172,6 +173,22 @@ actor MockRippleAPI: RippleAPIClient {
 
     func fetchRetailerRates() async throws -> [RetailerRate] {
         RetailerRateData.all
+    }
+
+    func fetchTrending() async throws -> [TrendingMerchant] {
+        try await Task.sleep(nanoseconds: 350_000_000)
+        return [
+            TrendingMerchant(rank: 1,  retailer: "Amazon",     shareCount: 1_284, movement: .steady),
+            TrendingMerchant(rank: 2,  retailer: "Target",     shareCount: 612,   movement: .up(1)),
+            TrendingMerchant(rank: 3,  retailer: "Etsy",       shareCount: 548,   movement: .up(2)),
+            TrendingMerchant(rank: 4,  retailer: "Walmart",    shareCount: 503,   movement: .down(2)),
+            TrendingMerchant(rank: 5,  retailer: "REI",        shareCount: 377,   movement: .new),
+            TrendingMerchant(rank: 6,  retailer: "Best Buy",   shareCount: 341,   movement: .down(1)),
+            TrendingMerchant(rank: 7,  retailer: "Wayfair",    shareCount: 298,   movement: .up(3)),
+            TrendingMerchant(rank: 8,  retailer: "Chewy",      shareCount: 264,   movement: .steady),
+            TrendingMerchant(rank: 9,  retailer: "Nordstrom",  shareCount: 211,   movement: .down(2)),
+            TrendingMerchant(rank: 10, retailer: "Home Depot", shareCount: 189,   movement: .new),
+        ]
     }
 
     // MARK: Helpers (mirror the backend's logic)
