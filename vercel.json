@@ -1,3 +1,6 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/google:path*", "destination": "/google:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
