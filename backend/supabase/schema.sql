@@ -1,0 +1,110 @@
+-- ═════════════════════════════════════════════════════════════════════════════
+--  Ripple — database schema (Supabase / Postgres)
+--
+--  Run this in the Supabase SQL editor to provision the database.
+--  The API connects with the service-role key and bypasses RLS; RLS policies
+--  below are a safety net for any future client-side (anon key) access.
+-- ═════════════════════════════════════════════════════════════════════════════
+
+-- ── Users ────────────────────────────────────────────────────────────────────
+-- One row per Ripple account. Payout identity (Stripe Connect) lives here too.
+create table if not exists users (
+    id                  uuid primary key default gen_random_uuid(),
+    email               text unique not null,
+    display_name        text,                       -- shown on the redirect page ("Jacob shared this")
+    stripe_connect_id   text,                       -- set when the user onboards for payouts
+    created_at          timestamptz not null default now()
+);
+
+-- ── Links ────────────────────────────────────────────────────────────────────
+-- One row per Ripple link. `id` is the short code in sharewithripple.com/s/<id>.
+-- `affiliate_url` is the tracked URL from the affiliate network — null until the
+-- network integration is live (currently passthrough of source_url).
+create table if not exists links (
+    id              text primary key,               -- short code, e.g. "k7m2xqp"
+    user_id         uuid references users(id) on delete set null,
+    source_url      text not null,                  -- original product URL the user shared
+    affiliate_url   text,                           -- tracked URL (null = not yet generated)
+    retailer        text,                           -- e.g. "Amazon" — derived from source_url
+    created_at      timestamptz not null default now()
+);
+
+create index if not exists links_user_id_idx on links(user_id);
+create index if not exists links_created_at_idx on links(created_at desc);
+
+-- ── Clicks ───────────────────────────────────────────────────────────────────
+-- One row per click on a Ripple link. ip_hash is a salted hash, never a raw IP.
+create table if not exists clicks (
+    id          uuid primary key default gen_random_uuid(),
+    link_id     text not null references links(id) on delete cascade,
+    ip_hash     text,                               -- salted SHA-256, for dedup / fraud signals
+    user_agent  text,
+    clicked_at  timestamptz not null default now()
+);
+
+create index if not exists clicks_link_id_idx on clicks(link_id);
+create index if not exists clicks_clicked_at_idx on clicks(clicked_at desc);
+
+-- ── Commissions ──────────────────────────────────────────────────────────────
+-- One row per attributed sale. Populated later by a webhook/poller from the
+-- affiliate network. status lifecycle: pending -> confirmed -> paid.
+--   gross_cents = commission paid to the platform by the network
+--   user_cents  = the sharer's cut after the platform margin
+create table if not exists commissions (
+    id              uuid primary key default gen_random_uuid(),
+    link_id         text references links(id) on delete set null,
+    user_id         uuid references users(id) on delete set null,
+    retailer        text,
+    gross_cents     integer not null default 0,
+    user_cents      integer not null default 0,
+    status          text not null default 'pending'
+                        check (status in ('pending', 'confirmed', 'paid')),
+    occurred_at     timestamptz not null default now(),  -- when the sale happened
+    confirmed_at    timestamptz,                         -- when the network confirmed it
+    created_at      timestamptz not null default now()
+);
+
+create index if not exists commissions_user_id_idx on commissions(user_id);
+create index if not exists commissions_link_id_idx on commissions(link_id);
+create index if not exists commissions_status_idx on commissions(status);
+
+-- ── View: per-link stats ─────────────────────────────────────────────────────
+-- Backs the "your links" list in the dashboard / iOS app.
+create or replace view link_stats as
+select
+    l.id,
+    l.user_id,
+    l.source_url,
+    l.retailer,
+    l.created_at,
+    count(distinct c.id)                                          as click_count,
+    coalesce(sum(cm.user_cents), 0)                               as earned_cents,
+    coalesce(sum(cm.user_cents) filter (where cm.status = 'pending'), 0)   as pending_cents,
+    coalesce(sum(cm.user_cents) filter (where cm.status = 'confirmed'), 0) as confirmed_cents,
+    coalesce(sum(cm.user_cents) filter (where cm.status = 'paid'), 0)      as paid_cents
+from links l
+left join clicks c       on c.link_id = l.id
+left join commissions cm on cm.link_id = l.id
+group by l.id;
+
+-- ── View: per-user earnings summary ──────────────────────────────────────────
+-- Backs the earnings header in the dashboard / iOS app.
+create or replace view user_earnings as
+select
+    u.id as user_id,
+    coalesce(sum(cm.user_cents), 0)                                       as lifetime_cents,
+    coalesce(sum(cm.user_cents) filter (where cm.status = 'pending'), 0)   as pending_cents,
+    coalesce(sum(cm.user_cents) filter (where cm.status = 'confirmed'), 0) as confirmed_cents,
+    coalesce(sum(cm.user_cents) filter (where cm.status = 'paid'), 0)      as paid_cents
+from users u
+left join commissions cm on cm.user_id = u.id
+group by u.id;
+
+-- ── Row-level security ───────────────────────────────────────────────────────
+-- The API uses the service-role key, which bypasses RLS. These policies only
+-- matter if/when a client ever connects with the anon key. Default-deny is the
+-- safe posture until that's designed.
+alter table users       enable row level security;
+alter table links       enable row level security;
+alter table clicks      enable row level security;
+alter table commissions enable row level security;
