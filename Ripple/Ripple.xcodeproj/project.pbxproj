@@ -10,6 +10,7 @@
 		222B717A4FBA4A48A14EB1BD /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3BE300B8B362E82EF69311D /* Theme.swift */; };
 		2FA781BF88DD77AAB17C8297 /* RatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63FBF41D47363F3CA3358C8 /* RatesView.swift */; };
 		3CD6CA5E11AF14BFF211A90E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF05E60A5B4AFBE04BCF280 /* Models.swift */; };
+		4C6162D689DF73375234CBF8 /* LiveRippleAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF41C91A445D15BB096E80F9 /* LiveRippleAPI.swift */; };
 		4DE946257D565E6E0BA68A77 /* RippleAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020382C60B8DA4025E7CBE2F /* RippleAPI.swift */; };
 		50FFC0FC006A546F0A62930D /* LinksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */; };
 		5F9801FDF38A7D43E9DCA68A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */; };
@@ -158,6 +159,7 @@
 		E3BE300B8B362E82EF69311D /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		ED65B61FC7B4C65442F8DA27 /* ShareView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		F63FBF41D47363F3CA3358C8 /* RatesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RatesView.swift; sourceTree = "<group>"; };
+		FF41C91A445D15BB096E80F9 /* LiveRippleAPI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveRippleAPI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -241,6 +243,7 @@
 				F63FBF41D47363F3CA3358C8 /* RatesView.swift */,
 				D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */,
 				AADA189496906C1ED9F17981 /* TrendingView.swift */,
+				FF41C91A445D15BB096E80F9 /* LiveRippleAPI.swift */,
 			);
 			name = RippleUI;
 			path = RippleUI;
@@ -637,6 +640,7 @@
 				2FA781BF88DD77AAB17C8297 /* RatesView.swift in Sources */,
 				5F9801FDF38A7D43E9DCA68A /* SettingsView.swift in Sources */,
 				AB708D167AF9401AF4E4CA1A /* TrendingView.swift in Sources */,
+				4C6162D689DF73375234CBF8 /* LiveRippleAPI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2,15 +2,14 @@
 //  RippleAPI.swift
 //  Ripple (iOS)
 //
-//  The app talks to this protocol, never to a concrete client. Today the
-//  only implementation is MockRippleAPI (in-memory sample data). When the
-//  backend is deployed, add a LiveRippleAPI that hits:
+//  The app talks to the RippleAPIClient protocol, never a concrete client.
+//  Two implementations:
+//    - LiveRippleAPI  — talks to the real backend at api.sharewithripple.com
+//                       (see LiveRippleAPI.swift). This is what the app uses.
+//    - MockRippleAPI  — in-memory sample data, for SwiftUI previews and
+//                       offline development.
 //
-//      POST /v1/links               -> createLink
-//      GET  /v1/links?user_id=      -> fetchLinks
-//      GET  /v1/users/:id/earnings  -> fetchEarnings
-//
-//  and swap the one line in RootView that constructs the client.
+//  RootView constructs the client; swapping implementations is one line there.
 //
 
 import Foundation
@@ -38,18 +37,13 @@ enum RippleAPIError: LocalizedError {
 }
 
 /// Shared JSON decoder configured for the backend's timestamp format.
-/// Used by the future LiveRippleAPI; kept here so the config lives in one place.
+/// Kept here so the date-handling config lives in one place.
 enum RippleJSON {
     static let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        let withFractional = ISO8601DateFormatter()
-        withFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let plain = ISO8601DateFormatter()
-        plain.formatOptions = [.withInternetDateTime]
-
         decoder.dateDecodingStrategy = .custom { decoder in
             let raw = try decoder.singleValueContainer().decode(String.self)
-            if let date = withFractional.date(from: raw) ?? plain.date(from: raw) {
+            if let date = parseTimestamp(raw) {
                 return date
             }
             throw DecodingError.dataCorrupted(
@@ -59,6 +53,40 @@ enum RippleJSON {
         }
         return decoder
     }()
+
+    /// Parses the timestamp formats Postgres / PostgREST emit. Supabase returns
+    /// microsecond fractional seconds (e.g. `...:10.619843+00:00`), which
+    /// ISO8601DateFormatter rejects — so fractional seconds are first
+    /// normalized to the 3 digits it accepts.
+    static func parseTimestamp(_ raw: String) -> Date? {
+        let normalized = normalizeFraction(raw)
+
+        let withFraction = ISO8601DateFormatter()
+        withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = withFraction.date(from: normalized) { return date }
+
+        let plain = ISO8601DateFormatter()
+        plain.formatOptions = [.withInternetDateTime]
+        return plain.date(from: normalized)
+    }
+
+    /// Trims/pads the fractional-seconds component to exactly 3 digits.
+    private static func normalizeFraction(_ s: String) -> String {
+        guard let dot = s.firstIndex(of: ".") else { return s }
+
+        var frac = ""
+        var i = s.index(after: dot)
+        while i < s.endIndex, s[i].isNumber {
+            frac.append(s[i])
+            i = s.index(after: i)
+        }
+        guard !frac.isEmpty else { return s }
+
+        let head = String(s[..<dot])
+        let rest = String(s[i...])               // timezone designator, etc.
+        let threeDigits = String((frac + "000").prefix(3))
+        return "\(head).\(threeDigits)\(rest)"
+    }
 }
 
 // MARK: - Mock implementation

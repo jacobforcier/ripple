@@ -9,9 +9,9 @@ import SwiftUI
 
 struct RootView: View {
 
-    // SWAP POINT: replace MockRippleAPI() with LiveRippleAPI(...) once the
-    // backend is deployed. Nothing else in the app needs to change.
-    @StateObject private var store = RippleStore(api: MockRippleAPI())
+    // Talks to the real backend. Swap to MockRippleAPI() for offline work or
+    // SwiftUI previews — nothing else in the app needs to change.
+    @StateObject private var store = RippleStore(api: LiveRippleAPI())
 
     init() {
         Self.configureAppearance()
