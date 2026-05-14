@@ -1,6 +1,6 @@
 {
-  "rewrites": [
-    { "source": "/google:path*", "destination": "/google:path*" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
