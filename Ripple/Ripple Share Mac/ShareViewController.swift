@@ -34,15 +34,25 @@ class ShareViewController: NSViewController {
         setupUI()
 
         extractURL { [weak self] url in
-            DispatchQueue.main.async {
-                guard let self, !self.hasGeneratedLink else { return }
-                guard let url else {
+            guard let self else { return }
+            guard let url else {
+                DispatchQueue.main.async {
                     self.statusLabel.stringValue = "No link found to share."
-                    return
                 }
-                self.hasGeneratedLink = true
+                return
+            }
+            Task { await self.generateAndShow(from: url) }
+        }
+    }
 
-                let rippleLink = self.generateRippleLink(from: url)
+    // MARK: - Generate the Ripple link, then show + copy it
+
+    private func generateAndShow(from url: URL) async {
+        do {
+            let rippleLink = try await RippleLinkService.shared.createLink(from: url)
+            await MainActor.run {
+                guard !self.hasGeneratedLink else { return }
+                self.hasGeneratedLink = true
 
                 let pasteboard = NSPasteboard.general
                 pasteboard.clearContents()
@@ -51,6 +61,10 @@ class ShareViewController: NSViewController {
                 self.statusLabel.stringValue = "Ripple link copied to your clipboard"
                 self.linkField.stringValue = rippleLink
                 self.linkField.isHidden = false
+            }
+        } catch {
+            await MainActor.run {
+                self.statusLabel.stringValue = error.localizedDescription
             }
         }
     }
@@ -115,14 +129,6 @@ class ShareViewController: NSViewController {
 
     @objc private func done() {
         extensionContext?.completeRequest(returningItems: nil)
-    }
-
-    // MARK: - Link generation
-    //
-    // DEMO MODE — swap this when the affiliate backend is live.
-    private func generateRippleLink(from url: URL) -> String {
-        let id = String(Int.random(in: 0x10000...0xFFFFF), radix: 36)
-        return "https://sharewithripple.com/s/\(id)"
     }
 
     // MARK: - URL extraction
