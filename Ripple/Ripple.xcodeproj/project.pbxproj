@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		222B717A4FBA4A48A14EB1BD /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3BE300B8B362E82EF69311D /* Theme.swift */; };
+		2FA781BF88DD77AAB17C8297 /* RatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63FBF41D47363F3CA3358C8 /* RatesView.swift */; };
+		3CD6CA5E11AF14BFF211A90E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF05E60A5B4AFBE04BCF280 /* Models.swift */; };
+		4DE946257D565E6E0BA68A77 /* RippleAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020382C60B8DA4025E7CBE2F /* RippleAPI.swift */; };
+		50FFC0FC006A546F0A62930D /* LinksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */; };
+		5F9801FDF38A7D43E9DCA68A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */; };
 		5FCDAA0EFEC157062AB21957 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E14D3C941A51164A97C849 /* ShareViewController.swift */; };
 		8C9F79902FA1444100A65CCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F798F2FA1444100A65CCD /* AppDelegate.swift */; };
 		8C9F79922FA1444100A65CCD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F79912FA1444100A65CCD /* SceneDelegate.swift */; };
@@ -43,7 +49,10 @@
 		8C9F79E92FA1444200A65CCD /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DD2FA1444200A65CCD /* manifest.json */; };
 		8C9F79EA2FA1444200A65CCD /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79DE2FA1444200A65CCD /* content.js */; };
 		8CCF330B2FA1A53B00F80B40 /* Ripple Share.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8CCF33012FA1A53B00F80B40 /* Ripple Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8D345F6E170E52B50DD85528 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3219112CFDD972CC07554D58 /* RootView.swift */; };
+		90575BCA56A89EFE4BE6526C /* RippleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372453C916690EE7A273524F /* RippleStore.swift */; };
 		9A96CFE276924167E9EA91BD /* Ripple Share Mac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 708E241288665B25479DB7FB /* Ripple Share Mac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C548CAE3EE9A6CCFA39318E9 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED65B61FC7B4C65442F8DA27 /* ShareView.swift */; };
 		CB9EBF05FD2FF0CECB09219A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD8DCE44249E73697B5225F0 /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -106,7 +115,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		020382C60B8DA4025E7CBE2F /* RippleAPI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RippleAPI.swift; sourceTree = "<group>"; };
+		3219112CFDD972CC07554D58 /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		324EE8076D7975830B907DB9 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		372453C916690EE7A273524F /* RippleStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RippleStore.swift; sourceTree = "<group>"; };
 		708E241288665B25479DB7FB /* Ripple Share Mac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Ripple Share Mac.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C9F79802FA1443F00A65CCD /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
 		8C9F79812FA1443F00A65CCD /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
@@ -136,8 +148,14 @@
 		8C9F79DD2FA1444200A65CCD /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../extension/manifest.json; sourceTree = "<group>"; };
 		8C9F79DE2FA1444200A65CCD /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../extension/content.js; sourceTree = "<group>"; };
 		8CCF33012FA1A53B00F80B40 /* Ripple Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Ripple Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LinksView.swift; sourceTree = "<group>"; };
 		B0E14D3C941A51164A97C849 /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		CCF05E60A5B4AFBE04BCF280 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		DD8DCE44249E73697B5225F0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		E3BE300B8B362E82EF69311D /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		ED65B61FC7B4C65442F8DA27 /* ShareView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
+		F63FBF41D47363F3CA3358C8 /* RatesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RatesView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -208,6 +226,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1845FD71E675F434446954F8 /* RippleUI */ = {
+			isa = PBXGroup;
+			children = (
+				E3BE300B8B362E82EF69311D /* Theme.swift */,
+				CCF05E60A5B4AFBE04BCF280 /* Models.swift */,
+				020382C60B8DA4025E7CBE2F /* RippleAPI.swift */,
+				372453C916690EE7A273524F /* RippleStore.swift */,
+				3219112CFDD972CC07554D58 /* RootView.swift */,
+				B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */,
+				ED65B61FC7B4C65442F8DA27 /* ShareView.swift */,
+				F63FBF41D47363F3CA3358C8 /* RatesView.swift */,
+				D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */,
+			);
+			name = RippleUI;
+			path = RippleUI;
+			sourceTree = "<group>";
+		};
 		601DDC7735768C5FEDDFF7CD /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -283,6 +318,7 @@
 				8C9F79932FA1444100A65CCD /* LaunchScreen.storyboard */,
 				8C9F79962FA1444100A65CCD /* Main.storyboard */,
 				8C9F79992FA1444100A65CCD /* Info.plist */,
+				1845FD71E675F434446954F8 /* RippleUI */,
 			);
 			path = "iOS (App)";
 			sourceTree = "<group>";
@@ -588,6 +624,15 @@
 				8C9F79C22FA1444100A65CCD /* ViewController.swift in Sources */,
 				8C9F79902FA1444100A65CCD /* AppDelegate.swift in Sources */,
 				8C9F79922FA1444100A65CCD /* SceneDelegate.swift in Sources */,
+				222B717A4FBA4A48A14EB1BD /* Theme.swift in Sources */,
+				3CD6CA5E11AF14BFF211A90E /* Models.swift in Sources */,
+				4DE946257D565E6E0BA68A77 /* RippleAPI.swift in Sources */,
+				90575BCA56A89EFE4BE6526C /* RippleStore.swift in Sources */,
+				8D345F6E170E52B50DD85528 /* RootView.swift in Sources */,
+				50FFC0FC006A546F0A62930D /* LinksView.swift in Sources */,
+				C548CAE3EE9A6CCFA39318E9 /* ShareView.swift in Sources */,
+				2FA781BF88DD77AAB17C8297 /* RatesView.swift in Sources */,
+				5F9801FDF38A7D43E9DCA68A /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
