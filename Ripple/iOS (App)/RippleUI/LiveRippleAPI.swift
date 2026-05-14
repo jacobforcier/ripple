@@ -15,7 +15,18 @@ import Foundation
 actor LiveRippleAPI: RippleAPIClient {
 
     private let baseURL = "https://api.sharewithripple.com"
+
+    // Anonymous user identity is stored in the shared App Group so the main
+    // app and the Share Extension attribute links to the same person. These
+    // two values must match RippleLinkService in the Share Extension.
+    private static let appGroupID = "group.com.ripple.sharewithripple"
     private static let userIdKey = "ripple.anonymousUserId"
+
+    /// Shared App Group defaults, falling back to standard defaults if the
+    /// App Group isn't available (e.g. entitlement not yet provisioned).
+    private var sharedDefaults: UserDefaults {
+        UserDefaults(suiteName: Self.appGroupID) ?? .standard
+    }
 
     private var cachedUserId: String?
 
@@ -60,16 +71,18 @@ actor LiveRippleAPI: RippleAPIClient {
     // MARK: - Anonymous user
 
     /// This install's anonymous user id, created and persisted on first use.
+    /// Shared with the Share Extension via the App Group.
     private func userId() async throws -> String {
         if let cachedUserId { return cachedUserId }
 
-        if let stored = UserDefaults.standard.string(forKey: Self.userIdKey) {
+        let defaults = sharedDefaults
+        if let stored = defaults.string(forKey: Self.userIdKey) {
             cachedUserId = stored
             return stored
         }
 
         let response: CreateUserResponse = try await send("POST", "/v1/users")
-        UserDefaults.standard.set(response.id, forKey: Self.userIdKey)
+        defaults.set(response.id, forKey: Self.userIdKey)
         cachedUserId = response.id
         return response.id
     }

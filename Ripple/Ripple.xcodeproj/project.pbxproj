@@ -121,6 +121,7 @@
 		3219112CFDD972CC07554D58 /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		324EE8076D7975830B907DB9 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		372453C916690EE7A273524F /* RippleStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RippleStore.swift; sourceTree = "<group>"; };
+		6BD102EC98F9B34592459C14 /* RippleApp.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = RippleApp.entitlements; sourceTree = "<group>"; };
 		708E241288665B25479DB7FB /* Ripple Share Mac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Ripple Share Mac.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C9F79802FA1443F00A65CCD /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
 		8C9F79812FA1443F00A65CCD /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
@@ -245,7 +246,6 @@
 				AADA189496906C1ED9F17981 /* TrendingView.swift */,
 				FF41C91A445D15BB096E80F9 /* LiveRippleAPI.swift */,
 			);
-			name = RippleUI;
 			path = RippleUI;
 			sourceTree = "<group>";
 		};
@@ -325,6 +325,7 @@
 				8C9F79962FA1444100A65CCD /* Main.storyboard */,
 				8C9F79992FA1444100A65CCD /* Info.plist */,
 				1845FD71E675F434446954F8 /* RippleUI */,
+				6BD102EC98F9B34592459C14 /* RippleApp.entitlements */,
 			);
 			path = "iOS (App)";
 			sourceTree = "<group>";
@@ -383,7 +384,6 @@
 				B0E14D3C941A51164A97C849 /* ShareViewController.swift */,
 				324EE8076D7975830B907DB9 /* Info.plist */,
 			);
-			name = "Ripple Share Mac";
 			path = "Ripple Share Mac";
 			sourceTree = "<group>";
 		};
@@ -963,6 +963,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "iOS (App)/RippleApp.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 856ZD9L98G;
@@ -1004,6 +1005,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "iOS (App)/RippleApp.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 856ZD9L98G;
@@ -1200,6 +1202,7 @@
 		8CCF330C2FA1A53B00F80B40 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Ripple Share/RippleShare.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 856ZD9L98G;
@@ -1230,6 +1233,7 @@
 		8CCF330D2FA1A53B00F80B40 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Ripple Share/RippleShare.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 856ZD9L98G;

@@ -4,26 +4,66 @@ import UniformTypeIdentifiers
 class ShareViewController: UIViewController {
 
     private var hasPresentedShareSheet = false
+    private let spinner = UIActivityIndicatorView(style: .large)
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .clear
+        // Slight dim so the spinner reads against the host app's content
+        // while the Ripple link is being generated.
+        view.backgroundColor = UIColor(white: 0, alpha: 0.15)
+        setupSpinner()
 
         extractURL { [weak self] url in
-            DispatchQueue.main.async {
-                guard let self, !self.hasPresentedShareSheet else { return }
-                guard let url else {
-                    self.complete()
-                    return
-                }
-                let rippleLink = self.generateRippleLink(from: url)
+            guard let self else { return }
+            guard let url else {
+                DispatchQueue.main.async { self.complete() }
+                return
+            }
+            Task { await self.generateAndShare(from: url) }
+        }
+    }
+
+    private func setupSpinner() {
+        spinner.color = .white
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.startAnimating()
+        view.addSubview(spinner)
+        NSLayoutConstraint.activate([
+            spinner.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            spinner.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ])
+    }
+
+    // MARK: - Generate the Ripple link, then re-share it
+
+    private func generateAndShare(from url: URL) async {
+        do {
+            let rippleLink = try await RippleLinkService.shared.createLink(from: url)
+            await MainActor.run {
+                guard !self.hasPresentedShareSheet else { return }
+                self.spinner.stopAnimating()
                 UIPasteboard.general.string = rippleLink   // safety net
                 self.presentShareSheet(with: rippleLink)
+            }
+        } catch {
+            await MainActor.run {
+                self.spinner.stopAnimating()
+                self.showError(error)
             }
         }
     }
 
-    // MARK: - Re-share with the Ripple link
+    private func showError(_ error: Error) {
+        let alert = UIAlertController(
+            title: "Couldn't create a Ripple link",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { [weak self] _ in
+            self?.complete()
+        })
+        present(alert, animated: true)
+    }
 
     private func presentShareSheet(with link: String) {
         guard !hasPresentedShareSheet else { return }
@@ -57,14 +97,6 @@ class ShareViewController: UIViewController {
         }
 
         present(activity, animated: true)
-    }
-
-    // MARK: - Link generation
-    //
-    // DEMO MODE — swap this when the affiliate backend is live.
-    private func generateRippleLink(from url: URL) -> String {
-        let id = String(Int.random(in: 0x10000...0xFFFFF), radix: 36)
-        return "https://sharewithripple.com/s/\(id)"
     }
 
     // MARK: - URL extraction
