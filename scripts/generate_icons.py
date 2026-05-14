@@ -142,6 +142,10 @@ def main():
     write_resized(light, f'{largeicon}/icon@2x.png', 512)
     write_resized(light, f'{largeicon}/icon@3x.png', 768)
 
+    # ── Container app in-app icon (referenced by Main.html) ──────
+    print('Container app Icon.png:')
+    write_resized(light, f'{base}/Ripple/Shared (App)/Resources/Icon.png', 512)
+
     print('Extension toolbar icons:')
     for size in [16, 48, 128]:
         write_resized(light, f'{base}/extension/icons/icon{size}.png', size)

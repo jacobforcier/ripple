@@ -2,15 +2,24 @@
     -webkit-user-select: none;
     -webkit-user-drag: none;
     cursor: default;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 :root {
-    color-scheme: light dark;
-
-    --spacing: 20px;
+    --bg:      #07070f;
+    --surface: rgba(255, 255, 255, 0.04);
+    --border:  rgba(255, 255, 255, 0.08);
+    --accent:  #5b8af5;
+    --accent2: #38bdf8;
+    --text:    #eeeeff;
+    --muted:   #7878a0;
+    --on:      #34d399;
+    --off:     #f87171;
 }
 
-html {
+html, body {
     height: 100%;
 }
 
@@ -18,44 +27,121 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
+    padding: 32px;
 
-    gap: var(--spacing);
-    margin: 0 calc(var(--spacing) * 2);
-    height: 100%;
-
-    font: -apple-system-short-body;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, system-ui, sans-serif;
     text-align: center;
+
+    /* radial brand glow behind the card */
+    background-image: radial-gradient(
+        ellipse at 50% 38%,
+        rgba(91, 138, 245, 0.13) 0%,
+        transparent 62%
+    );
 }
 
+.card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 420px;
+    width: 100%;
+}
+
+.icon {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 20px;
+}
+.icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.wordmark {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.tagline {
+    margin-top: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.blurb {
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+/* ── Status block ── */
+.status {
+    margin-top: 28px;
+    padding: 22px 24px;
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+.status p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+}
+.status strong { font-weight: 600; }
+
+.status-dot {
+    display: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+}
+body.state-on  .status-dot { display: block; background: var(--on);  box-shadow: 0 0 10px rgba(52, 211, 153, 0.6); }
+body.state-off .status-dot { display: block; background: var(--off); box-shadow: 0 0 10px rgba(248, 113, 113, 0.5); }
+
+button.open-preferences {
+    margin-top: 18px;
+    padding: 11px 20px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+button.open-preferences:hover  { opacity: 0.88; }
+button.open-preferences:active { opacity: 0.75; }
+
+.footnote {
+    margin-top: 24px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+/* ── Platform / state visibility (drives Script.js classes) ── */
 body:not(.platform-mac, .platform-ios) :is(.platform-mac, .platform-ios) {
     display: none;
 }
+body.platform-ios .platform-mac { display: none; }
+body.platform-mac .platform-ios { display: none; }
 
-body.platform-ios .platform-mac {
-    display: none;
-}
-
-body.platform-mac .platform-ios {
-    display: none;
-}
-
-body.platform-ios .platform-mac {
-    display: none;
-}
-
-body:not(.state-on, .state-off) :is(.state-on, .state-off) {
-    display: none;
-}
-
-body.state-on :is(.state-off, .state-unknown) {
-    display: none;
-}
-
-body.state-off :is(.state-on, .state-unknown) {
-    display: none;
-}
-
-button {
-    font-size: 1em;
-}
+body:not(.state-on, .state-off) :is(.state-on, .state-off) { display: none; }
+body.state-on  :is(.state-off, .state-unknown) { display: none; }
+body.state-off :is(.state-on,  .state-unknown) { display: none; }

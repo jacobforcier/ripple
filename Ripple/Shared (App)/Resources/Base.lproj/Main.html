@@ -10,11 +10,55 @@
     <script src="../Script.js" defer></script>
 </head>
 <body>
-    <img src="../Icon.png" width="128" height="128" alt="Ripple Icon">
-    <p class="platform-ios">You can turn on Ripple’s Safari extension in Settings.</p>
-    <p class="platform-mac state-unknown">You can turn on Ripple’s extension in Safari Extensions preferences.</p>
-    <p class="platform-mac state-on">Ripple’s extension is currently on. You can turn it off in Safari Extensions preferences.</p>
-    <p class="platform-mac state-off">Ripple’s extension is currently off. You can turn it on in Safari Extensions preferences.</p>
-    <button class="platform-mac open-preferences">Quit and Open Safari Extensions Preferences…</button>
+    <div class="card">
+        <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#5b8af5"/>
+                        <stop offset="1" stop-color="#38bdf8"/>
+                    </linearGradient>
+                </defs>
+                <rect width="120" height="120" rx="27" fill="#07070f"/>
+                <circle cx="60" cy="60" r="11" fill="none" stroke="url(#ring)" stroke-width="2.6" opacity="0.95"/>
+                <circle cx="60" cy="60" r="20" fill="none" stroke="url(#ring)" stroke-width="2.6" opacity="0.7"/>
+                <circle cx="60" cy="60" r="29" fill="none" stroke="url(#ring)" stroke-width="2.6" opacity="0.45"/>
+                <circle cx="60" cy="60" r="38" fill="none" stroke="url(#ring)" stroke-width="2.6" opacity="0.25"/>
+                <circle cx="60" cy="60" r="47" fill="none" stroke="url(#ring)" stroke-width="2.6" opacity="0.12"/>
+            </svg>
+        </div>
+
+        <div class="wordmark">ripple</div>
+        <p class="tagline">Word of mouth, finally rewarded.</p>
+        <p class="blurb">
+            Ripple quietly turns the product links you already share into a small
+            commission — no influencer account, no extra steps.
+        </p>
+
+        <div class="status">
+            <span class="status-dot" aria-hidden="true"></span>
+
+            <p class="platform-ios">
+                To start, turn Ripple on in <strong>Settings&nbsp;→&nbsp;Apps&nbsp;→&nbsp;Safari&nbsp;→&nbsp;Extensions</strong>.
+                You can also use the Ripple button in your iOS Share sheet.
+            </p>
+
+            <p class="platform-mac state-unknown">
+                You can turn on Ripple’s extension in Safari Extensions preferences.
+            </p>
+            <p class="platform-mac state-on">
+                Ripple’s extension is currently on. You can turn it off in Safari Extensions preferences.
+            </p>
+            <p class="platform-mac state-off">
+                Ripple’s extension is currently off. You can turn it on in Safari Extensions preferences.
+            </p>
+
+            <button class="platform-mac open-preferences">Quit &amp; Open Safari Extensions Preferences…</button>
+        </div>
+
+        <p class="footnote">
+            Every Ripple link shows a clear disclosure to whoever clicks it. Honest by design.
+        </p>
+    </div>
 </body>
 </html>
