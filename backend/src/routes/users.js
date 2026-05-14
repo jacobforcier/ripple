@@ -3,6 +3,27 @@ import { db } from '../db.js';
 
 export const usersRouter = Router();
 
+// ── POST /v1/users ───────────────────────────────────────────────────────────
+// Creates an anonymous user — a row with no email yet. Ripple is anonymous-
+// first: a user can share and earn immediately, with zero signup. The client
+// calls this once on first run, persists the returned id locally, and sends
+// it as `user_id` on every link it creates. A real account (email/auth) is
+// collected later, at payout time, when the user claims their balance.
+//   201: { id }
+usersRouter.post('/', async (_req, res) => {
+  const { data, error } = await db
+    .from('users')
+    .insert({})
+    .select('id')
+    .single();
+
+  if (error) {
+    console.error('[users] create failed:', error);
+    return res.status(500).json({ error: 'Failed to create user' });
+  }
+  return res.status(201).json({ id: data.id });
+});
+
 // ── GET /v1/users/:id/earnings ───────────────────────────────────────────────
 // Earnings summary for one user. Backs the earnings header in the dashboard /
 // iOS app. Amounts are the user's cut (after platform margin), in cents.

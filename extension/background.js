@@ -14,12 +14,30 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
   }
 });
 
-// Creates a Ripple link for a product URL via POST /v1/links.
+// Returns this install's anonymous Ripple user id, creating one on first use.
+// Ripple is anonymous-first: no signup, but every link still needs a user to
+// attribute its earnings to. The id is created once via POST /v1/users and
+// persisted in chrome.storage.local for the life of the install.
+async function getOrCreateUserId() {
+  const { rippleUserId } = await chrome.storage.local.get('rippleUserId');
+  if (rippleUserId) return rippleUserId;
+
+  const res = await fetch(`${API_BASE}/v1/users`, { method: 'POST' });
+  if (!res.ok) throw new Error(`Ripple API error ${res.status}`);
+  const data = await res.json();
+
+  await chrome.storage.local.set({ rippleUserId: data.id });
+  return data.id;
+}
+
+// Creates a Ripple link for a product URL via POST /v1/links, attributed to
+// this install's anonymous user so the earnings flow back to them.
 async function createRippleLink(sourceUrl) {
+  const userId = await getOrCreateUserId();
   const res = await fetch(`${API_BASE}/v1/links`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ source_url: sourceUrl }),
+    body: JSON.stringify({ source_url: sourceUrl, user_id: userId }),
   });
   if (!res.ok) throw new Error(`Ripple API error ${res.status}`);
   const data = await res.json();

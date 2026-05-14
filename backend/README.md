@@ -67,11 +67,18 @@ To deploy:
 | Method | Path                       | Purpose                                              |
 |--------|----------------------------|------------------------------------------------------|
 | GET    | `/health`                  | Liveness check                                       |
-| POST   | `/v1/links`                | Create a Ripple link                                 |
+| POST   | `/v1/users`                | Create an anonymous user (first run) → `{ id }`      |
+| POST   | `/v1/links`                | Create a Ripple link (pass `user_id` to attribute it) |
 | GET    | `/v1/links?user_id=`       | List a user's links with stats (dashboard / app)     |
 | GET    | `/v1/links/:id`            | Resolve a link + record a click (redirect page)      |
 | GET    | `/v1/users/:id/earnings`   | Earnings summary (dashboard / app)                   |
 | GET    | `/v1/trending`             | Top retailers shared in the last 7 days (Trending tab) |
+
+### Migrations
+
+`supabase/schema.sql` is the full schema for a fresh setup. Incremental
+changes to an already-provisioned database live in `supabase/migrations/`
+— run each new file once in the Supabase SQL editor.
 
 ### Examples
 

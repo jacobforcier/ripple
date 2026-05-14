@@ -7,10 +7,13 @@
 -- ═════════════════════════════════════════════════════════════════════════════
 
 -- ── Users ────────────────────────────────────────────────────────────────────
--- One row per Ripple account. Payout identity (Stripe Connect) lives here too.
+-- One row per Ripple user. Anonymous-first: a user can share and earn before
+-- they have an email. `email` is collected later, at payout time, when the
+-- user creates a real account and claims their balance — so it's nullable.
+-- The UNIQUE constraint still holds (Postgres allows multiple NULLs).
 create table if not exists users (
     id                  uuid primary key default gen_random_uuid(),
-    email               text unique not null,
+    email               text unique,                -- null until the user creates a real account
     display_name        text,                       -- shown on the redirect page ("Jacob shared this")
     stripe_connect_id   text,                       -- set when the user onboards for payouts
     created_at          timestamptz not null default now()
