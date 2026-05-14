@@ -16,6 +16,9 @@
     "express": "^4.19.2",
     "nanoid": "^5.0.7"
   },
+  "devDependencies": {
+    "supertest": "^7.0.0"
+  },
   "engines": {
     "node": ">=20"
   }

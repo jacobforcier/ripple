@@ -2,9 +2,10 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 
-import { linksRouter } from './routes/links.js';
-import { usersRouter } from './routes/users.js';
-import { trendingRouter } from './routes/trending.js';
+import { db } from './db.js';
+import { makeLinksRouter } from './routes/links.js';
+import { makeUsersRouter } from './routes/users.js';
+import { makeTrendingRouter } from './routes/trending.js';
 
 // Builds and configures the Express app. Exported (not started) so it can be
 // used both by the local dev server (src/index.js) and the Vercel serverless
@@ -41,9 +42,9 @@ app.get('/health', (_req, res) => {
 });
 
 // ── Routes ───────────────────────────────────────────────────────────────────
-app.use('/v1/links', linksRouter);
-app.use('/v1/users', usersRouter);
-app.use('/v1/trending', trendingRouter);
+app.use('/v1/links', makeLinksRouter(db));
+app.use('/v1/users', makeUsersRouter(db));
+app.use('/v1/trending', makeTrendingRouter(db));
 
 // ── 404 + error handling ─────────────────────────────────────────────────────
 app.use((_req, res) => {
