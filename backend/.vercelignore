@@ -1,0 +1,6 @@
+.env
+.env.local
+test/
+supabase/
+node_modules/
+*.log

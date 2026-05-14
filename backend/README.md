@@ -42,6 +42,26 @@ Uses Node's built-in test runner (no extra dependencies). Covers the pure
 logic — retailer detection, short-id generation, IP hashing. Route handlers
 need a Supabase test instance or a DI refactor to cover; not done yet.
 
+## Deployment (Vercel)
+
+The app is structured to run both as a local server and as a Vercel
+serverless function:
+
+- `src/app.js` — builds and exports the configured Express app
+- `src/index.js` — local dev server (`npm run dev` / `npm start`)
+- `api/index.js` — Vercel serverless entry (exports the app as the handler)
+- `vercel.json` — rewrites every path to the function
+
+To deploy:
+
+1. From the `backend/` directory: `npx vercel` (first run links/creates the
+   project), then `npx vercel --prod`.
+2. In the Vercel project's **Settings → Environment Variables**, set
+   `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `IP_HASH_SALT`, and
+   `CORS_ORIGINS` — the same values as the local `.env`.
+3. Add the custom domain `api.sharewithripple.com` in the Vercel project,
+   then point a `CNAME` for `api` at Vercel in the DNS host.
+
 ## Endpoints
 
 | Method | Path                       | Purpose                                              |
