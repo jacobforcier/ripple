@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ripple — Privacy Policy</title>
+  <meta name="description" content="How Ripple handles your data — what we collect, why, and what we never do with it." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #07070f;
+      --surface:   rgba(255,255,255,0.04);
+      --border:    rgba(255,255,255,0.08);
+      --accent:    #5b8af5;
+      --accent2:   #38bdf8;
+      --text:      #eeeeff;
+      --muted:     #7878a0;
+      --radius:    12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.65;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      background: rgba(7,7,15,0.7);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ── DOC ── */
+    .doc {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 160px 24px 100px;
+    }
+
+    .doc-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .updated {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .intro {
+      font-size: 17px;
+      color: var(--muted);
+      margin-bottom: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin: 44px 0 14px;
+    }
+
+    p { font-size: 16px; color: #c8c8e0; margin-bottom: 14px; }
+
+    ul { margin: 0 0 14px 22px; }
+    li { font-size: 16px; color: #c8c8e0; margin-bottom: 8px; }
+
+    strong { color: var(--text); font-weight: 600; }
+
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-logo {
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    footer p { font-size: 13px; color: var(--muted); margin: 0; }
+    footer a { font-size: 13px; color: var(--muted); }
+    footer a:hover { color: var(--text); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      nav { padding: 16px 20px; }
+      footer { padding: 24px 20px; }
+      .doc { padding-top: 130px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="logo" href="/">ripple</a>
+    <a class="nav-cta" href="/#waitlist">Join the waitlist</a>
+  </nav>
+
+  <!-- DOC -->
+  <main class="doc">
+    <div class="doc-label">Legal</div>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: May 14, 2026</p>
+    <p class="intro">
+      Ripple is built on a simple idea: you were going to share that link anyway.
+      Our job is to quietly turn it into a small reward — not to collect more of
+      your data than we need. This policy explains exactly what we collect, why,
+      and what we will never do.
+    </p>
+
+    <h2>Who we are</h2>
+    <p>
+      Ripple ("Ripple," "we," "us") operates the website
+      <a href="/">sharewithripple.com</a>, the Ripple browser extension for Chrome
+      and Safari, and the Ripple iOS app and Share Extension. If you have questions
+      about this policy, contact us at
+      <a href="mailto:privacy@sharewithripple.com">privacy@sharewithripple.com</a>.
+    </p>
+
+    <h2>What we collect</h2>
+    <p>We collect only what's needed to make Ripple work:</p>
+    <ul>
+      <li>
+        <strong>Your email address</strong> — if you join the waitlist or create
+        a Ripple account. Waitlist signups are processed by Formspree on our behalf.
+      </li>
+      <li>
+        <strong>Product page URLs</strong> — when you copy a link or use the share
+        button on a supported retailer's product page, the extension reads that
+        page's URL so it can generate your Ripple link. We do not read, log, or
+        store the contents of pages you visit, your browsing history, or activity
+        on non-retailer sites.
+      </li>
+      <li>
+        <strong>Links you create</strong> — the Ripple links you generate, the
+        product URLs they point to, and basic click counts, so we can attribute
+        commissions back to you.
+      </li>
+      <li>
+        <strong>Earnings and payout information</strong> — commissions attributed
+        to your account and, when you choose to cash out, the payout details
+        required to pay you. Payouts are handled by our payments processor; Ripple
+        does not store full bank or card numbers.
+      </li>
+      <li>
+        <strong>Basic technical data</strong> — standard, non-identifying logs
+        (such as error reports and aggregate usage) needed to keep the service
+        running and secure.
+      </li>
+    </ul>
+
+    <div class="callout">
+      <p>
+        <strong>The extension does not track your browsing.</strong> It only
+        activates on the product pages of supported retailers, and only to read
+        the URL needed to build your link. It does not run on, read, or report
+        on any other site you visit.
+      </p>
+    </div>
+
+    <h2>How we use it</h2>
+    <ul>
+      <li>To generate your Ripple links and route people who click them to the correct retailer.</li>
+      <li>To attribute affiliate commissions to the right person — you.</li>
+      <li>To show you your shared links, click counts, and earnings.</li>
+      <li>To pay you when you cash out.</li>
+      <li>To send you account and product updates you've asked for.</li>
+      <li>To keep Ripple secure and detect abuse or fraud.</li>
+    </ul>
+
+    <h2>Affiliate networks</h2>
+    <p>
+      Ripple works by connecting to established affiliate networks, which maintain
+      the relationships with retailers on the back end. When someone clicks your
+      Ripple link, they are routed through one of these networks to the retailer.
+      Those networks may set their own cookies as part of standard affiliate
+      tracking. We share with them only what's needed to attribute a sale — never
+      your email, browsing history, or personal profile.
+    </p>
+
+    <h2>Disclosure to people who click your links</h2>
+    <p>
+      Every Ripple link passes through a short, clearly labeled page that tells
+      the person clicking it that the sharer may earn a small commission, at no
+      extra cost to them. This transparency is built in and is not optional — it's
+      required by the U.S. Federal Trade Commission, and we think it's just the
+      right way to do word-of-mouth.
+    </p>
+
+    <h2>What we never do</h2>
+    <ul>
+      <li>We never sell your personal information.</li>
+      <li>We never share your data with advertisers for ad targeting.</li>
+      <li>We never track your general browsing history.</li>
+      <li>We never read the contents of the pages you visit.</li>
+    </ul>
+
+    <h2>Data sharing</h2>
+    <p>
+      We share data only with service providers who help us run Ripple — for
+      example, our hosting provider, our email/waitlist processor (Formspree),
+      affiliate networks, and our payments processor — and only to the extent
+      they need it to perform their function. We may also disclose information
+      if required by law.
+    </p>
+
+    <h2>Data retention</h2>
+    <p>
+      We keep your information for as long as your account is active or as needed
+      to provide the service, attribute commissions, and meet legal and tax
+      obligations. You can ask us to delete your account and associated personal
+      data at any time.
+    </p>
+
+    <h2>Your choices</h2>
+    <ul>
+      <li>You can unsubscribe from emails at any time using the link in any email.</li>
+      <li>You can request a copy of your data, or its deletion, by emailing us.</li>
+      <li>You can uninstall the extension or app at any time, which stops all collection.</li>
+    </ul>
+
+    <h2>Children</h2>
+    <p>
+      Ripple is not directed to children under 13, and we do not knowingly collect
+      personal information from them.
+    </p>
+
+    <h2>Changes to this policy</h2>
+    <p>
+      We may update this policy as Ripple evolves. When we make material changes,
+      we'll update the date at the top of this page and, where appropriate, notify
+      you directly.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions about your privacy or this policy? Email
+      <a href="mailto:privacy@sharewithripple.com">privacy@sharewithripple.com</a>
+      and we'll get back to you.
+    </p>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <a class="footer-logo" href="/">ripple</a>
+    <p>© 2026 Ripple. All rights reserved.</p>
+    <div style="display:flex; gap: 20px; align-items: center;">
+      <a href="/privacy">Privacy Policy</a>
+      <p>sharewithripple.com</p>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,6 +1,7 @@
 {
   "routes": [
     { "handle": "filesystem" },
+    { "src": "/privacy/?", "dest": "/privacy.html" },
     { "src": "/s/.*", "dest": "/s.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
