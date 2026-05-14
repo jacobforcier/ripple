@@ -61,7 +61,7 @@ class ShareViewController: UIViewController {
 
     // MARK: - Link generation
     //
-    // DEMO MODE — swap this when the Skimlinks backend is live.
+    // DEMO MODE — swap this when the affiliate backend is live.
     private func generateRippleLink(from url: URL) -> String {
         let id = String(Int.random(in: 0x10000...0xFFFFF), radix: 36)
         return "https://sharewithripple.com/s/\(id)"

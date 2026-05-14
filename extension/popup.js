@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  DEMO MODE — replace generateRippleLink() with a real API call once the
-//  Skimlinks backend is ready. Everything else in this file stays the same.
+//  affiliate backend is ready. Everything else in this file stays the same.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
