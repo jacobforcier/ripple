@@ -11,7 +11,6 @@
 //
 
 import Cocoa
-import UniformTypeIdentifiers
 
 class ShareViewController: NSViewController {
 
@@ -76,7 +75,7 @@ class ShareViewController: NSViewController {
         statusLabel.maximumNumberOfLines = 2
 
         // Selectable so the user can also copy the link manually if they want.
-        linkField.font = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
+        linkField.font = NSFont.userFixedPitchFont(ofSize: 12) ?? NSFont.systemFont(ofSize: 12)
         linkField.textColor = NSColor(red: 56/255, green: 189/255, blue: 248/255, alpha: 1)
         linkField.backgroundColor = NSColor(white: 1, alpha: 0.04)
         linkField.isBezeled = false
@@ -135,7 +134,9 @@ class ShareViewController: NSViewController {
             return
         }
 
-        let urlType = UTType.url.identifier
+        // "public.url" is the well-known UTI for URLs — using the string literal
+        // keeps this compatible with the 10.14 deployment target (UTType is 11.0+).
+        let urlType = "public.url"
         for attachment in attachments where attachment.hasItemConformingToTypeIdentifier(urlType) {
             attachment.loadItem(forTypeIdentifier: urlType) { data, _ in
                 if let url = data as? URL {
