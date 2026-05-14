@@ -1,7 +1,5 @@
 import { createHash } from 'node:crypto';
 
-const salt = process.env.IP_HASH_SALT || '';
-
 /**
  * Derives a stable, salted hash of the request's client IP.
  *
@@ -9,8 +7,12 @@ const salt = process.env.IP_HASH_SALT || '';
  * de-duplicating rapid repeat clicks and spotting obvious fraud — not
  * for identifying anyone. Returns null if no salt is configured or no
  * IP can be determined.
+ *
+ * The salt is read per-call (not at module load) so configuration and
+ * tests don't depend on import ordering.
  */
 export function hashIp(req) {
+  const salt = process.env.IP_HASH_SALT || '';
   if (!salt) return null;
 
   const fwd = req.headers['x-forwarded-for'];

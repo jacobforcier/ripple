@@ -32,6 +32,16 @@ today; only real commission attribution is missing.
    ```
    The API listens on `http://localhost:8787`.
 
+## Tests
+
+```sh
+npm test
+```
+
+Uses Node's built-in test runner (no extra dependencies). Covers the pure
+logic — retailer detection, short-id generation, IP hashing. Route handlers
+need a Supabase test instance or a DI refactor to cover; not done yet.
+
 ## Endpoints
 
 | Method | Path                       | Purpose                                              |

@@ -6,7 +6,8 @@
   "description": "Ripple API — link creation, resolution, click tracking, earnings.",
   "scripts": {
     "dev": "node --watch src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "node --test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
