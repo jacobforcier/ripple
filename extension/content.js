@@ -1,10 +1,11 @@
 (function () {
   'use strict';
 
-  // ── Demo link generator with per-URL caching ─────────────────
-  // PRODUCTION SWAP: replace with a fetch() to your backend API.
-  // The cache + inFlight guard avoid duplicate API calls and
-  // produce stable links when the same URL is shared multiple times.
+  // ── Ripple link generator with per-URL caching ───────────────
+  // The actual API call lives in the background service worker — content
+  // scripts run in the page's origin and are blocked by CORS. The cache +
+  // inFlight guard avoid duplicate requests and keep links stable when the
+  // same URL is shared repeatedly.
   const linkCache = new Map();        // sourceUrl -> rippleUrl
   const inFlight  = new Map();        // sourceUrl -> Promise<rippleUrl>
 
@@ -13,14 +14,18 @@
     if (inFlight.has(productUrl))  return inFlight.get(productUrl);
 
     const promise = (async () => {
-      const id = Math.random().toString(36).slice(2, 9);
-      const rippleUrl = `https://sharewithripple.com/s/${id}`;
-      linkCache.set(productUrl, rippleUrl);
-      return rippleUrl;
+      const response = await chrome.runtime.sendMessage({
+        type: 'RIPPLE_CREATE_LINK',
+        sourceUrl: productUrl,
+      });
+      if (!response?.ok) {
+        throw new Error(response?.error || 'Failed to create Ripple link');
+      }
+      linkCache.set(productUrl, response.rippleUrl);
+      return response.rippleUrl;
     })().finally(() => {
       // Clear the in-flight entry in `finally` (not inside the async body) so
-      // it runs *after* `inFlight.set` below — and keeps working once this
-      // becomes a real `fetch()` with actual awaits.
+      // it runs *after* `inFlight.set` below, regardless of response timing.
       inFlight.delete(productUrl);
     });
 

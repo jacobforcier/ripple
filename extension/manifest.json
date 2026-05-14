@@ -12,6 +12,9 @@
     "scripting",
     "clipboardWrite"
   ],
+  "host_permissions": [
+    "https://api.sharewithripple.com/*"
+  ],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

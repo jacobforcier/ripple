@@ -1,27 +1,19 @@
 // ─────────────────────────────────────────────────────────────────────────────
-//  DEMO MODE — replace generateRippleLink() with a real API call once the
-//  affiliate backend is ready. Everything else in this file stays the same.
+//  Ripple link generation. The actual API call lives in the background
+//  service worker (background.js) — it's the one context with host
+//  permissions for the API. The popup just asks the worker and gets back a
+//  ready-to-share Ripple URL.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * DEMO: returns a placeholder Ripple short-link.
- *
- * PRODUCTION SWAP — replace this entire function with:
- *
- *   async function generateRippleLink(productUrl) {
- *     const res = await fetch('https://api.sharewithripple.com/v1/links', {
- *       method: 'POST',
- *       headers: { 'Content-Type': 'application/json' },
- *       body: JSON.stringify({ url: productUrl }),
- *     });
- *     if (!res.ok) throw new Error(`API error ${res.status}`);
- *     const data = await res.json();
- *     return data.short_url;
- *   }
- */
 async function generateRippleLink(productUrl) {
-  const id = Math.random().toString(36).slice(2, 9);
-  return `https://sharewithripple.com/s/${id}`;
+  const response = await chrome.runtime.sendMessage({
+    type: 'RIPPLE_CREATE_LINK',
+    sourceUrl: productUrl,
+  });
+  if (!response?.ok) {
+    throw new Error(response?.error || 'Failed to create Ripple link');
+  }
+  return response.rippleUrl;
 }
 
 // ── State helpers ─────────────────────────────────────────────────────────────

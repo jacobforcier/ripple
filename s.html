@@ -196,31 +196,21 @@
   </div>
 
   <script>
-    // ─────────────────────────────────────────────────────────────────────────
-    //  DEMO MODE — resolveLink() returns a placeholder destination so the full
-    //  redirect flow is demoable end-to-end without a backend.
-    //
-    //  PRODUCTION SWAP — replace resolveLink() with a real lookup:
-    //
-    //    async function resolveLink(id) {
-    //      const res = await fetch(`https://api.sharewithripple.com/v1/links/${id}`);
-    //      if (!res.ok) return null;
-    //      const data = await res.json();
-    //      return {
-    //        url:      data.destination_url,   // the tracked affiliate URL
-    //        retailer: data.retailer,          // e.g. "Amazon"
-    //        sharer:   data.sharer_name,       // e.g. "Jacob"
-    //      };
-    //    }
-    // ─────────────────────────────────────────────────────────────────────────
+    // Resolves a Ripple link id to its destination via the backend API.
+    // GET /v1/links/:id also records the click. Returns { url, retailer, sharer }
+    // on success, or null if the link doesn't exist / the request fails (the
+    // page then shows its "link isn't available" state).
+    const API_BASE = 'https://api.sharewithripple.com';
+
     async function resolveLink(id) {
       if (!id) return null;
-      // DEMO: stand-in destination so the disclosure + countdown + redirect work.
-      return {
-        url:      'https://www.amazon.com',
-        retailer: 'Amazon',
-        sharer:   null,            // null → generic "The person who shared this"
-      };
+      try {
+        const res = await fetch(`${API_BASE}/v1/links/${encodeURIComponent(id)}`);
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
     }
 
     (async () => {
