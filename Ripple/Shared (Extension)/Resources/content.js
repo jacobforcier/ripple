@@ -16,20 +16,24 @@
       const id = Math.random().toString(36).slice(2, 9);
       const rippleUrl = `https://sharewithripple.com/s/${id}`;
       linkCache.set(productUrl, rippleUrl);
-      inFlight.delete(productUrl);
       return rippleUrl;
-    })();
+    })().finally(() => {
+      // Clear the in-flight entry in `finally` (not inside the async body) so
+      // it runs *after* `inFlight.set` below — and keeps working once this
+      // becomes a real `fetch()` with actual awaits.
+      inFlight.delete(productUrl);
+    });
 
     inFlight.set(productUrl, promise);
     return promise;
   }
 
   // ── Toast notification ────────────────────────────────────────
-  function showToast(message) {
-    const existing = document.getElementById('ripple-toast');
-    if (existing) existing.remove();
-
+  // Inject the keyframes once — not a fresh <style> element on every toast.
+  function ensureToastStyles() {
+    if (document.getElementById('ripple-toast-styles')) return;
     const style = document.createElement('style');
+    style.id = 'ripple-toast-styles';
     style.textContent = `
       @keyframes ripple-slide-up {
         from { opacity: 0; transform: translateX(-50%) translateY(10px); }
@@ -37,6 +41,13 @@
       }
     `;
     document.head.appendChild(style);
+  }
+
+  function showToast(message) {
+    const existing = document.getElementById('ripple-toast');
+    if (existing) existing.remove();
+
+    ensureToastStyles();
 
     const toast = document.createElement('div');
     toast.id = 'ripple-toast';
@@ -71,7 +82,13 @@
   // Fires when the user copies anything on the page (Cmd+C, Edit→Copy,
   // right-click→Copy Link). Does NOT fire for address-bar copies —
   // use the popup for that case.
-  document.addEventListener('copy', async (e) => {
+  //
+  // This handler MUST stay synchronous: a clipboard event's data can only
+  // be written during the event's dispatch, never after an `await` (by then
+  // the event is done and setData silently no-ops — leaving stale clipboard
+  // content while still showing a success toast). So we warm the link cache
+  // ahead of time and read from it synchronously here.
+  document.addEventListener('copy', (e) => {
     if (!detectProduct()) return;
 
     const copied = window.getSelection()?.toString().trim() ||
@@ -82,11 +99,24 @@
     try { new URL(copied); isUrl = true; } catch { /* not a URL */ }
     if (!isUrl) return;
 
-    e.preventDefault();
-    const rippleUrl = await generateRippleLink(location.href);
-    e.clipboardData.setData('text/plain', rippleUrl);
-    showToast('✓ Ripple link copied');
+    const rippleUrl = linkCache.get(location.href);
+    if (rippleUrl) {
+      // Cache is warm — swap the clipboard contents synchronously.
+      e.preventDefault();
+      e.clipboardData.setData('text/plain', rippleUrl);
+      showToast('✓ Ripple link copied');
+    } else {
+      // Not ready yet (a copy before warm-up finished). Let the normal copy
+      // proceed and prime the cache so the next copy is intercepted.
+      generateRippleLink(location.href);
+    }
   });
+
+  // Warm the link cache as soon as we know this is a product page, so the
+  // copy handler above can read it synchronously on the user's first copy.
+  function warmLinkCache() {
+    if (detectProduct()) generateRippleLink(location.href);
+  }
 
   const PRODUCT_DOMAINS = [
     'amazon.com', 'amazon.co.uk', 'amazon.ca', 'amazon.de', 'amazon.fr',
@@ -160,4 +190,6 @@
     });
     return false;
   });
+
+  warmLinkCache();
 })();
