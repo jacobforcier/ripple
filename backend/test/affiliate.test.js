@@ -63,6 +63,23 @@ test('isAmazonUrl: catches the common Amazon storefronts', () => {
   assert.equal(isAmazonUrl('not a url'), false);
 });
 
+test('isAmazonUrl: catches Amazon short-URL domains (mobile Share button)', () => {
+  assert.equal(isAmazonUrl('https://a.co/d/07jc3G6m'), true);
+  assert.equal(isAmazonUrl('https://amzn.to/3xyzABC'), true);
+  assert.equal(isAmazonUrl('https://amzn.com/d/abc'), true);
+});
+
+test('generateAffiliateUrl: tags Amazon short-URLs too', async () => {
+  process.env.AMAZON_ASSOCIATE_TAG = 'test-tag-20';
+  const result = await generateAffiliateUrl('https://a.co/d/07jc3G6m');
+  assert.equal(new URL(result).searchParams.get('tag'), 'test-tag-20');
+});
+
+test('detectRetailer: short-URL domains resolve to "Amazon"', () => {
+  assert.equal(detectRetailer('https://a.co/d/07jc3G6m'), 'Amazon');
+  assert.equal(detectRetailer('https://amzn.to/3xyz'), 'Amazon');
+});
+
 test('applyAmazonTag: sets tag on a URL with no existing query string', () => {
   process.env.AMAZON_ASSOCIATE_TAG = 'test-tag-20';
   const result = applyAmazonTag('https://www.amazon.com/dp/B0XYZ');

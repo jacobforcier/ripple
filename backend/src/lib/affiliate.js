@@ -32,13 +32,19 @@ export async function generateAffiliateUrl(sourceUrl) {
 // the product URL. Amazon attributes any purchase within 24 hours of that
 // click to the associate. No API call needed for basic attribution.
 
-/** Detects every Amazon storefront we serve (US + international). */
+/** Detects every Amazon storefront we serve (US + international + short URLs). */
 export function isAmazonUrl(sourceUrl) {
   try {
     const host = new URL(sourceUrl).hostname.replace(/^www\./, '').toLowerCase();
     return host === 'amazon.com' ||
            host === 'smile.amazon.com' ||
            host === 'm.amazon.com' ||
+           // Amazon's own short-URL domains (the iOS/Android Share button
+           // produces `a.co/d/…` URLs; some marketing tools produce `amzn.to/…`).
+           // Amazon preserves the `tag` query parameter through these redirects.
+           host === 'a.co' ||
+           host === 'amzn.to' ||
+           host === 'amzn.com' ||
            /^amazon\.(co\.uk|ca|de|fr|co\.jp|in|com\.br|com\.mx|it|es|nl|se|pl|com\.au|sg|ae|sa)$/.test(host) ||
            host.endsWith('.amazon.com');
   } catch {
@@ -81,6 +87,10 @@ const RETAILER_BY_DOMAIN = {
   'amazon.co.jp': 'Amazon',
   'amazon.in': 'Amazon',
   'amazon.com.br': 'Amazon',
+  // Amazon's short-URL domains — used by the mobile Share button.
+  'a.co': 'Amazon',
+  'amzn.to': 'Amazon',
+  'amzn.com': 'Amazon',
   'target.com': 'Target',
   'walmart.com': 'Walmart',
   'bestbuy.com': 'Best Buy',
