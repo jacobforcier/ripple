@@ -69,13 +69,17 @@ class ShareViewController: UIViewController {
         guard !hasPresentedShareSheet else { return }
         hasPresentedShareSheet = true
 
-        guard let rippleURL = URL(string: link) else {
-            complete()
-            return
-        }
+        // Wrap the link in an item source rather than passing a raw URL. When
+        // a Share Extension presents UIActivityViewController and hands a
+        // `URL` to Messages, the URL arrives at Messages as a bplist-encoded
+        // blob (visible in the chat as `bplist00%C2…`) — Messages doesn't
+        // unwrap the NSItemProvider correctly across the extension boundary.
+        // Returning the link as a String (which Messages auto-detects as a
+        // URL and renders with a preview) sidesteps the issue.
+        let source = RippleLinkActivityItemSource(linkString: link)
 
         let activity = UIActivityViewController(
-            activityItems: [rippleURL],
+            activityItems: [source],
             applicationActivities: nil
         )
 
