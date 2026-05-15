@@ -1,41 +1,77 @@
 // ═════════════════════════════════════════════════════════════════════════════
-//  AFFILIATE LINK GENERATION — STUBBED
+//  AFFILIATE LINK GENERATION
 //
-//  This file is the ONLY part of the backend that depends on the affiliate
-//  network. Everything else — link storage, resolution, click tracking,
-//  earnings aggregation — is real and fully testable today.
+//  This is where Ripple turns a plain product URL into a tracked affiliate URL.
+//  We route per-retailer:
 //
-//  PRODUCTION SWAP — once the Sovrn Commerce application is approved, replace
-//  the body of generateAffiliateUrl() with a real Sovrn API call. Roughly:
+//    • Amazon (any country)  → append our Associates tag (no API/approval
+//                              needed — this is the standard "tag=…" mechanism
+//                              that Amazon attributes via a 24h cookie).
+//    • Everything else       → passthrough until Sovrn (or another aggregator)
+//                              is approved. Then add a Sovrn branch here.
 //
-//    export async function generateAffiliateUrl(sourceUrl) {
-//      const res = await fetch('https://api.sovrn.com/commerce/links', {
-//        method: 'POST',
-//        headers: {
-//          Authorization: `Bearer ${process.env.SOVRN_API_KEY}`,
-//          'Content-Type': 'application/json',
-//        },
-//        body: JSON.stringify({ url: sourceUrl }),
-//      });
-//      if (!res.ok) throw new Error(`Sovrn API error ${res.status}`);
-//      const data = await res.json();
-//      return data.affiliateUrl;       // adjust to Sovrn's actual response shape
-//    }
-//
-//  Until then we run in PASSTHROUGH MODE: the "affiliate" URL is just the
-//  source URL, so the create -> resolve -> redirect -> click pipeline works
-//  end to end and only commission attribution is missing.
+//  When Sovrn comes back, the swap is: in `generateAffiliateUrl`, add an
+//  `else` branch that calls Sovrn's `/commerce/links` API.
 // ═════════════════════════════════════════════════════════════════════════════
 
+/**
+ * Generates the tracked affiliate URL for a given product page. Falls back to
+ * the original URL if the retailer isn't supported yet.
+ */
 export async function generateAffiliateUrl(sourceUrl) {
-  // DEMO / passthrough — no tracking wrapper applied yet.
+  if (isAmazonUrl(sourceUrl)) {
+    return applyAmazonTag(sourceUrl);
+  }
+  // Sovrn / other aggregator slot — passthrough until wired up.
   return sourceUrl;
+}
+
+// ── Amazon Associates ────────────────────────────────────────────────────────
+//
+// Standard Amazon affiliate links work by appending `?tag=<associate-id>` to
+// the product URL. Amazon attributes any purchase within 24 hours of that
+// click to the associate. No API call needed for basic attribution.
+
+/** Detects every Amazon storefront we serve (US + international). */
+export function isAmazonUrl(sourceUrl) {
+  try {
+    const host = new URL(sourceUrl).hostname.replace(/^www\./, '').toLowerCase();
+    return host === 'amazon.com' ||
+           host === 'smile.amazon.com' ||
+           host === 'm.amazon.com' ||
+           /^amazon\.(co\.uk|ca|de|fr|co\.jp|in|com\.br|com\.mx|it|es|nl|se|pl|com\.au|sg|ae|sa)$/.test(host) ||
+           host.endsWith('.amazon.com');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Returns the source URL with our Associates `tag` query parameter set.
+ * Replaces any existing `tag=...` (so a previous affiliate's tag can't
+ * accidentally — or maliciously — pass through us un-overridden).
+ */
+export function applyAmazonTag(sourceUrl) {
+  const tag = process.env.AMAZON_ASSOCIATE_TAG;
+  if (!tag) {
+    // Tag isn't configured — return the URL unchanged so the redirect still
+    // works. Earnings won't be attributed; this is the safe failure mode.
+    console.warn('[affiliate] AMAZON_ASSOCIATE_TAG is not set — Amazon link untagged');
+    return sourceUrl;
+  }
+  try {
+    const url = new URL(sourceUrl);
+    url.searchParams.set('tag', tag);
+    return url.toString();
+  } catch {
+    return sourceUrl;
+  }
 }
 
 // ── Retailer detection ───────────────────────────────────────────────────────
 // Derives a human-readable retailer name from a product URL. Used for the
-// redirect page ("Continuing to → Amazon") and for analytics. This logic is
-// real and stays as-is in production — it does not depend on the network.
+// redirect page ("Continuing to → Amazon") and for analytics. Independent of
+// the affiliate-network logic above.
 const RETAILER_BY_DOMAIN = {
   'amazon.com': 'Amazon',
   'amazon.co.uk': 'Amazon',
