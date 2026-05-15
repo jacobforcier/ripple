@@ -162,7 +162,10 @@ private struct LinkRow: View {
             .foregroundColor(RippleTheme.muted)
 
             Button {
-                UIPasteboard.general.string = link.rippleURL
+                // Plain text only — see the note in ShareView. Auto-detected
+                // NSURL representations render as bplist blobs when pasted in
+                // some apps via cross-process clipboards.
+                UIPasteboard.general.items = [["public.utf8-plain-text": link.rippleURL]]
                 withAnimation { copied = true }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                     withAnimation { copied = false }

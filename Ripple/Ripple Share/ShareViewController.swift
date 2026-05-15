@@ -38,7 +38,10 @@ class ShareViewController: UIViewController {
         do {
             let rippleLink = try await RippleLinkService.shared.createLink(from: url)
             await MainActor.run {
-                UIPasteboard.general.string = rippleLink
+                // Plain text only — see the note in ShareView. Avoids the
+                // bplist-blob rendering when Mac Messages receives an iOS
+                // clipboard with an auto-detected NSURL representation.
+                UIPasteboard.general.items = [["public.utf8-plain-text": rippleLink]]
                 self.spinner.stopAnimating()
                 self.spinner.removeFromSuperview()
                 self.showConfirmation(link: rippleLink)

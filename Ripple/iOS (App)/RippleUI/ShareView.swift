@@ -136,7 +136,13 @@ struct ShareView: View {
 
             HStack(spacing: 10) {
                 Button {
-                    UIPasteboard.general.string = result.rippleURL
+                    // Set ONLY the plain-text representation. Assigning to
+                    // `.string` makes iOS auto-add an NSURL representation
+                    // that some receivers (notably Mac Messages via clipboard
+                    // sync) render as a bplist-encoded blob instead of a URL
+                    // bubble. Plain text only → Messages detects the URL in
+                    // the text itself and renders it cleanly.
+                    UIPasteboard.general.items = [["public.utf8-plain-text": result.rippleURL]]
                     withAnimation { copied = true }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
                         withAnimation { copied = false }
