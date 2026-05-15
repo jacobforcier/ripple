@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate Ripple icons at every size needed for the app and extensions."""
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 import os
 import math
 
@@ -76,6 +76,85 @@ def _lerp_color(c1, c2, t):
     return tuple(int(c1[i] + (c2[i] - c1[i]) * t) for i in range(3))
 
 
+# ── Open Graph image (1200×630) ──────────────────────────────────
+# Rendered into Ripple link bubbles in iMessage, X, Slack, etc.
+
+def make_og_image() -> Image.Image:
+    """Branded 1200×630 image: dark bg, concentric rings, wordmark + tagline."""
+    W, H = 1200, 630
+    SS = 4
+    sw, sh = W * SS, H * SS
+
+    img = Image.new('RGBA', (sw, sh), (*BG_COLOR, 255))
+
+    # Centered glow + rings — circular, sized to the image height.
+    cx, cy = sw // 2, sh // 2
+
+    glow = Image.new('RGBA', (sw, sh), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    base_r = int(sh * 0.30)
+    for i in range(8, 0, -1):
+        r = int(base_r * i / 8)
+        alpha = int(50 * (i / 8) ** 2)
+        color = _lerp_color(ACCENT_1, ACCENT_2, i / 8)
+        gd.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(*color, alpha))
+    glow = glow.filter(ImageFilter.GaussianBlur(radius=sw * 0.015))
+    img = Image.alpha_composite(img, glow)
+
+    rings = Image.new('RGBA', (sw, sh), (0, 0, 0, 0))
+    rd = ImageDraw.Draw(rings)
+    line_w = max(2, int(sh * 0.006))
+    ring_defs = [
+        (0.10, 210), (0.18, 170), (0.28, 130),
+        (0.40, 90),  (0.55, 55),  (0.72, 28),
+    ]
+    for frac, alpha in ring_defs:
+        r = int(sh * frac)
+        color = _lerp_color(ACCENT_1, ACCENT_2, frac)
+        rd.ellipse([cx - r, cy - r, cx + r, cy + r],
+                   outline=(*color, alpha), width=line_w)
+
+    rings = rings.resize((W, H), Image.LANCZOS)
+    img = img.resize((W, H), Image.LANCZOS)
+    img = Image.alpha_composite(img, rings)
+
+    # Text — wordmark + tagline, centered.
+    draw = ImageDraw.Draw(img)
+    wordmark_font = _load_font(180)
+    tagline_font = _load_font(40)
+
+    wordmark = "ripple"
+    wb = draw.textbbox((0, 0), wordmark, font=wordmark_font)
+    ww, wh = wb[2] - wb[0], wb[3] - wb[1]
+    wx = (W - ww) // 2 - wb[0]
+    wy = (H - wh) // 2 - wb[1] - 40
+    draw.text((wx, wy), wordmark, font=wordmark_font, fill=(*ACCENT_2, 255))
+
+    tagline = "Word of mouth, finally rewarded."
+    tb = draw.textbbox((0, 0), tagline, font=tagline_font)
+    tw_, th_ = tb[2] - tb[0], tb[3] - tb[1]
+    tx = (W - tw_) // 2 - tb[0]
+    ty = wy + wh + 30
+    draw.text((tx, ty), tagline, font=tagline_font, fill=(200, 200, 220, 255))
+
+    return img
+
+
+def _load_font(size: int) -> ImageFont.FreeTypeFont:
+    """Best-effort system font load with sensible fallbacks."""
+    candidates = [
+        "/System/Library/Fonts/HelveticaNeue.ttc",
+        "/System/Library/Fonts/Helvetica.ttc",
+        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+    ]
+    for path in candidates:
+        try:
+            return ImageFont.truetype(path, size)
+        except (OSError, IOError):
+            continue
+    return ImageFont.load_default()
+
+
 def _draw_rings(img: Image.Image, size: int, ring_rgb):
     """Draw rings directly on img (for tinted variant)."""
     SS = 4
@@ -145,6 +224,13 @@ def main():
     # ── Container app in-app icon (referenced by Main.html) ──────
     print('Container app Icon.png:')
     write_resized(light, f'{base}/Ripple/Shared (App)/Resources/Icon.png', 512)
+
+    # ── Open Graph image (link previews in iMessage, X, Slack, …) ──
+    print('Open Graph image:')
+    og = make_og_image()
+    og_path = f'{base}/og-image.png'
+    og.save(og_path, 'PNG')
+    print(f'  1200×630  {og_path}')
 
     print('Extension toolbar icons:')
     for size in [16, 48, 128]:
