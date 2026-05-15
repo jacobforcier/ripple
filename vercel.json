@@ -2,7 +2,7 @@
   "routes": [
     { "handle": "filesystem" },
     { "src": "/privacy/?", "dest": "/privacy.html" },
-    { "src": "/s/.*", "dest": "/s.html" },
+    { "src": "/s/([^/]+)/?", "dest": "/api/s?id=$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

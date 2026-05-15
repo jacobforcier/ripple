@@ -2,9 +2,11 @@ import { Router } from 'express';
 import { newShortId } from '../lib/shortId.js';
 import { hashIp } from '../lib/hashIp.js';
 import { generateAffiliateUrl, detectRetailer } from '../lib/affiliate.js';
+import { fetchOG as defaultFetchOG } from '../lib/og.js';
 
-// The `db` client is injected so the routes can be tested with a mock.
-export function makeLinksRouter(db) {
+// The `db` client and OG fetcher are injected so the routes can be tested
+// with a mock db and a no-op OG fetcher (no real network calls in tests).
+export function makeLinksRouter(db, { fetchOG = defaultFetchOG } = {}) {
   const router = Router();
 
   // ── POST /v1/links ─────────────────────────────────────────────────────────
@@ -38,6 +40,12 @@ export function makeLinksRouter(db) {
     }
     const retailer = detectRetailer(source_url);
 
+    // Scrape Open Graph metadata from the source URL so the redirect page
+    // can render product-specific link previews (iMessage / X / Slack cards
+    // show the product, not a generic Ripple card). Best-effort: on failure
+    // we store nulls and the redirect page falls back to Ripple's defaults.
+    const og = (await fetchOG(source_url)) ?? {};
+
     // Insert, retrying on the (very unlikely) short-id collision.
     for (let attempt = 0; attempt < 5; attempt++) {
       const id = newShortId();
@@ -47,6 +55,9 @@ export function makeLinksRouter(db) {
         source_url,
         affiliate_url,
         retailer,
+        og_title: og.title ?? null,
+        og_image: og.image ?? null,
+        og_description: og.description ?? null,
       });
 
       if (!error) {
@@ -89,9 +100,32 @@ export function makeLinksRouter(db) {
     return res.json({ links: data });
   });
 
+  // ── GET /v1/links/:id/preview ──────────────────────────────────────────────
+  // Returns a link's display metadata WITHOUT logging a click. Used by the
+  // /s/[id] page's server-side renderer to populate Open Graph tags — we
+  // don't want a click counted for every link-preview bot fetch.
+  //   200: { id, source_url, retailer, og_title, og_image, og_description }
+  //   404: { error }
+  router.get('/:id/preview', async (req, res) => {
+    const { id } = req.params;
+
+    const { data, error } = await db
+      .from('links')
+      .select('id, source_url, retailer, og_title, og_image, og_description')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('[links] preview lookup failed:', error);
+      return res.status(500).json({ error: 'Failed to load link' });
+    }
+    if (!data) return res.status(404).json({ error: 'Link not found' });
+    return res.json(data);
+  });
+
   // ── GET /v1/links/:id ──────────────────────────────────────────────────────
   // Resolve a Ripple link and record the click. Called by the /s/[id] redirect
-  // page.
+  // page from the user's browser (not by preview bots — use /preview for that).
   //   200: { url, retailer, sharer }
   //   404: { error }
   router.get('/:id', async (req, res) => {

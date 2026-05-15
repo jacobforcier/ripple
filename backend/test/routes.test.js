@@ -39,28 +39,33 @@ function appWith(path, router) {
   return app;
 }
 
+// No-op OG fetcher for tests — avoids real network calls.
+const noopOG = async () => null;
+const linksApp = (db, opts = {}) =>
+  appWith('/v1/links', makeLinksRouter(db, { fetchOG: noopOG, ...opts }));
+
 // ── POST /v1/links ───────────────────────────────────────────────────────────
 test('POST /v1/links: 400 when source_url is missing', async () => {
-  const app = appWith('/v1/links', makeLinksRouter(mockDb()));
+  const app = linksApp(mockDb());
   const res = await request(app).post('/v1/links').send({});
   assert.equal(res.status, 400);
 });
 
 test('POST /v1/links: 400 when source_url is not a valid URL', async () => {
-  const app = appWith('/v1/links', makeLinksRouter(mockDb()));
+  const app = linksApp(mockDb());
   const res = await request(app).post('/v1/links').send({ source_url: 'not a url' });
   assert.equal(res.status, 400);
 });
 
 test('POST /v1/links: 400 for a non-http(s) URL', async () => {
-  const app = appWith('/v1/links', makeLinksRouter(mockDb()));
+  const app = linksApp(mockDb());
   const res = await request(app).post('/v1/links').send({ source_url: 'ftp://x.com/f' });
   assert.equal(res.status, 400);
 });
 
 test('POST /v1/links: 201 with a ripple_url + detected retailer on success', async () => {
   const db = mockDb({ links: { error: null } });
-  const app = appWith('/v1/links', makeLinksRouter(db));
+  const app = linksApp(db);
   const res = await request(app)
     .post('/v1/links')
     .send({ source_url: 'https://www.amazon.com/dp/B0XYZ' });
@@ -71,7 +76,7 @@ test('POST /v1/links: 201 with a ripple_url + detected retailer on success', asy
 
 test('POST /v1/links: 500 when the insert fails with a non-collision error', async () => {
   const db = mockDb({ links: { error: { code: 'XXXXX', message: 'boom' } } });
-  const app = appWith('/v1/links', makeLinksRouter(db));
+  const app = linksApp(db);
   const res = await request(app)
     .post('/v1/links')
     .send({ source_url: 'https://www.amazon.com/dp/B0XYZ' });
@@ -80,7 +85,7 @@ test('POST /v1/links: 500 when the insert fails with a non-collision error', asy
 
 // ── GET /v1/links ────────────────────────────────────────────────────────────
 test('GET /v1/links: 400 without a user_id', async () => {
-  const app = appWith('/v1/links', makeLinksRouter(mockDb()));
+  const app = linksApp(mockDb());
   const res = await request(app).get('/v1/links');
   assert.equal(res.status, 400);
 });
@@ -88,7 +93,7 @@ test('GET /v1/links: 400 without a user_id', async () => {
 test('GET /v1/links: 200 with the user link list', async () => {
   const rows = [{ id: 'abc', click_count: 2, earned_cents: 0 }];
   const db = mockDb({ link_stats: { data: rows, error: null } });
-  const app = appWith('/v1/links', makeLinksRouter(db));
+  const app = linksApp(db);
   const res = await request(app).get('/v1/links?user_id=u1');
   assert.equal(res.status, 200);
   assert.deepEqual(res.body.links, rows);
@@ -97,7 +102,7 @@ test('GET /v1/links: 200 with the user link list', async () => {
 // ── GET /v1/links/:id ────────────────────────────────────────────────────────
 test('GET /v1/links/:id: 404 when the link is not found', async () => {
   const db = mockDb({ links: { data: null, error: null } });
-  const app = appWith('/v1/links', makeLinksRouter(db));
+  const app = linksApp(db);
   const res = await request(app).get('/v1/links/missing');
   assert.equal(res.status, 404);
 });
@@ -110,7 +115,7 @@ test('GET /v1/links/:id: 200 resolves to the source URL + logs a click', async (
     },
     clicks: { error: null },
   });
-  const app = appWith('/v1/links', makeLinksRouter(db));
+  const app = linksApp(db);
   const res = await request(app).get('/v1/links/abc');
   assert.equal(res.status, 200);
   assert.equal(res.body.url, 'https://x.com/p');
@@ -132,10 +137,58 @@ test('GET /v1/links/:id: prefers affiliate_url and surfaces the sharer name', as
     },
     clicks: { error: null },
   });
-  const app = appWith('/v1/links', makeLinksRouter(db));
+  const app = linksApp(db);
   const res = await request(app).get('/v1/links/abc');
   assert.equal(res.body.url, 'https://aff.x.com/p');
   assert.equal(res.body.sharer, 'Jacob');
+});
+
+// ── GET /v1/links/:id/preview ────────────────────────────────────────────────
+test('GET /v1/links/:id/preview: returns OG metadata without logging a click', async () => {
+  const db = mockDb({
+    links: {
+      data: {
+        id: 'abc',
+        source_url: 'https://x.com/p',
+        retailer: 'X',
+        og_title: 'Cool Water Bottle',
+        og_image: 'https://x.com/bottle.jpg',
+        og_description: 'A bottle that is cool.',
+      },
+      error: null,
+    },
+  });
+  const app = linksApp(db);
+  const res = await request(app).get('/v1/links/abc/preview');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.og_title, 'Cool Water Bottle');
+  assert.equal(res.body.og_image, 'https://x.com/bottle.jpg');
+  assert.equal(res.body.retailer, 'X');
+});
+
+test('GET /v1/links/:id/preview: 404 when the link is missing', async () => {
+  const db = mockDb({ links: { data: null, error: null } });
+  const app = linksApp(db);
+  const res = await request(app).get('/v1/links/missing/preview');
+  assert.equal(res.status, 404);
+});
+
+// ── OG capture on link creation ──────────────────────────────────────────────
+test('POST /v1/links: scrapes OG from the source URL on creation', async () => {
+  let scrapedURL = null;
+  const fakeOG = async (url) => {
+    scrapedURL = url;
+    return { title: 'A Product', image: 'https://x.com/p.jpg', description: 'Nice.' };
+  };
+  const db = mockDb({ links: { error: null } });
+  const app = appWith(
+    '/v1/links',
+    makeLinksRouter(db, { fetchOG: fakeOG })
+  );
+  const source = 'https://www.amazon.com/dp/B0XYZ';
+  const res = await request(app).post('/v1/links').send({ source_url: source });
+  assert.equal(res.status, 201);
+  assert.equal(scrapedURL, source);
 });
 
 // ── POST /v1/users ───────────────────────────────────────────────────────────

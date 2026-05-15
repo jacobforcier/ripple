@@ -29,6 +29,11 @@ create table if not exists links (
     source_url      text not null,                  -- original product URL the user shared
     affiliate_url   text,                           -- tracked URL (null = not yet generated)
     retailer        text,                           -- e.g. "Amazon" — derived from source_url
+    -- Cached Open Graph metadata from the source URL, used to render
+    -- product-specific link previews when the Ripple link is shared.
+    og_title        text,
+    og_image        text,
+    og_description  text,
     created_at      timestamptz not null default now()
 );
 
