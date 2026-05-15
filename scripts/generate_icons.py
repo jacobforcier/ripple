@@ -76,6 +76,61 @@ def _lerp_color(c1, c2, t):
     return tuple(int(c1[i] + (c2[i] - c1[i]) * t) for i in range(3))
 
 
+# ── Launch screen logo (transparent rings, no canvas edge) ────────
+# The app icon's outermost ring overshoots the 1024-pixel canvas — fine for
+# the home-screen icon (rounded-square mask hides it) but UILaunchScreen
+# renders the raw rectangle with no mask, so the clipped curves show. This
+# variant: transparent background (no edge to clip against), rings sized so
+# the outer ring sits well inside the canvas with breathing room. Pairs with
+# the LaunchBackground color asset (#07070f).
+
+def make_launch_logo(size: int) -> Image.Image:
+    SS = 4
+    W = size * SS
+    img = Image.new('RGBA', (W, W), (0, 0, 0, 0))  # fully transparent
+
+    cx = cy = W // 2
+
+    # Soft center glow
+    glow = Image.new('RGBA', (W, W), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    glow_r = int(W * 0.10)
+    for i in range(8, 0, -1):
+        r = int(glow_r * i / 8)
+        alpha = int(45 * (i / 8) ** 2)
+        color = _lerp_color(ACCENT_1, ACCENT_2, i / 8)
+        gd.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(*color, alpha))
+    glow = glow.filter(ImageFilter.GaussianBlur(radius=W * 0.025))
+    img = Image.alpha_composite(img, glow)
+
+    # 6 concentric rings — outer ring at 43% radius (= 86% diameter), so the
+    # full ring fits inside the canvas with ~7% padding on every side.
+    rings = Image.new('RGBA', (W, W), (0, 0, 0, 0))
+    rd = ImageDraw.Draw(rings)
+    line_w = max(2, int(W * 0.011))
+
+    ring_defs = [
+        # (radius_fraction_of_canvas, alpha)
+        (0.08, 235),
+        (0.16, 195),
+        (0.24, 150),
+        (0.32, 105),
+        (0.39, 65),
+        (0.45, 32),
+    ]
+    for frac, alpha in ring_defs:
+        r = int(W * frac)
+        color = _lerp_color(ACCENT_1, ACCENT_2, min(1.0, frac * 1.7))
+        rd.ellipse([cx - r, cy - r, cx + r, cy + r],
+                   outline=(*color, alpha), width=line_w)
+
+    rings = rings.resize((size, size), Image.LANCZOS)
+    img = img.resize((size, size), Image.LANCZOS)
+    img = Image.alpha_composite(img, rings)
+
+    return img
+
+
 # ── Open Graph image (1200×630) ──────────────────────────────────
 # Rendered into Ripple link bubbles in iMessage, X, Slack, etc.
 
@@ -224,6 +279,15 @@ def main():
     # ── Container app in-app icon (referenced by Main.html) ──────
     print('Container app Icon.png:')
     write_resized(light, f'{base}/Ripple/Shared (App)/Resources/Icon.png', 512)
+
+    # ── Launch screen logo (transparent rings) ───────────────────
+    # Rendered on top of the LaunchBackground color asset (#07070f) by
+    # UILaunchScreen in iOS (App)/Info.plist.
+    print('Launch screen logo:')
+    launch_set = f'{base}/Ripple/Shared (App)/Assets.xcassets/LaunchLogo.imageset'
+    write_resized(make_launch_logo(200), f'{launch_set}/launch.png',    200)
+    write_resized(make_launch_logo(400), f'{launch_set}/launch@2x.png', 400)
+    write_resized(make_launch_logo(600), f'{launch_set}/launch@3x.png', 600)
 
     # ── Open Graph image (link previews in iMessage, X, Slack, …) ──
     print('Open Graph image:')
