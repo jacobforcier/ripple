@@ -173,41 +173,66 @@ def make_og_image() -> Image.Image:
     img = img.resize((W, H), Image.LANCZOS)
     img = Image.alpha_composite(img, rings)
 
-    # Text — wordmark + tagline, centered.
+    # Text — wordmark + tagline, centered. Inter (the website's font) so the
+    # OG-image text styling matches sharewithripple.com pixel-for-pixel.
     draw = ImageDraw.Draw(img)
-    wordmark_font = _load_font(180)
-    tagline_font = _load_font(40)
+    wordmark_font = _inter(180, weight='ExtraBold')   # matches the website hero (font-weight: 800)
+    tagline_font = _inter(40, weight='Regular')
 
+    # Center the whole text block (wordmark + gap + tagline) vertically so the
+    # composition stays balanced when the gap changes.
     wordmark = "ripple"
+    tagline = "Word of mouth, finally rewarded."
     wb = draw.textbbox((0, 0), wordmark, font=wordmark_font)
+    tb = draw.textbbox((0, 0), tagline, font=tagline_font)
     ww, wh = wb[2] - wb[0], wb[3] - wb[1]
+    tw_, th_ = tb[2] - tb[0], tb[3] - tb[1]
+
+    gap = 45                                 # breathing room between wordmark + tagline
+    block_h = wh + gap + th_
+    block_top = (H - block_h) // 2
+
     wx = (W - ww) // 2 - wb[0]
-    wy = (H - wh) // 2 - wb[1] - 40
+    wy = block_top - wb[1]
     draw.text((wx, wy), wordmark, font=wordmark_font, fill=(*ACCENT_2, 255))
 
-    tagline = "Word of mouth, finally rewarded."
-    tb = draw.textbbox((0, 0), tagline, font=tagline_font)
-    tw_, th_ = tb[2] - tb[0], tb[3] - tb[1]
     tx = (W - tw_) // 2 - tb[0]
-    ty = wy + wh + 30
+    ty = block_top + wh + gap - tb[1]
     draw.text((tx, ty), tagline, font=tagline_font, fill=(200, 200, 220, 255))
 
     return img
 
 
-def _load_font(size: int) -> ImageFont.FreeTypeFont:
-    """Best-effort system font load with sensible fallbacks."""
-    candidates = [
-        "/System/Library/Fonts/HelveticaNeue.ttc",
-        "/System/Library/Fonts/Helvetica.ttc",
-        "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-    ]
-    for path in candidates:
+_INTER_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'fonts', 'Inter-wght.ttf'
+)
+
+
+def _inter(size: int, *, weight: str = 'Regular') -> ImageFont.FreeTypeFont:
+    """Loads Inter (the website's font) at the given size + named weight.
+
+    Falls back to a system font if the bundled Inter is missing — keeps the
+    generator runnable even without the font checked in.
+    `weight` must be one of: Thin, ExtraLight, Light, Regular, Medium,
+    SemiBold, Bold, ExtraBold, Black.
+    """
+    try:
+        font = ImageFont.truetype(_INTER_PATH, size)
         try:
-            return ImageFont.truetype(path, size)
-        except (OSError, IOError):
-            continue
-    return ImageFont.load_default()
+            font.set_variation_by_name(weight)
+        except (OSError, AttributeError, ValueError):
+            pass  # PIL too old for variable fonts, or weight name not in the file
+        return font
+    except (OSError, IOError):
+        for path in (
+            "/System/Library/Fonts/HelveticaNeue.ttc",
+            "/System/Library/Fonts/Helvetica.ttc",
+        ):
+            try:
+                return ImageFont.truetype(path, size)
+            except (OSError, IOError):
+                continue
+        return ImageFont.load_default()
 
 
 def _draw_rings(img: Image.Image, size: int, ring_rgb):
