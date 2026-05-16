@@ -46,12 +46,16 @@ export default async function handler(req, res) {
     return res.end(renderError("This Ripple link isn't available."));
   }
 
-  // Resolve OG tags — prefer product, fall back to a retailer-aware Ripple default.
+  // Resolve OG tags. We always serve our OWN image (never hotlink the retailer's
+  // CDN) and we prefix the title with "Ripple →" so link previews can't be
+  // mistaken for an actual retailer page — that pattern trips Safe Browsing's
+  // social-engineering classifier as brand impersonation.
+  const productLabel = link.og_title
+    || (link.retailer ? `a product on ${link.retailer}` : 'a shared product');
   const og = {
-    title: link.og_title ||
-      (link.retailer ? `Product on ${link.retailer}` : FALLBACK_OG.title),
+    title:       `Ripple → ${productLabel}`,
     description: link.og_description || FALLBACK_OG.description,
-    image:       link.og_image       || FALLBACK_OG.image,
+    image:       FALLBACK_OG.image,
   };
 
   res.statusCode = 200;
@@ -101,12 +105,11 @@ function renderRedirect({ id, retailer, og }) {
       It's just word-of-mouth, rewarded.
     </p>
     <div class="destination">
-      <span>Continuing to</span>
+      <span>You're heading to</span>
       <span class="arrow">&rarr;</span>
       <span id="retailer-name">${esc(retailer || 'the store')}</span>
     </div>
-    <p class="countdown">Redirecting automatically in <strong id="count">3</strong>…</p>
-    <a class="continue-btn" id="continue-btn" href="#">Continue now</a>
+    <a class="continue-btn" id="continue-btn" href="#" rel="nofollow noopener">Continue to <span id="retailer-name-btn">${esc(retailer || 'the store')}</span></a>
     <a class="what-link" href="/">What is Ripple?</a>
   </div>
 
@@ -146,21 +149,13 @@ function renderRedirect({ id, retailer, og }) {
       }
       if (link.retailer) {
         document.getElementById('retailer-name').textContent = link.retailer;
+        document.getElementById('retailer-name-btn').textContent = link.retailer;
       }
       const btn = document.getElementById('continue-btn');
       btn.href = link.url;
-
-      let remaining = 3;
-      const countEl = document.getElementById('count');
-      const timer = setInterval(() => {
-        remaining -= 1;
-        if (remaining <= 0) {
-          clearInterval(timer);
-          window.location.href = link.url;
-        } else {
-          countEl.textContent = remaining;
-        }
-      }, 1000);
+      // No auto-redirect: the user must click "Continue" to proceed. Auto-redirects
+      // on a cross-domain interstitial trigger Safe Browsing's social-engineering
+      // classifier.
     })();
   </script>
 </body>
