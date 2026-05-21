@@ -17,12 +17,21 @@
 /**
  * Generates the tracked affiliate URL for a given product page. Falls back to
  * the original URL if the retailer isn't supported yet.
+ *
+ * @param {string} sourceUrl  the product page URL
+ * @param {object} [opts]
+ * @param {string} [opts.subtag]  a per-link identifier (the Ripple short id)
+ *   threaded into the affiliate network's sub-tracking field so that, when the
+ *   commission report comes back, each sale can be attributed to the specific
+ *   link/user that drove it. REQUIRED for per-user earnings to work.
  */
-export async function generateAffiliateUrl(sourceUrl) {
+export async function generateAffiliateUrl(sourceUrl, { subtag } = {}) {
   if (isAmazonUrl(sourceUrl)) {
-    return applyAmazonTag(sourceUrl);
+    return applyAmazonTag(sourceUrl, subtag);
   }
-  // Sovrn / other aggregator slot — passthrough until wired up.
+  // Sovrn / other aggregator slot — passthrough until wired up. When a network
+  // is added here, pass `subtag` into its sub-id field too (e.g. Sovrn's `cuid`,
+  // Impact's `subId1`) so attribution survives.
   return sourceUrl;
 }
 
@@ -53,11 +62,17 @@ export function isAmazonUrl(sourceUrl) {
 }
 
 /**
- * Returns the source URL with our Associates `tag` query parameter set.
- * Replaces any existing `tag=...` (so a previous affiliate's tag can't
- * accidentally — or maliciously — pass through us un-overridden).
+ * Returns the source URL with our Associates `tag` query parameter set, and —
+ * if a `subtag` is provided — Amazon's `ascsubtag` tracking field.
+ *
+ * `tag` is replaced if present (so a previous affiliate's tag can't pass
+ * through us un-overridden). `ascsubtag` is the Amazon Associates "SubTag":
+ * it appears in the earnings report alongside each sale, letting us map a
+ * commission back to the exact Ripple link (and therefore user) that produced
+ * it. Without it, every Ripple sale lands under one shared tag with no way to
+ * split earnings between users.
  */
-export function applyAmazonTag(sourceUrl) {
+export function applyAmazonTag(sourceUrl, subtag) {
   const tag = process.env.AMAZON_ASSOCIATE_TAG;
   if (!tag) {
     // Tag isn't configured — return the URL unchanged so the redirect still
@@ -68,10 +83,26 @@ export function applyAmazonTag(sourceUrl) {
   try {
     const url = new URL(sourceUrl);
     url.searchParams.set('tag', tag);
+    const clean = sanitizeSubtag(subtag);
+    if (clean) {
+      url.searchParams.set('ascsubtag', clean);
+    }
     return url.toString();
   } catch {
     return sourceUrl;
   }
+}
+
+/**
+ * Amazon's `ascsubtag` allows up to ~100 chars but is happiest with a simple
+ * token. Ripple short ids are already `[2-9a-z]{7}`, so this is mostly a
+ * defensive guard: keep URL-safe chars only, cap length, return null for
+ * empty/invalid input (so we omit the param rather than send garbage).
+ */
+export function sanitizeSubtag(subtag) {
+  if (!subtag || typeof subtag !== 'string') return null;
+  const clean = subtag.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 80);
+  return clean.length ? clean : null;
 }
 
 // ── Retailer detection ───────────────────────────────────────────────────────

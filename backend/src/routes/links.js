@@ -31,13 +31,6 @@ export function makeLinksRouter(db, { fetchOG = defaultFetchOG } = {}) {
       return res.status(400).json({ error: 'source_url must be an http(s) URL' });
     }
 
-    let affiliate_url;
-    try {
-      affiliate_url = await generateAffiliateUrl(source_url);
-    } catch (err) {
-      console.error('[links] affiliate generation failed:', err);
-      return res.status(502).json({ error: 'Could not generate an affiliate link' });
-    }
     const retailer = detectRetailer(source_url);
 
     // Scrape Open Graph metadata from the source URL so the redirect page
@@ -47,8 +40,25 @@ export function makeLinksRouter(db, { fetchOG = defaultFetchOG } = {}) {
     const og = (await fetchOG(source_url)) ?? {};
 
     // Insert, retrying on the (very unlikely) short-id collision.
+    //
+    // The affiliate URL is generated INSIDE the loop because it embeds the
+    // link `id` as the affiliate-network sub-tag (Amazon `ascsubtag`). That's
+    // what lets a commission in Amazon's report be attributed back to this
+    // exact link — and therefore this user. For Amazon this is pure string
+    // work (no network call), so regenerating per attempt is cheap. If an
+    // API-backed network is added later, hoist its call out and re-apply only
+    // the subtag here.
     for (let attempt = 0; attempt < 5; attempt++) {
       const id = newShortId();
+
+      let affiliate_url;
+      try {
+        affiliate_url = await generateAffiliateUrl(source_url, { subtag: id });
+      } catch (err) {
+        console.error('[links] affiliate generation failed:', err);
+        return res.status(502).json({ error: 'Could not generate an affiliate link' });
+      }
+
       const { error } = await db.from('links').insert({
         id,
         user_id: user_id ?? null,

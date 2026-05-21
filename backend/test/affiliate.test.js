@@ -5,6 +5,7 @@ import {
   generateAffiliateUrl,
   isAmazonUrl,
   applyAmazonTag,
+  sanitizeSubtag,
 } from '../src/lib/affiliate.js';
 
 test('detectRetailer: known domains, with and without www', () => {
@@ -98,4 +99,45 @@ test('applyAmazonTag: returns the URL unchanged when no tag is configured', () =
   delete process.env.AMAZON_ASSOCIATE_TAG;
   const url = 'https://www.amazon.com/dp/B0XYZ';
   assert.equal(applyAmazonTag(url), url);
+});
+
+// ── ascsubtag per-user attribution ───────────────────────────────────────────
+
+test('applyAmazonTag: sets ascsubtag when a subtag is provided', () => {
+  process.env.AMAZON_ASSOCIATE_TAG = 'test-tag-20';
+  const result = applyAmazonTag('https://www.amazon.com/dp/B0XYZ', 'abc1234');
+  const parsed = new URL(result);
+  assert.equal(parsed.searchParams.get('tag'), 'test-tag-20');
+  assert.equal(parsed.searchParams.get('ascsubtag'), 'abc1234');
+});
+
+test('applyAmazonTag: omits ascsubtag when no subtag is provided', () => {
+  process.env.AMAZON_ASSOCIATE_TAG = 'test-tag-20';
+  const result = applyAmazonTag('https://www.amazon.com/dp/B0XYZ');
+  assert.equal(new URL(result).searchParams.has('ascsubtag'), false);
+});
+
+test('generateAffiliateUrl: threads subtag into the Amazon ascsubtag field', async () => {
+  process.env.AMAZON_ASSOCIATE_TAG = 'test-tag-20';
+  const result = await generateAffiliateUrl('https://www.amazon.com/dp/B0XYZ', { subtag: 'xy7k9pq' });
+  const parsed = new URL(result);
+  assert.equal(parsed.searchParams.get('tag'), 'test-tag-20');
+  assert.equal(parsed.searchParams.get('ascsubtag'), 'xy7k9pq');
+});
+
+test('generateAffiliateUrl: non-Amazon passthrough ignores subtag', async () => {
+  process.env.AMAZON_ASSOCIATE_TAG = 'test-tag-20';
+  const url = 'https://www.target.com/p/-/A-12345';
+  assert.equal(await generateAffiliateUrl(url, { subtag: 'abc1234' }), url);
+});
+
+test('sanitizeSubtag: strips unsafe chars, caps length, rejects empties', () => {
+  assert.equal(sanitizeSubtag('abc1234'), 'abc1234');
+  assert.equal(sanitizeSubtag('a b/c?d#e'), 'abcde');          // strips URL-unsafe
+  assert.equal(sanitizeSubtag('keep-this_one'), 'keep-this_one'); // - and _ allowed
+  assert.equal(sanitizeSubtag(''), null);
+  assert.equal(sanitizeSubtag(null), null);
+  assert.equal(sanitizeSubtag(undefined), null);
+  assert.equal(sanitizeSubtag('!!!@@@'), null);                 // all-unsafe → null
+  assert.equal(sanitizeSubtag('x'.repeat(200)).length, 80);     // capped
 });
