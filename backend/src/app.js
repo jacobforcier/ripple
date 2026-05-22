@@ -22,9 +22,22 @@ const allowedOrigins = (process.env.CORS_ORIGINS || '')
 app.use(
   cors({
     origin: (origin, cb) => {
-      // Allow same-origin / curl / native apps (no Origin header) and any
-      // explicitly allow-listed web origin.
-      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      // Allow, in order:
+      //  - no Origin header (curl, native iOS/macOS apps, server-to-server)
+      //  - any origin when no allow-list is configured
+      //  - explicitly allow-listed web origins (the website)
+      //  - the Chrome extension. Its origin is chrome-extension://<id>, and the
+      //    id differs between the unpacked dev build (random per machine) and
+      //    the published Web Store build, so we allow the scheme rather than a
+      //    fixed id. Safe here: this API is public + unauthenticated (and rate-
+      //    limited), so CORS is not its security boundary — anyone can already
+      //    call it with no Origin via curl.
+      if (
+        !origin ||
+        allowedOrigins.length === 0 ||
+        allowedOrigins.includes(origin) ||
+        origin.startsWith('chrome-extension://')
+      ) {
         return cb(null, true);
       }
       return cb(new Error(`Origin ${origin} not allowed by CORS`));
