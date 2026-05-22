@@ -24,12 +24,50 @@ const FALLBACK_OG = {
 
 export default async function handler(req, res) {
   const id = String(req.query?.id ?? '').trim();
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
   if (!id) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.statusCode = 400;
     return res.end(renderError("That doesn't look like a Ripple link."));
   }
+
+  // ── Redirect action: /s/<id>?go=1 ───────────────────────────────────────────
+  // The disclosure page's "Continue" button points HERE (same-origin), not
+  // directly at the retailer. Why: amazon.com is an iOS Universal Link, so a
+  // user TAP of <a href="amazon.com/…"> opens the Amazon APP — where the ?tag=
+  // cookie isn't honored and affiliate attribution is lost. Universal Links do
+  // NOT fire on (a) taps to other domains or (b) HTTP 302 redirects. So the tap
+  // lands on our domain, then this server 302 carries them to the retailer
+  // inside Safari, where the affiliate cookie is set normally.
+  //
+  // This is also where the click is logged — counted when the visitor actually
+  // proceeds, not on disclosure-page load. Preview bots fetch /s/<id> for OG
+  // tags and never reach ?go=1, so they don't inflate click counts.
+  if (req.query?.go === '1') {
+    let dest = SITE_BASE;
+    try {
+      const r = await fetch(`${API_BASE}/v1/links/${encodeURIComponent(id)}`, {
+        headers: {
+          // Forward the real visitor's UA + IP so click logging stays accurate
+          // (without this, every click would look like it came from Vercel).
+          'User-Agent': req.headers['user-agent'] ?? 'ripple-redirect/1.0',
+          'X-Forwarded-For': req.headers['x-forwarded-for'] ?? '',
+        },
+      });
+      if (r.ok) {
+        const data = await r.json();
+        if (data?.url) dest = data.url;
+      }
+    } catch (err) {
+      console.error('[s] go-redirect resolve failed:', err);
+    }
+    res.statusCode = 302;
+    res.setHeader('Location', dest);
+    res.setHeader('Cache-Control', 'no-store');
+    return res.end();
+  }
+
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
   let link = null;
   try {
@@ -96,68 +134,26 @@ function renderRedirect({ id, retailer, og }) {
     <div class="ring"></div><div class="ring"></div>
   </div>
 
-  <div class="card" id="state-valid">
+  <div class="card">
     <div class="logo">ripple</div>
     <h1>Heads up — this is a Ripple link</h1>
     <p class="disclosure">
-      <strong id="sharer-line">The person who shared this</strong> may earn a small
+      <strong>The person who shared this</strong> may earn a small
       commission if you make a purchase — at <strong>no extra cost to you</strong>.
       It's just word-of-mouth, rewarded.
     </p>
     <div class="destination">
       <span>You're heading to</span>
       <span class="arrow">&rarr;</span>
-      <span id="retailer-name">${esc(retailer || 'the store')}</span>
+      <span>${esc(retailer || 'the store')}</span>
     </div>
-    <a class="continue-btn" id="continue-btn" href="#" rel="nofollow noopener">Continue to <span id="retailer-name-btn">${esc(retailer || 'the store')}</span></a>
+    <!-- Continue points same-origin to ?go=1, which 302s to the retailer.
+         A direct <a> to amazon.com would trigger iOS Universal Links and open
+         the Amazon app, breaking ?tag= attribution. The click is logged
+         server-side at ?go=1, not here. -->
+    <a class="continue-btn" href="/s/${encodeURIComponent(id)}?go=1" rel="nofollow noopener">Continue to ${esc(retailer || 'the store')}</a>
     <a class="what-link" href="/">What is Ripple?</a>
   </div>
-
-  <div class="card error hidden" id="state-error">
-    <div class="logo">ripple</div>
-    <h1>This link isn't available</h1>
-    <p class="disclosure">
-      We couldn't find a destination for this Ripple link. It may have expired
-      or been mistyped.
-    </p>
-    <a class="continue-btn" href="/">Go to Ripple</a>
-  </div>
-
-  <script>
-    const API_BASE = ${JSON.stringify(API_BASE)};
-    const LINK_ID  = ${JSON.stringify(id)};
-
-    // GET /v1/links/:id — also records a click. Returns { url, retailer, sharer }.
-    async function resolveLink() {
-      try {
-        const res = await fetch(\`\${API_BASE}/v1/links/\${encodeURIComponent(LINK_ID)}\`);
-        if (!res.ok) return null;
-        return await res.json();
-      } catch { return null; }
-    }
-
-    (async () => {
-      const link = await resolveLink();
-      if (!link || !link.url) {
-        document.getElementById('state-valid').classList.add('hidden');
-        document.getElementById('state-error').classList.remove('hidden');
-        return;
-      }
-      if (link.sharer) {
-        document.getElementById('sharer-line').textContent =
-          \`\${link.sharer} (who shared this)\`;
-      }
-      if (link.retailer) {
-        document.getElementById('retailer-name').textContent = link.retailer;
-        document.getElementById('retailer-name-btn').textContent = link.retailer;
-      }
-      const btn = document.getElementById('continue-btn');
-      btn.href = link.url;
-      // No auto-redirect: the user must click "Continue" to proceed. Auto-redirects
-      // on a cross-domain interstitial trigger Safe Browsing's social-engineering
-      // classifier.
-    })();
-  </script>
 </body>
 </html>`;
 }
