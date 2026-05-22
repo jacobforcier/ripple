@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { newShortId } from '../lib/shortId.js';
 import { hashIp } from '../lib/hashIp.js';
+import { rateLimit } from '../lib/rateLimit.js';
 import { generateAffiliateUrl, detectRetailer } from '../lib/affiliate.js';
 import { fetchOG as defaultFetchOG } from '../lib/og.js';
 
@@ -9,12 +10,22 @@ import { fetchOG as defaultFetchOG } from '../lib/og.js';
 export function makeLinksRouter(db, { fetchOG = defaultFetchOG } = {}) {
   const router = Router();
 
+  // Per-IP cap on link creation. A real user makes a handful of links; this
+  // stops a script from generating thousands. Higher ceiling than user
+  // creation since one person legitimately creates more links than accounts.
+  const createLimit = rateLimit(db, {
+    bucket: 'links:create',
+    max: Number(process.env.RL_LINKS_MAX ?? 60),
+    windowSec: Number(process.env.RL_LINKS_WINDOW_SEC ?? 3600),
+  });
+
   // ── POST /v1/links ─────────────────────────────────────────────────────────
   // Create a Ripple link. Called by the extension popup, the content script,
   // and the iOS / macOS Share Extensions.
   //   body: { source_url: string, user_id?: uuid }
   //   201:  { id, ripple_url, source_url, retailer }
-  router.post('/', async (req, res) => {
+  //   429:  { error }  — too many creations from this IP
+  router.post('/', createLimit, async (req, res) => {
     const { source_url, user_id } = req.body ?? {};
 
     if (!source_url || typeof source_url !== 'string') {

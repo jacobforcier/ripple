@@ -1,8 +1,18 @@
 import { Router } from 'express';
+import { rateLimit } from '../lib/rateLimit.js';
 
 // The `db` client is injected so the routes can be tested with a mock.
 export function makeUsersRouter(db) {
   const router = Router();
+
+  // Anonymous-user creation is the most abusable endpoint (no auth, creates a
+  // row). Cap per-IP creations so it can't be hammered to mass-create accounts.
+  // Generous enough for shared NATs (offices, cafés) and app reinstalls.
+  const createLimit = rateLimit(db, {
+    bucket: 'users:create',
+    max: Number(process.env.RL_USERS_MAX ?? 20),
+    windowSec: Number(process.env.RL_USERS_WINDOW_SEC ?? 3600),
+  });
 
   // ── POST /v1/users ─────────────────────────────────────────────────────────
   // Creates an anonymous user — a row with no email yet. Ripple is anonymous-
@@ -11,7 +21,8 @@ export function makeUsersRouter(db) {
   // it as `user_id` on every link it creates. A real account (email/auth) is
   // collected later, at payout time, when the user claims their balance.
   //   201: { id }
-  router.post('/', async (_req, res) => {
+  //   429: { error }  — too many creations from this IP
+  router.post('/', createLimit, async (_req, res) => {
     const { data, error } = await db
       .from('users')
       .insert({})

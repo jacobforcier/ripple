@@ -76,6 +76,23 @@ create index if not exists commissions_user_id_idx on commissions(user_id);
 create index if not exists commissions_link_id_idx on commissions(link_id);
 create index if not exists commissions_status_idx on commissions(status);
 
+-- ── Rate limiting ────────────────────────────────────────────────────────────
+-- Per-IP sliding-window store for the API's write endpoints. Postgres-backed
+-- (not in-memory) because the API is serverless and instances don't share
+-- memory. See migration 003 + src/lib/rateLimit.js. `ip_hash` is the salted
+-- SHA-256 used elsewhere — never a raw IP.
+create table if not exists rate_limit_hits (
+    id          bigint generated always as identity primary key,
+    bucket      text        not null,   -- e.g. 'users:create', 'links:create'
+    ip_hash     text        not null,
+    created_at  timestamptz not null default now()
+);
+
+create index if not exists rate_limit_hits_lookup
+    on rate_limit_hits (bucket, ip_hash, created_at desc);
+create index if not exists rate_limit_hits_created_at
+    on rate_limit_hits (created_at);
+
 -- ── View: per-link stats ─────────────────────────────────────────────────────
 -- Backs the "your links" list in the dashboard / iOS app.
 create or replace view link_stats as

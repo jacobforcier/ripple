@@ -14,9 +14,11 @@ function makeBuilder(result) {
   const builder = {
     insert: () => builder,
     select: () => builder,
+    delete: () => builder,
     eq: () => builder,
     order: () => builder,
     gte: () => builder,
+    lt: () => builder,
     not: () => builder,
     single: () => Promise.resolve(result),
     maybeSingle: () => Promise.resolve(result),
@@ -206,6 +208,57 @@ test('POST /v1/users: 500 when the insert fails', async () => {
   const res = await request(app).post('/v1/users');
   assert.equal(res.status, 500);
 });
+
+// ── Rate limiting (POST /v1/users) ───────────────────────────────────────────
+// The limiter only engages when an IP can be hashed, i.e. IP_HASH_SALT is set
+// and a client IP is present. We set the salt + an X-Forwarded-For just for
+// these tests and restore the env afterward.
+function withSalt(fn) {
+  return async () => {
+    const prev = process.env.IP_HASH_SALT;
+    process.env.IP_HASH_SALT = 'test-salt';
+    try {
+      await fn();
+    } finally {
+      if (prev === undefined) delete process.env.IP_HASH_SALT;
+      else process.env.IP_HASH_SALT = prev;
+    }
+  };
+}
+
+test('POST /v1/users: 429 when the IP is over the rate limit', withSalt(async () => {
+  // rate_limit_hits count comes back at/over the default max (20) → blocked.
+  const db = mockDb({
+    rate_limit_hits: { data: null, error: null, count: 25 },
+    users: { data: { id: 'should-not-be-created' }, error: null },
+  });
+  const app = appWith('/v1/users', makeUsersRouter(db));
+  const res = await request(app).post('/v1/users').set('X-Forwarded-For', '203.0.113.7');
+  assert.equal(res.status, 429);
+  assert.match(res.body.error, /too many/i);
+  assert.ok(res.headers['retry-after'], 'sets a Retry-After header');
+}));
+
+test('POST /v1/users: allows the request when under the rate limit', withSalt(async () => {
+  const db = mockDb({
+    rate_limit_hits: { data: null, error: null, count: 3 },
+    users: { data: { id: 'user-ok' }, error: null },
+  });
+  const app = appWith('/v1/users', makeUsersRouter(db));
+  const res = await request(app).post('/v1/users').set('X-Forwarded-For', '203.0.113.7');
+  assert.equal(res.status, 201);
+  assert.equal(res.body.id, 'user-ok');
+}));
+
+test('POST /v1/users: fails OPEN (allows) when the limiter query errors', withSalt(async () => {
+  const db = mockDb({
+    rate_limit_hits: { data: null, error: { message: 'db down' }, count: null },
+    users: { data: { id: 'user-failopen' }, error: null },
+  });
+  const app = appWith('/v1/users', makeUsersRouter(db));
+  const res = await request(app).post('/v1/users').set('X-Forwarded-For', '203.0.113.7');
+  assert.equal(res.status, 201, 'limiter errors should not block legitimate users');
+}));
 
 // ── GET /v1/users/:id/earnings ───────────────────────────────────────────────
 test('GET /v1/users/:id/earnings: returns the summary when one exists', async () => {
