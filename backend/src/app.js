@@ -6,6 +6,7 @@ import { db } from './db.js';
 import { makeLinksRouter } from './routes/links.js';
 import { makeUsersRouter } from './routes/users.js';
 import { makeTrendingRouter } from './routes/trending.js';
+import { makeAdminRouter } from './routes/admin.js';
 
 // Builds and configures the Express app. Exported (not started) so it can be
 // used both by the local dev server (src/index.js) and the Vercel serverless
@@ -58,6 +59,7 @@ app.get('/health', (_req, res) => {
 app.use('/v1/links', makeLinksRouter(db));
 app.use('/v1/users', makeUsersRouter(db));
 app.use('/v1/trending', makeTrendingRouter(db));
+app.use('/v1/admin', makeAdminRouter(db));
 
 // ── 404 + error handling ─────────────────────────────────────────────────────
 app.use((_req, res) => {

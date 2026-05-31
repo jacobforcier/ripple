@@ -6,6 +6,8 @@ import request from 'supertest';
 import { makeLinksRouter } from '../src/routes/links.js';
 import { makeUsersRouter } from '../src/routes/users.js';
 import { makeTrendingRouter } from '../src/routes/trending.js';
+import { makeAdminRouter } from '../src/routes/admin.js';
+import { recordCommission } from '../src/lib/commissions.js';
 
 // ── Minimal chainable mock of the supabase-js query builder ──────────────────
 // Chain methods return the builder; terminal methods (and awaiting the builder
@@ -13,6 +15,7 @@ import { makeTrendingRouter } from '../src/routes/trending.js';
 function makeBuilder(result) {
   const builder = {
     insert: () => builder,
+    upsert: () => builder,
     select: () => builder,
     delete: () => builder,
     eq: () => builder,
@@ -307,3 +310,154 @@ test('GET /v1/trending: 500 when the query fails', async () => {
   const res = await request(app).get('/v1/trending');
   assert.equal(res.status, 500);
 });
+
+// ── B5a: recordCommission lib (unit) ─────────────────────────────────────────
+// The lib resolves user_id from the link, validates the input, and writes to
+// the commissions table. The mock returns whatever result we configure for
+// each table, so we can simulate "link exists" / "link missing" / write errors.
+
+const ISO = '2026-05-20T12:00:00Z';
+const VALID = {
+  linkId: 'lnk1',
+  retailer: 'Amazon',
+  grossCents: 1000,
+  userCents: 500,
+  status: 'pending',
+  occurredAt: ISO,
+};
+
+test('recordCommission: inserts when externalRef is absent', async () => {
+  const db = mockDb({
+    links: { data: { id: 'lnk1', user_id: 'u1' }, error: null },
+    commissions: { data: { id: 'c1', status: 'pending' }, error: null },
+  });
+  const out = await recordCommission(db, VALID);
+  assert.equal(out.id, 'c1');
+  assert.equal(out.status, 'pending');
+});
+
+test('recordCommission: upserts when externalRef is provided (idempotent path)', async () => {
+  const db = mockDb({
+    links: { data: { id: 'lnk1', user_id: 'u1' }, error: null },
+    commissions: { data: { id: 'c2', status: 'confirmed' }, error: null },
+  });
+  const out = await recordCommission(db, {
+    ...VALID,
+    status: 'confirmed',
+    externalRef: 'AMZN-ORDER-123',
+  });
+  assert.equal(out.id, 'c2');
+  assert.equal(out.status, 'confirmed');
+});
+
+test('recordCommission: throws when the link does not exist', async () => {
+  const db = mockDb({ links: { data: null, error: null } });
+  await assert.rejects(
+    () => recordCommission(db, VALID),
+    /link not found/i
+  );
+});
+
+test('recordCommission: rejects invalid input (userCents > grossCents)', async () => {
+  const db = mockDb({ links: { data: { id: 'lnk1', user_id: 'u1' }, error: null } });
+  await assert.rejects(
+    () => recordCommission(db, { ...VALID, grossCents: 100, userCents: 500 }),
+    /userCents cannot exceed grossCents/i
+  );
+});
+
+test('recordCommission: rejects invalid status', async () => {
+  const db = mockDb({ links: { data: { id: 'lnk1', user_id: 'u1' }, error: null } });
+  await assert.rejects(
+    () => recordCommission(db, { ...VALID, status: 'WHATEVER' }),
+    /invalid status/i
+  );
+});
+
+test('recordCommission: rejects bad occurredAt', async () => {
+  const db = mockDb({ links: { data: { id: 'lnk1', user_id: 'u1' }, error: null } });
+  await assert.rejects(
+    () => recordCommission(db, { ...VALID, occurredAt: 'not a date' }),
+    /occurredAt/i
+  );
+});
+
+// ── B5a: POST /v1/admin/commissions ──────────────────────────────────────────
+// Shared-secret auth via X-Admin-Key. We isolate process.env per-test so the
+// auth-disabled path doesn't leak into others.
+
+function withAdminKey(key, fn) {
+  return async () => {
+    const prev = process.env.ADMIN_API_KEY;
+    if (key === null) delete process.env.ADMIN_API_KEY;
+    else process.env.ADMIN_API_KEY = key;
+    try {
+      await fn();
+    } finally {
+      if (prev === undefined) delete process.env.ADMIN_API_KEY;
+      else process.env.ADMIN_API_KEY = prev;
+    }
+  };
+}
+
+const adminApp = (db) => appWith('/v1/admin', makeAdminRouter(db));
+
+test('POST /v1/admin/commissions: 503 when ADMIN_API_KEY is not configured',
+  withAdminKey(null, async () => {
+    const res = await request(adminApp(mockDb())).post('/v1/admin/commissions');
+    assert.equal(res.status, 503);
+  }));
+
+test('POST /v1/admin/commissions: 401 with a wrong key',
+  withAdminKey('correct-key', async () => {
+    const res = await request(adminApp(mockDb()))
+      .post('/v1/admin/commissions')
+      .set('X-Admin-Key', 'nope-not-it');
+    assert.equal(res.status, 401);
+  }));
+
+test('POST /v1/admin/commissions: 401 with no key header',
+  withAdminKey('correct-key', async () => {
+    const res = await request(adminApp(mockDb())).post('/v1/admin/commissions');
+    assert.equal(res.status, 401);
+  }));
+
+test('POST /v1/admin/commissions: 400 with empty / missing body',
+  withAdminKey('correct-key', async () => {
+    const res = await request(adminApp(mockDb()))
+      .post('/v1/admin/commissions')
+      .set('X-Admin-Key', 'correct-key')
+      .send({});
+    assert.equal(res.status, 400);
+  }));
+
+test('POST /v1/admin/commissions: 201 records a valid batch',
+  withAdminKey('correct-key', async () => {
+    const db = mockDb({
+      links: { data: { id: 'lnk1', user_id: 'u1' }, error: null },
+      commissions: { data: { id: 'c1', status: 'pending' }, error: null },
+    });
+    const res = await request(adminApp(db))
+      .post('/v1/admin/commissions')
+      .set('X-Admin-Key', 'correct-key')
+      .send({ commissions: [VALID, { ...VALID, externalRef: 'ext-1' }] });
+    assert.equal(res.status, 201);
+    assert.equal(res.body.recorded, 2);
+    assert.equal(res.body.results.length, 2);
+    assert.ok(res.body.results.every((r) => r.id === 'c1'));
+  }));
+
+test('POST /v1/admin/commissions: per-row error when a row references a missing link',
+  withAdminKey('correct-key', async () => {
+    // No 'links' result → maybeSingle returns null → recordCommission throws.
+    const db = mockDb({
+      commissions: { data: { id: 'c1', status: 'pending' }, error: null },
+    });
+    const res = await request(adminApp(db))
+      .post('/v1/admin/commissions')
+      .set('X-Admin-Key', 'correct-key')
+      .send({ commissions: [VALID] });
+    assert.equal(res.status, 201);
+    assert.equal(res.body.recorded, 0);
+    assert.match(res.body.results[0].error, /link not found/i);
+  }));

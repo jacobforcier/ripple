@@ -69,12 +69,19 @@ create table if not exists commissions (
                         check (status in ('pending', 'confirmed', 'paid')),
     occurred_at     timestamptz not null default now(),  -- when the sale happened
     confirmed_at    timestamptz,                         -- when the network confirmed it
-    created_at      timestamptz not null default now()
+    created_at      timestamptz not null default now(),
+    -- external_ref = the affiliate network's own id for this commission row,
+    -- used to make report ingestion idempotent. Nullable so manual inserts
+    -- don't need one; the uniqueness constraint is partial (see below).
+    external_ref    text
 );
 
 create index if not exists commissions_user_id_idx on commissions(user_id);
 create index if not exists commissions_link_id_idx on commissions(link_id);
 create index if not exists commissions_status_idx on commissions(status);
+create unique index if not exists commissions_external_ref_unique
+    on commissions (retailer, external_ref)
+    where external_ref is not null;
 
 -- ── Rate limiting ────────────────────────────────────────────────────────────
 -- Per-IP sliding-window store for the API's write endpoints. Postgres-backed
