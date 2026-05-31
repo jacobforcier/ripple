@@ -79,9 +79,12 @@ create table if not exists commissions (
 create index if not exists commissions_user_id_idx on commissions(user_id);
 create index if not exists commissions_link_id_idx on commissions(link_id);
 create index if not exists commissions_status_idx on commissions(status);
+-- Full (non-partial) unique index. PostgREST's INSERT ... ON CONFLICT can't
+-- resolve a partial index without the predicate, which broke recordCommission.
+-- Multiple NULL external_refs are still allowed because Postgres treats NULLs
+-- as distinct in unique indexes by default. See migration 005.
 create unique index if not exists commissions_external_ref_unique
-    on commissions (retailer, external_ref)
-    where external_ref is not null;
+    on commissions (retailer, external_ref);
 
 -- ── Rate limiting ────────────────────────────────────────────────────────────
 -- Per-IP sliding-window store for the API's write endpoints. Postgres-backed
