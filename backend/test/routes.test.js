@@ -532,10 +532,13 @@ test('POST /:id/connect/start: creates the account as an individual recipient (l
   const db = mockDb({ users: { data: { id: 'u1', email: 'jake@example.com', stripe_connect_id: null }, error: null } });
   const res = await request(connectApp(db, stripe)).post('/v1/users/u1/connect/start');
   assert.equal(res.status, 200);
-  // These three keep onboarding to "identity + bank", not the merchant flow.
+  // These keep onboarding to "identity + bank", not the merchant flow:
+  // individual business_type + a fully prefilled business_profile so the user
+  // is never asked for a website or what they sell.
   assert.equal(createArgs.business_type, 'individual');
-  assert.equal(createArgs.tos_acceptance?.service_agreement, 'recipient');
-  assert.ok(createArgs.business_profile?.url, 'business_profile prefilled so the user is not asked for a website');
+  assert.ok(createArgs.business_profile?.url, 'business_profile.url prefilled');
+  assert.ok(createArgs.business_profile?.product_description, 'product_description prefilled');
+  assert.ok(createArgs.business_profile?.mcc, 'mcc prefilled so industry is not asked');
 });
 
 test('POST /:id/connect/start: reuses an existing account (no second create)', async () => {

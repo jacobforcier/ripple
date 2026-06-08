@@ -85,22 +85,23 @@ export function makeConnectRouter(db, { stripe: injectedStripe } = {}) {
         const account = await stripe.accounts.create({
           type: 'express',
           email: user.email,
-          // Ripple users only RECEIVE payouts — they don't sell anything or
-          // process charges. Telling Stripe this up front is what keeps
-          // onboarding to "identity + bank account" instead of the full
-          // merchant flow (business website, products sold, MCC, etc.).
+          // Ripple users only RECEIVE payouts — they're individuals, not
+          // businesses selling things. Setting business_type skips the
+          // company/business branch of onboarding.
+          //
+          // (The lighter "recipient" service agreement would be ideal, but
+          // Stripe only allows it for cross-border payouts — a US platform
+          // paying US recipients can't use it.)
           business_type: 'individual',
-          // The "recipient" service agreement is purpose-built for platforms
-          // that pay out to individuals. It limits the account to receiving
-          // transfers and removes merchant-style onboarding requirements.
-          // NOTE: a service agreement is immutable once accepted — accounts
-          // created before this change keep the old (heavier) agreement.
-          tos_acceptance: { service_agreement: 'recipient' },
           capabilities: { transfers: { requested: true } },
-          // Prefill the business profile so Stripe never prompts the user for a
-          // website or "what do you sell" — for a recipient it's just Ripple.
+          // PREFILL the business profile. Stripe only asks the user for fields
+          // that are still missing, so by supplying the URL, industry, and a
+          // description here, the user is never prompted for a website or
+          // "what do you sell." What remains is the unavoidable US identity +
+          // bank verification (KYC), which every payout recipient must do.
           business_profile: {
             url: 'https://www.sharewithripple.com',
+            mcc: '5969', // Direct marketing / direct response
             product_description:
               'Receives a small reward when a friend buys through a product link they shared via Ripple.',
           },
