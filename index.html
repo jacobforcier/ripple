@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ripple — Word of mouth, finally rewarded</title>
-  <meta name="description" content="Ripple is a browser extension that turns the products you share with friends into a small automatic commission. No influencer account. No extra steps." />
+  <title>Ripple — Share the products you love, in one click</title>
+  <meta name="description" content="Ripple is a browser extension that makes it effortless to send friends a link to a product you recommend, straight from the page you're on." />
 
   <!-- Canonical URL — tells Google that the apex domain is the authoritative
        version, even when crawled at www.sharewithripple.com. Fixes the
@@ -15,15 +15,15 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Ripple" />
   <meta property="og:url" content="https://www.sharewithripple.com/" />
-  <meta property="og:title" content="Ripple — Word of mouth, finally rewarded" />
-  <meta property="og:description" content="Ripple quietly turns the product links you already share with friends into a small commission. No influencer account, no extra steps." />
+  <meta property="og:title" content="Ripple — Share the products you love, in one click" />
+  <meta property="og:description" content="A browser extension that makes it effortless to send friends a link to a product you recommend, straight from the page you're on." />
   <meta property="og:image" content="https://www.sharewithripple.com/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Ripple — Word of mouth, finally rewarded." />
+  <meta property="og:image:alt" content="Ripple — share the products you love, in one click." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Ripple — Word of mouth, finally rewarded" />
-  <meta name="twitter:description" content="Ripple quietly turns the product links you already share with friends into a small commission. No influencer account, no extra steps." />
+  <meta name="twitter:title" content="Ripple — Share the products you love, in one click" />
+  <meta name="twitter:description" content="A browser extension that makes it effortless to send friends a link to a product you recommend, straight from the page you're on." />
   <meta name="twitter:image" content="https://www.sharewithripple.com/og-image.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -90,6 +90,25 @@
       transition: opacity 0.2s;
     }
     .nav-cta:hover { opacity: 0.85; }
+
+    /* Primary CTA button used in place of the inline email form */
+    .hero-cta-btn, .section-cta-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      padding: 15px 34px;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      position: relative;
+      z-index: 1;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .hero-cta-btn { margin-top: 40px; }
+    .hero-cta-btn:hover, .section-cta-btn:hover { opacity: 0.9; }
+    .hero-cta-btn:active, .section-cta-btn:active { transform: scale(0.98); }
 
     /* ── HERO ── */
     .hero {
@@ -752,7 +771,7 @@
   <!-- NAV -->
   <nav>
     <div class="logo">ripple</div>
-    <a class="nav-cta" href="#waitlist">Join the waitlist</a>
+    <a class="nav-cta" href="/waitlist">Join the waitlist</a>
   </nav>
 
   <!-- HERO -->
@@ -767,34 +786,19 @@
     </div>
 
     <div class="hero-badge">
-      <span></span> Early access — join the waitlist
+      <span></span> A simpler way to share what you find
     </div>
 
-    <h1>Word of mouth,<br /><em>finally rewarded.</em></h1>
+    <h1>Share the products<br />you love, <em>in one click.</em></h1>
 
     <p class="hero-sub">
-      You were going to share that link anyway. Ripple turns it into a small commission — no influencer account, no extra steps.
+      Ripple is a browser extension that makes it effortless to send a friend a link to something you recommend — straight from the product page you're already on.
     </p>
 
-    <!-- Waitlist form — replace YOUR_FORM_ID with your Formspree form ID -->
-    <form
-      class="waitlist-form"
-      id="hero-form"
-      action="https://formspree.io/f/mpqkvpaa"
-      method="POST"
-    >
-      <input type="email" name="email" placeholder="your@email.com" required />
-      <button type="submit">Get early access</button>
-    </form>
-
-    <div class="success-msg" id="hero-success">
-      You're on the list. We'll reach out when Ripple is ready.
-    </div>
-
-    <p class="hero-note">No spam. Unsubscribe anytime.</p>
+    <a class="hero-cta-btn" href="/waitlist">Join the waitlist</a>
 
     <p class="hero-disclosure">
-      Ripple is an affiliate platform. We earn commissions from partner retailers when a friend you share with completes a purchase, and we share a portion of that commission with you. <a href="#how-it-works">See how Ripple works</a>.
+      Ripple works with retailers' affiliate programs. When a friend buys through a link you shared, a small thank-you comes back to you — and every link clearly discloses this to your friends. <a href="#how-it-works">See how it works</a>.
     </p>
   </div>
 
@@ -898,42 +902,42 @@
             <path d="M15.5 16.5a4.5 4.5 0 0 1 4.5-2.5c2.5 0 4.5 1.5 4.5 3.5s-2 3-4.5 3.5-4.5 1.5-4.5 3.5 2 3.5 4.5 3.5a4.5 4.5 0 0 0 4.5-2.5" stroke="#5b8af5" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </span>
-        <h3>When friends buy</h3>
-        <p>If a friend purchases through your link, a small commission credits to your Ripple dashboard. Your earnings accrue over time.</p>
+        <h3>Send it to a friend</h3>
+        <p>Paste your link wherever you'd normally share. If a friend buys through it, a small thank-you is set aside for you — but the point is making the recommendation easy.</p>
       </div>
     </div>
   </section>
 
   <hr class="divider" />
 
-  <!-- THE HONEST PITCH -->
+  <!-- THE IDEA -->
   <section>
-    <div class="section-label">What to expect</div>
-    <h2>Small thanks for a real recommendation.</h2>
+    <div class="section-label">The idea</div>
+    <h2>Built for sharing, not for selling.</h2>
     <p class="section-sub">
-      Ripple isn't a side hustle. It's a small acknowledgement — like a referral credit — for the recommendations you were already going to make.
+      Ripple isn't a way to make money. It's a faster way to recommend things to friends — with a small thank-you when a recommendation lands, and a built-in disclosure so it's always honest.
     </p>
 
     <div class="pitch-grid">
       <div class="pitch-card">
         <div class="tag">Example</div>
-        <h3>The board game scenario</h3>
-        <p>You bring a board game to work. A handful of coworkers love it and order their own copies. The small commission that results — a few dollars, maybe enough for a coffee — credits to your Ripple dashboard. That's the model.</p>
+        <h3>The board game</h3>
+        <p>You bring a board game to game night. A couple of friends love it and order their own. Because you shared with Ripple, a small thank-you comes back to you. That's the whole idea — nothing more.</p>
       </div>
       <div class="pitch-card">
         <div class="tag green">Transparent</div>
-        <h3>Your friends will know</h3>
-        <p>Every Ripple link includes a disclosure that you may earn a small commission if they buy. No hidden motives — just honest word-of-mouth, rewarded.</p>
+        <h3>Your friends always know</h3>
+        <p>Every link you share passes through a short disclosure page that tells your friend, up front, that you may receive a small thank-you if they buy. No hidden motives.</p>
       </div>
       <div class="pitch-card">
-        <div class="tag">No Setup</div>
-        <h3>Zero affiliate accounts</h3>
-        <p>Ripple connects to retailer affiliate programs behind the scenes. You don't apply, configure, or manage anything. It just works.</p>
+        <div class="tag">No setup</div>
+        <h3>Nothing to configure</h3>
+        <p>No affiliate accounts to apply for, nothing to manage. You add the extension once and it handles the retailer relationships for you.</p>
       </div>
       <div class="pitch-card">
         <div class="tag green">You're in control</div>
         <h3>It only acts when you click</h3>
-        <p>Nothing runs in the background, and Ripple never touches what you copy elsewhere. You open it on a product page when you want a share link — that's the only time it does anything. Check your dashboard whenever you're curious.</p>
+        <p>Nothing runs in the background, and Ripple never reads what you copy elsewhere. It does one thing, only when you open it on a product page and ask for a link.</p>
       </div>
     </div>
   </section>
@@ -980,37 +984,24 @@
         <p>No. Ripple handles all affiliate program relationships on the backend. You sign up for Ripple once, and every supported retailer is automatically covered.</p>
       </div>
       <div class="faq-item">
-        <h3>What does this typically pay?</h3>
-        <p>Commission rates are set by each retailer — typically a small percentage of the purchase price. For most products, that's cents to a few dollars per sale. Ripple is designed as a small acknowledgement, not an income source.</p>
+        <h3>Is this a way to make money?</h3>
+        <p>No — and we want to be clear about that. The thank-you is usually cents to a couple of dollars on a purchase. Ripple is meant to make recommending things easier, not to be an income source. If you're looking for serious affiliate earnings, this isn't the tool for that.</p>
       </div>
       <div class="faq-item">
-        <h3>When and how are payouts handled?</h3>
-        <p>Your earnings accrue in your Ripple dashboard. Payouts are processed through Stripe Connect once you reach a small minimum balance. We're finalizing the payout flow — join the waitlist to be notified when it launches.</p>
+        <h3>What does it cost?</h3>
+        <p>Nothing. Ripple is free to add and free to use. Your friends pay the normal retailer price — sharing through Ripple never changes what anything costs them.</p>
       </div>
     </div>
   </section>
 
   <!-- FINAL CTA -->
-  <div class="cta-section" id="waitlist">
-    <h2>Be first when Ripple launches.</h2>
+  <div class="cta-section">
+    <h2>Want to know when it's ready?</h2>
     <p class="section-sub">
-      We're in early development. Join the waitlist and we'll let you know when the extension is ready to install.
+      Ripple is in early development. Join the waitlist and we'll let you know when the extension is ready to add.
     </p>
 
-    <!-- Waitlist form — replace YOUR_FORM_ID with your Formspree form ID -->
-    <form
-      class="cta-form"
-      id="cta-form"
-      action="https://formspree.io/f/mpqkvpaa"
-      method="POST"
-    >
-      <input type="email" name="email" placeholder="your@email.com" required />
-      <button type="submit">Join the waitlist</button>
-    </form>
-
-    <div class="success-msg" id="cta-success" style="margin-top:24px;">
-      You're on the list. We'll reach out when Ripple is ready.
-    </div>
+    <a class="section-cta-btn" href="/waitlist">Join the waitlist</a>
   </div>
 
   <!-- FOOTER -->
@@ -1018,42 +1009,11 @@
     <div class="footer-logo">ripple</div>
     <p>© 2026 Ripple. All rights reserved.</p>
     <div style="display:flex; gap: 20px; align-items: center;">
+      <a href="/waitlist">Waitlist</a>
       <a href="/privacy">Privacy Policy</a>
       <p>sharewithripple.com</p>
     </div>
   </footer>
-
-  <script>
-    function handleForm(formId, successId) {
-      const form = document.getElementById(formId);
-      const success = document.getElementById(successId);
-      if (!form) return;
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = new FormData(form);
-        try {
-          const res = await fetch(form.action, {
-            method: 'POST',
-            body: data,
-            headers: { 'Accept': 'application/json' }
-          });
-          if (res.ok) {
-            form.style.display = 'none';
-            success.style.display = 'block';
-            // Hide hero note on success
-            const note = form.parentElement?.querySelector('.hero-note');
-            if (note) note.style.display = 'none';
-          }
-        } catch (_) {
-          form.style.display = 'none';
-          success.style.display = 'block';
-        }
-      });
-    }
-
-    handleForm('hero-form', 'hero-success');
-    handleForm('cta-form', 'cta-success');
-  </script>
 
 </body>
 </html>

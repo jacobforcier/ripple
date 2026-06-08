@@ -2,6 +2,7 @@
   "routes": [
     { "handle": "filesystem" },
     { "src": "/privacy/?", "dest": "/privacy.html" },
+    { "src": "/waitlist/?", "dest": "/waitlist.html" },
     { "src": "/s/([^/]+)/?", "dest": "/api/s?id=$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]

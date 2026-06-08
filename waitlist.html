@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ripple — Join the waitlist</title>
+  <meta name="description" content="Join the waitlist to find out when the Ripple browser extension is ready to add." />
+  <link rel="canonical" href="https://www.sharewithripple.com/waitlist" />
+  <meta name="robots" content="noindex" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #07070f;
+      --surface: rgba(255,255,255,0.04);
+      --border:  rgba(255,255,255,0.08);
+      --accent:  #5b8af5;
+      --accent2: #38bdf8;
+      --text:    #eeeeff;
+      --muted:   #7878a0;
+      --radius:  12px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    nav a.back {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    nav a.back:hover { color: var(--text); }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      max-width: 600px;
+    }
+    .sub {
+      margin-top: 20px;
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    form {
+      margin-top: 36px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    input[type="email"] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-family: inherit;
+      width: 300px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="email"]::placeholder { color: var(--muted); }
+    input[type="email"]:focus { border-color: var(--accent); }
+    button {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.98); }
+
+    .note { margin-top: 16px; font-size: 13px; color: rgba(148,163,184,0.6); }
+
+    .success-msg {
+      display: none;
+      margin-top: 36px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius);
+      padding: 16px 28px;
+      font-size: 15px;
+      color: var(--accent2);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 40px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    footer a, footer p { font-size: 13px; color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="logo" href="/">ripple</a>
+    <a class="back" href="/">← Back to home</a>
+  </nav>
+
+  <main>
+    <h1>Join the waitlist</h1>
+    <p class="sub">
+      Ripple is in early development. Leave your email and we'll let you know when the browser extension is ready to add. That's the only thing we'll use it for.
+    </p>
+
+    <form id="waitlist-form" action="https://formspree.io/f/mpqkvpaa" method="POST">
+      <input type="email" name="email" placeholder="your@email.com" required />
+      <button type="submit">Join the waitlist</button>
+    </form>
+
+    <p class="note">No spam. Unsubscribe anytime.</p>
+
+    <div class="success-msg" id="waitlist-success">
+      You're on the list. We'll be in touch when Ripple is ready.
+    </div>
+  </main>
+
+  <footer>
+    <a href="/">Home</a>
+    <a href="/privacy">Privacy Policy</a>
+    <p>sharewithripple.com</p>
+  </footer>
+
+  <script>
+    const form = document.getElementById('waitlist-form');
+    const success = document.getElementById('waitlist-success');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' },
+        });
+        if (res.ok) {
+          form.style.display = 'none';
+          document.querySelector('.note').style.display = 'none';
+          success.style.display = 'block';
+        }
+      } catch (_) {
+        form.style.display = 'none';
+        document.querySelector('.note').style.display = 'none';
+        success.style.display = 'block';
+      }
+    });
+  </script>
+
+</body>
+</html>
