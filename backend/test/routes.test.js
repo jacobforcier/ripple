@@ -526,6 +526,18 @@ test('POST /:id/connect/start: 200 creates an Express account + returns an onboa
   assert.match(res.body.url, /connect\.stripe\.com/);
 });
 
+test('POST /:id/connect/start: creates the account as an individual recipient (light onboarding)', async () => {
+  let createArgs = null;
+  const stripe = stripeMock({ accountsCreate: async (args) => { createArgs = args; return { id: 'acct_test123' }; } });
+  const db = mockDb({ users: { data: { id: 'u1', email: 'jake@example.com', stripe_connect_id: null }, error: null } });
+  const res = await request(connectApp(db, stripe)).post('/v1/users/u1/connect/start');
+  assert.equal(res.status, 200);
+  // These three keep onboarding to "identity + bank", not the merchant flow.
+  assert.equal(createArgs.business_type, 'individual');
+  assert.equal(createArgs.tos_acceptance?.service_agreement, 'recipient');
+  assert.ok(createArgs.business_profile?.url, 'business_profile prefilled so the user is not asked for a website');
+});
+
 test('POST /:id/connect/start: reuses an existing account (no second create)', async () => {
   let created = 0;
   const stripe = stripeMock({ accountsCreate: async () => { created++; return { id: 'acct_new' }; } });
