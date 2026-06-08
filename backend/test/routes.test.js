@@ -8,6 +8,8 @@ import { makeUsersRouter } from '../src/routes/users.js';
 import { makeTrendingRouter } from '../src/routes/trending.js';
 import { makeAdminRouter } from '../src/routes/admin.js';
 import { recordCommission } from '../src/lib/commissions.js';
+import { makeConnectRouter } from '../src/routes/connect.js';
+import { handleEvent } from '../src/routes/stripeWebhook.js';
 
 // ── Minimal chainable mock of the supabase-js query builder ──────────────────
 // Chain methods return the builder; terminal methods (and awaiting the builder
@@ -16,6 +18,7 @@ function makeBuilder(result) {
   const builder = {
     insert: () => builder,
     upsert: () => builder,
+    update: () => builder,
     select: () => builder,
     delete: () => builder,
     eq: () => builder,
@@ -461,3 +464,139 @@ test('POST /v1/admin/commissions: per-row error when a row references a missing 
     assert.equal(res.body.recorded, 0);
     assert.match(res.body.results[0].error, /link not found/i);
   }));
+
+// ── B5c: Stripe Connect onboarding (POST /v1/users/:id/claim, /connect/*) ─────
+// The connect router takes an injected Stripe mock so we never hit Stripe.
+
+function stripeMock(overrides = {}) {
+  return {
+    accounts: {
+      create: overrides.accountsCreate || (async () => ({ id: 'acct_test123' })),
+      retrieve: overrides.accountsRetrieve ||
+        (async () => ({ payouts_enabled: true, details_submitted: true })),
+    },
+    accountLinks: {
+      create: overrides.accountLinksCreate ||
+        (async () => ({ url: 'https://connect.stripe.com/setup/test' })),
+    },
+  };
+}
+
+const connectApp = (db, stripe) =>
+  appWith('/v1/users', makeConnectRouter(db, { stripe }));
+
+test('POST /:id/claim: 400 on an invalid email', async () => {
+  const res = await request(connectApp(mockDb(), stripeMock()))
+    .post('/v1/users/u1/claim')
+    .send({ email: 'not-an-email' });
+  assert.equal(res.status, 400);
+});
+
+test('POST /:id/claim: 404 when the user does not exist', async () => {
+  const db = mockDb({ users: { data: null, error: null } });
+  const res = await request(connectApp(db, stripeMock()))
+    .post('/v1/users/u1/claim')
+    .send({ email: 'jake@example.com' });
+  assert.equal(res.status, 404);
+});
+
+test('POST /:id/claim: 200 attaches the email', async () => {
+  const db = mockDb({ users: { data: { id: 'u1', email: null }, error: null } });
+  const res = await request(connectApp(db, stripeMock()))
+    .post('/v1/users/u1/claim')
+    .send({ email: 'Jake@Example.com' });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.email, 'jake@example.com'); // normalized
+});
+
+test('POST /:id/connect/start: 400 when the user has no email yet', async () => {
+  const db = mockDb({ users: { data: { id: 'u1', email: null, stripe_connect_id: null }, error: null } });
+  const res = await request(connectApp(db, stripeMock()))
+    .post('/v1/users/u1/connect/start');
+  assert.equal(res.status, 400);
+  assert.match(res.body.error, /claim an email/i);
+});
+
+test('POST /:id/connect/start: 200 creates an Express account + returns an onboarding URL', async () => {
+  const db = mockDb({ users: { data: { id: 'u1', email: 'jake@example.com', stripe_connect_id: null }, error: null } });
+  const res = await request(connectApp(db, stripeMock()))
+    .post('/v1/users/u1/connect/start');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.account, 'acct_test123');
+  assert.match(res.body.url, /connect\.stripe\.com/);
+});
+
+test('POST /:id/connect/start: reuses an existing account (no second create)', async () => {
+  let created = 0;
+  const stripe = stripeMock({ accountsCreate: async () => { created++; return { id: 'acct_new' }; } });
+  const db = mockDb({ users: { data: { id: 'u1', email: 'jake@example.com', stripe_connect_id: 'acct_existing' }, error: null } });
+  const res = await request(connectApp(db, stripe))
+    .post('/v1/users/u1/connect/start');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.account, 'acct_existing');
+  assert.equal(created, 0, 'should not create a new account when one exists');
+});
+
+test('GET /:id/connect/status: not connected when no account exists', async () => {
+  const db = mockDb({ users: { data: { id: 'u1', stripe_connect_id: null, connect_onboarded_at: null }, error: null } });
+  const res = await request(connectApp(db, stripeMock()))
+    .get('/v1/users/u1/connect/status');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.connected, false);
+  assert.equal(res.body.payouts_enabled, false);
+});
+
+test('GET /:id/connect/status: reports payouts_enabled from Stripe when connected', async () => {
+  const db = mockDb({ users: { data: { id: 'u1', stripe_connect_id: 'acct_1', connect_onboarded_at: null }, error: null } });
+  const res = await request(connectApp(db, stripeMock()))
+    .get('/v1/users/u1/connect/status');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.connected, true);
+  assert.equal(res.body.payouts_enabled, true);
+});
+
+// ── B5c: webhook handleEvent (direct unit tests, no HTTP/signature) ───────────
+
+test('handleEvent account.updated: writes onboarded timestamp when payouts_enabled', async () => {
+  const db = mockDb({ users: { data: null, error: null } });
+  await assert.doesNotReject(() =>
+    handleEvent(db, {
+      type: 'account.updated',
+      data: { object: { id: 'acct_1', payouts_enabled: true } },
+    }));
+});
+
+test('handleEvent account.updated: no-op when payouts not yet enabled', async () => {
+  // Even with a DB error configured, a non-enabled account never writes, so no throw.
+  const db = mockDb({ users: { data: null, error: { message: 'should not be hit' } } });
+  await assert.doesNotReject(() =>
+    handleEvent(db, {
+      type: 'account.updated',
+      data: { object: { id: 'acct_1', payouts_enabled: false } },
+    }));
+});
+
+test('handleEvent account.updated: throws on DB write error (so Stripe retries)', async () => {
+  const db = mockDb({ users: { data: null, error: { message: 'db down' } } });
+  await assert.rejects(() =>
+    handleEvent(db, {
+      type: 'account.updated',
+      data: { object: { id: 'acct_1', payouts_enabled: true } },
+    }));
+});
+
+test('handleEvent account.application.deauthorized: clears the linkage', async () => {
+  const db = mockDb({ users: { data: null, error: null } });
+  await assert.doesNotReject(() =>
+    handleEvent(db, {
+      type: 'account.application.deauthorized',
+      account: 'acct_1',
+      data: { object: {} },
+    }));
+});
+
+test('handleEvent: ignores unrelated event types', async () => {
+  const db = mockDb({ users: { data: null, error: { message: 'should not be hit' } } });
+  await assert.doesNotReject(() =>
+    handleEvent(db, { type: 'charge.succeeded', data: { object: {} } }));
+});

@@ -12,11 +12,12 @@
 -- user creates a real account and claims their balance — so it's nullable.
 -- The UNIQUE constraint still holds (Postgres allows multiple NULLs).
 create table if not exists users (
-    id                  uuid primary key default gen_random_uuid(),
-    email               text unique,                -- null until the user creates a real account
-    display_name        text,                       -- shown on the redirect page ("Jacob shared this")
-    stripe_connect_id   text,                       -- set when the user onboards for payouts
-    created_at          timestamptz not null default now()
+    id                    uuid primary key default gen_random_uuid(),
+    email                 text unique,              -- null until the user claims an account (at payout time)
+    display_name          text,                     -- shown on the redirect page ("Jacob shared this")
+    stripe_connect_id     text,                     -- Stripe Express account id, set when the user starts onboarding
+    connect_onboarded_at  timestamptz,              -- set when Stripe reports payouts_enabled (account.updated webhook)
+    created_at            timestamptz not null default now()
 );
 
 -- ── Links ────────────────────────────────────────────────────────────────────

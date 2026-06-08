@@ -7,6 +7,8 @@ import { makeLinksRouter } from './routes/links.js';
 import { makeUsersRouter } from './routes/users.js';
 import { makeTrendingRouter } from './routes/trending.js';
 import { makeAdminRouter } from './routes/admin.js';
+import { makeConnectRouter } from './routes/connect.js';
+import { makeStripeWebhookRouter } from './routes/stripeWebhook.js';
 
 // Builds and configures the Express app. Exported (not started) so it can be
 // used both by the local dev server (src/index.js) and the Vercel serverless
@@ -45,6 +47,10 @@ app.use(
     },
   })
 );
+// Stripe webhook is mounted BEFORE express.json(): signature verification needs
+// the raw, unparsed request body. The router applies express.raw() itself.
+app.use('/v1/stripe', makeStripeWebhookRouter(db));
+
 app.use(express.json({ limit: '16kb' }));
 
 // Trust the proxy (Vercel) so client IPs resolve correctly.
@@ -58,6 +64,9 @@ app.get('/health', (_req, res) => {
 // ── Routes ───────────────────────────────────────────────────────────────────
 app.use('/v1/links', makeLinksRouter(db));
 app.use('/v1/users', makeUsersRouter(db));
+// Connect onboarding shares the /v1/users base (POST /:id/claim, /:id/connect/*).
+// Mounted as a second router on the same path; Express runs both layers.
+app.use('/v1/users', makeConnectRouter(db));
 app.use('/v1/trending', makeTrendingRouter(db));
 app.use('/v1/admin', makeAdminRouter(db));
 
