@@ -87,6 +87,35 @@ create index if not exists commissions_status_idx on commissions(status);
 create unique index if not exists commissions_external_ref_unique
     on commissions (retailer, external_ref);
 
+-- ── Payouts ──────────────────────────────────────────────────────────────────
+-- One row per Stripe transfer attempt to a user (B5d). commission_payouts is
+-- the join recording exactly which commissions a payout settled. See migration
+-- 007 + scripts/run_payouts.mjs.
+create table if not exists payouts (
+    id                  uuid primary key default gen_random_uuid(),
+    user_id             uuid references users(id) on delete set null,
+    amount_cents        integer not null,
+    currency            text not null default 'usd',
+    stripe_transfer_id  text,
+    status              text not null default 'pending'
+                            check (status in ('pending', 'paid', 'failed')),
+    error               text,
+    created_at          timestamptz not null default now(),
+    paid_at             timestamptz
+);
+
+create index if not exists payouts_user_id_idx on payouts(user_id);
+create index if not exists payouts_status_idx  on payouts(status);
+
+create table if not exists commission_payouts (
+    payout_id      uuid references payouts(id) on delete cascade,
+    commission_id  uuid references commissions(id) on delete cascade,
+    primary key (payout_id, commission_id)
+);
+
+create index if not exists commission_payouts_commission_idx
+    on commission_payouts(commission_id);
+
 -- ── Rate limiting ────────────────────────────────────────────────────────────
 -- Per-IP sliding-window store for the API's write endpoints. Postgres-backed
 -- (not in-memory) because the API is serverless and instances don't share

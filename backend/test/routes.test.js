@@ -10,6 +10,7 @@ import { makeAdminRouter } from '../src/routes/admin.js';
 import { recordCommission } from '../src/lib/commissions.js';
 import { makeConnectRouter } from '../src/routes/connect.js';
 import { handleEvent } from '../src/routes/stripeWebhook.js';
+import { buildPayoutBatch, executePayouts, payoutIdempotencyKey } from '../src/lib/payouts.js';
 
 // ── Minimal chainable mock of the supabase-js query builder ──────────────────
 // Chain methods return the builder; terminal methods (and awaiting the builder
@@ -22,6 +23,7 @@ function makeBuilder(result) {
     select: () => builder,
     delete: () => builder,
     eq: () => builder,
+    in: () => builder,
     order: () => builder,
     gte: () => builder,
     lt: () => builder,
@@ -614,4 +616,97 @@ test('handleEvent: ignores unrelated event types', async () => {
   const db = mockDb({ users: { data: null, error: { message: 'should not be hit' } } });
   await assert.doesNotReject(() =>
     handleEvent(db, { type: 'charge.succeeded', data: { object: {} } }));
+});
+
+// ── B5d: payout batch building + execution ────────────────────────────────────
+
+const ONBOARDED = { stripe_connect_id: 'acct_1', connect_onboarded_at: '2026-06-01T00:00:00Z' };
+
+test('buildPayoutBatch: empty when there are no confirmed commissions', async () => {
+  const db = mockDb({ commissions: { data: [], error: null } });
+  const batch = await buildPayoutBatch(db, { minCents: 500 });
+  assert.deepEqual(batch, []);
+});
+
+test('buildPayoutBatch: excludes users who are not onboarded', async () => {
+  const db = mockDb({
+    commissions: { data: [{ id: 'c1', user_id: 'u1', user_cents: 800 }], error: null },
+    users: { data: [{ id: 'u1', stripe_connect_id: null, connect_onboarded_at: null }], error: null },
+  });
+  const batch = await buildPayoutBatch(db, { minCents: 500 });
+  assert.equal(batch.length, 0);
+});
+
+test('buildPayoutBatch: excludes users below the minimum', async () => {
+  const db = mockDb({
+    commissions: { data: [{ id: 'c1', user_id: 'u1', user_cents: 300 }], error: null },
+    users: { data: [{ id: 'u1', ...ONBOARDED }], error: null },
+  });
+  const batch = await buildPayoutBatch(db, { minCents: 500 });
+  assert.equal(batch.length, 0);
+});
+
+test('buildPayoutBatch: includes an onboarded user, summing their confirmed commissions', async () => {
+  const db = mockDb({
+    commissions: { data: [
+      { id: 'c1', user_id: 'u1', user_cents: 300 },
+      { id: 'c2', user_id: 'u1', user_cents: 250 },
+    ], error: null },
+    users: { data: [{ id: 'u1', ...ONBOARDED }], error: null },
+  });
+  const batch = await buildPayoutBatch(db, { minCents: 500 });
+  assert.equal(batch.length, 1);
+  assert.equal(batch[0].user_id, 'u1');
+  assert.equal(batch[0].amount_cents, 550);
+  assert.deepEqual(batch[0].commission_ids.sort(), ['c1', 'c2']);
+  assert.equal(batch[0].stripe_connect_id, 'acct_1');
+});
+
+test('payoutIdempotencyKey: stable regardless of commission order', () => {
+  assert.equal(
+    payoutIdempotencyKey('u1', ['c1', 'c2']),
+    payoutIdempotencyKey('u1', ['c2', 'c1'])
+  );
+  assert.notEqual(
+    payoutIdempotencyKey('u1', ['c1']),
+    payoutIdempotencyKey('u2', ['c1'])
+  );
+});
+
+function transferStripe(overrides = {}) {
+  return {
+    transfers: {
+      create: overrides.transfersCreate || (async () => ({ id: 'tr_test' })),
+    },
+  };
+}
+
+test('executePayouts: success path creates a transfer and marks the payout paid', async () => {
+  const db = mockDb({
+    payouts: { data: { id: 'p1' }, error: null },
+    commission_payouts: { data: null, error: null },
+    commissions: { data: null, error: null },
+  });
+  let transferArgs = null, idemOpts = null;
+  const stripe = transferStripe({
+    transfersCreate: async (args, opts) => { transferArgs = args; idemOpts = opts; return { id: 'tr_99' }; },
+  });
+  const batch = [{ user_id: 'u1', amount_cents: 550, commission_ids: ['c1', 'c2'], stripe_connect_id: 'acct_1' }];
+  const results = await executePayouts(db, stripe, batch);
+  assert.equal(results[0].status, 'paid');
+  assert.equal(results[0].transfer, 'tr_99');
+  assert.equal(transferArgs.amount, 550);
+  assert.equal(transferArgs.destination, 'acct_1');
+  assert.ok(idemOpts.idempotencyKey, 'transfer sent with an idempotency key');
+});
+
+test('executePayouts: failure path records failed and does not throw', async () => {
+  const db = mockDb({ payouts: { data: null, error: null } });
+  const stripe = transferStripe({
+    transfersCreate: async () => { throw new Error('insufficient funds'); },
+  });
+  const batch = [{ user_id: 'u1', amount_cents: 550, commission_ids: ['c1'], stripe_connect_id: 'acct_1' }];
+  const results = await executePayouts(db, stripe, batch);
+  assert.equal(results[0].status, 'failed');
+  assert.match(results[0].error, /insufficient funds/);
 });
