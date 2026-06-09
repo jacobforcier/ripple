@@ -3,6 +3,7 @@ import { newShortId } from '../lib/shortId.js';
 import { hashIp } from '../lib/hashIp.js';
 import { rateLimit } from '../lib/rateLimit.js';
 import { generateAffiliateUrl, detectRetailer } from '../lib/affiliate.js';
+import { getOrAssignTrackingId } from '../lib/trackingIds.js';
 import { fetchOG as defaultFetchOG } from '../lib/og.js';
 
 // The `db` client and OG fetcher are injected so the routes can be tested
@@ -50,21 +51,25 @@ export function makeLinksRouter(db, { fetchOG = defaultFetchOG } = {}) {
     // we store nulls and the redirect page falls back to Ripple's defaults.
     const og = (await fetchOG(source_url)) ?? {};
 
+    // Claim this user's Amazon tracking id (once per request — idempotent). It
+    // becomes the `tag=` on their links so the Tracking ID report attributes
+    // their sales. Best-effort: null (no user, or pool exhausted) → the
+    // affiliate layer falls back to the shared tag.
+    const trackingId = await getOrAssignTrackingId(db, user_id ?? null);
+
     // Insert, retrying on the (very unlikely) short-id collision.
     //
     // The affiliate URL is generated INSIDE the loop because it embeds the
-    // link `id` as the affiliate-network sub-tag (Amazon `ascsubtag`). That's
-    // what lets a commission in Amazon's report be attributed back to this
-    // exact link — and therefore this user. For Amazon this is pure string
-    // work (no network call), so regenerating per attempt is cheap. If an
-    // API-backed network is added later, hoist its call out and re-apply only
-    // the subtag here.
+    // link `id` as the affiliate sub-tag (Amazon `ascsubtag`, kept for if/when
+    // sub-tag reporting becomes available). Per-user attribution today comes
+    // from `trackingId`. For Amazon this is pure string work (no network call),
+    // so regenerating per attempt is cheap.
     for (let attempt = 0; attempt < 5; attempt++) {
       const id = newShortId();
 
       let affiliate_url;
       try {
-        affiliate_url = await generateAffiliateUrl(source_url, { subtag: id });
+        affiliate_url = await generateAffiliateUrl(source_url, { subtag: id, trackingId });
       } catch (err) {
         console.error('[links] affiliate generation failed:', err);
         return res.status(502).json({ error: 'Could not generate an affiliate link' });

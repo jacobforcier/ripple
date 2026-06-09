@@ -25,9 +25,9 @@
  *   commission report comes back, each sale can be attributed to the specific
  *   link/user that drove it. REQUIRED for per-user earnings to work.
  */
-export async function generateAffiliateUrl(sourceUrl, { subtag } = {}) {
+export async function generateAffiliateUrl(sourceUrl, { subtag, trackingId } = {}) {
   if (isAmazonUrl(sourceUrl)) {
-    return applyAmazonTag(sourceUrl, subtag);
+    return applyAmazonTag(sourceUrl, subtag, trackingId);
   }
   // Sovrn / other aggregator slot — passthrough until wired up. When a network
   // is added here, pass `subtag` into its sub-id field too (e.g. Sovrn's `cuid`,
@@ -72,12 +72,16 @@ export function isAmazonUrl(sourceUrl) {
  * it. Without it, every Ripple sale lands under one shared tag with no way to
  * split earnings between users.
  */
-export function applyAmazonTag(sourceUrl, subtag) {
-  const tag = process.env.AMAZON_ASSOCIATE_TAG;
+export function applyAmazonTag(sourceUrl, subtag, trackingId) {
+  // Prefer the user's own tracking id (per-user attribution via the Tracking ID
+  // report). Fall back to the default shared tag when the user has no id yet or
+  // the pool is exhausted — the link still works, the sale just lands under the
+  // shared tag and isn't individually attributed.
+  const tag = trackingId || process.env.AMAZON_ASSOCIATE_TAG;
   if (!tag) {
-    // Tag isn't configured — return the URL unchanged so the redirect still
-    // works. Earnings won't be attributed; this is the safe failure mode.
-    console.warn('[affiliate] AMAZON_ASSOCIATE_TAG is not set — Amazon link untagged');
+    // No tag at all — return the URL unchanged so the redirect still works.
+    // Earnings won't be attributed; this is the safe failure mode.
+    console.warn('[affiliate] no tracking id and AMAZON_ASSOCIATE_TAG unset — Amazon link untagged');
     return sourceUrl;
   }
   try {

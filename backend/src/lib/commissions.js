@@ -30,6 +30,7 @@ const VALID_STATUSES = new Set(['pending', 'confirmed', 'paid']);
 export async function recordCommission(db, input) {
   const {
     linkId,
+    userId,
     retailer,
     grossCents,
     userCents,
@@ -39,8 +40,17 @@ export async function recordCommission(db, input) {
   } = input ?? {};
 
   // ── Validate ────────────────────────────────────────────────────────────
-  if (!linkId || typeof linkId !== 'string') {
-    throw new Error('linkId required (string)');
+  // Attribution comes from EITHER a link (per-link ingestion, e.g. a future
+  // ascsubtag feed) OR a user directly (per-tracking-id ingestion, where the
+  // Amazon report is aggregated by tracking id → user, with no single link).
+  if (!linkId && !userId) {
+    throw new Error('either linkId or userId is required');
+  }
+  if (linkId && typeof linkId !== 'string') {
+    throw new Error('linkId must be a string');
+  }
+  if (userId && typeof userId !== 'string') {
+    throw new Error('userId must be a string');
   }
   if (!retailer || typeof retailer !== 'string') {
     throw new Error('retailer required (string)');
@@ -64,26 +74,37 @@ export async function recordCommission(db, input) {
     throw new Error('externalRef must be a string when provided');
   }
 
-  // ── Resolve user_id from the link ───────────────────────────────────────
-  // The commission inherits the user from whoever created the link. Callers
-  // never pass user_id directly — that would let a misconfigured ingest
-  // attribute a sale to the wrong account.
-  const { data: link, error: linkErr } = await db
-    .from('links')
-    .select('id, user_id')
-    .eq('id', linkId)
-    .maybeSingle();
-  if (linkErr) {
-    throw new Error(`link lookup failed: ${linkErr.message}`);
-  }
-  if (!link) {
-    throw new Error(`link not found: ${linkId}`);
+  // ── Resolve the owning user ─────────────────────────────────────────────
+  let resolvedLinkId = null;
+  let resolvedUserId = null;
+
+  if (linkId) {
+    // Per-link path: the commission inherits the user from the link's creator.
+    const { data: link, error: linkErr } = await db
+      .from('links')
+      .select('id, user_id')
+      .eq('id', linkId)
+      .maybeSingle();
+    if (linkErr) throw new Error(`link lookup failed: ${linkErr.message}`);
+    if (!link) throw new Error(`link not found: ${linkId}`);
+    resolvedLinkId = link.id;
+    resolvedUserId = link.user_id;
+  } else {
+    // Per-user path: verify the user exists, attribute directly (link_id null).
+    const { data: user, error: userErr } = await db
+      .from('users')
+      .select('id')
+      .eq('id', userId)
+      .maybeSingle();
+    if (userErr) throw new Error(`user lookup failed: ${userErr.message}`);
+    if (!user) throw new Error(`user not found: ${userId}`);
+    resolvedUserId = user.id;
   }
 
   // ── Build the row ───────────────────────────────────────────────────────
   const row = {
-    link_id: link.id,
-    user_id: link.user_id,
+    link_id: resolvedLinkId,
+    user_id: resolvedUserId,
     retailer,
     gross_cents: grossCents,
     user_cents: userCents,

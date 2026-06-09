@@ -11,6 +11,7 @@ import { recordCommission } from '../src/lib/commissions.js';
 import { makeConnectRouter } from '../src/routes/connect.js';
 import { handleEvent } from '../src/routes/stripeWebhook.js';
 import { buildPayoutBatch, executePayouts, payoutIdempotencyKey } from '../src/lib/payouts.js';
+import { applyAmazonTag } from '../src/lib/affiliate.js';
 
 // ── Minimal chainable mock of the supabase-js query builder ──────────────────
 // Chain methods return the builder; terminal methods (and awaiting the builder
@@ -36,9 +37,12 @@ function makeBuilder(result) {
 }
 
 // resultsByTable maps a table name to the { data, error } its queries resolve to.
+// `rpc` results can be supplied under a "rpc:<fnName>" key; defaults to null
+// (e.g. claim_tracking_id → null → link generation falls back to the shared tag).
 function mockDb(resultsByTable = {}) {
   return {
     from: (table) => makeBuilder(resultsByTable[table] ?? { data: null, error: null }),
+    rpc: (fn) => Promise.resolve(resultsByTable[`rpc:${fn}`] ?? { data: null, error: null }),
   };
 }
 
@@ -361,6 +365,66 @@ test('recordCommission: throws when the link does not exist', async () => {
     () => recordCommission(db, VALID),
     /link not found/i
   );
+});
+
+test('recordCommission: attributes by userId directly (tracking-id ingestion path)', async () => {
+  const db = mockDb({
+    users: { data: { id: 'u1' }, error: null },
+    commissions: { data: { id: 'c9', status: 'confirmed' }, error: null },
+  });
+  const out = await recordCommission(db, {
+    userId: 'u1',
+    retailer: 'Amazon',
+    grossCents: 1000,
+    userCents: 500,
+    status: 'confirmed',
+    occurredAt: ISO,
+    externalRef: 'rippleu001-20:2026-05',
+  });
+  assert.equal(out.id, 'c9');
+  assert.equal(out.status, 'confirmed');
+});
+
+test('recordCommission: throws when the userId does not exist', async () => {
+  const db = mockDb({ users: { data: null, error: null } });
+  await assert.rejects(
+    () => recordCommission(db, { userId: 'ghost', retailer: 'Amazon', grossCents: 100, userCents: 50, status: 'confirmed', occurredAt: ISO }),
+    /user not found/i
+  );
+});
+
+test('recordCommission: requires either a linkId or a userId', async () => {
+  await assert.rejects(
+    () => recordCommission(mockDb(), { retailer: 'Amazon', grossCents: 100, userCents: 50, occurredAt: ISO }),
+    /either linkId or userId/i
+  );
+});
+
+// ── B5b: per-user Amazon tag (Tracking ID attribution) ───────────────────────
+
+test('applyAmazonTag: uses the user tracking id as tag when provided', () => {
+  const prev = process.env.AMAZON_ASSOCIATE_TAG;
+  process.env.AMAZON_ASSOCIATE_TAG = 'ripple0e9-20';
+  try {
+    const url = applyAmazonTag('https://www.amazon.com/dp/B07FZ8S74R', 'lnk1', 'rippleu007-20');
+    assert.match(url, /tag=rippleu007-20/);
+    assert.doesNotMatch(url, /tag=ripple0e9-20/);
+  } finally {
+    if (prev === undefined) delete process.env.AMAZON_ASSOCIATE_TAG;
+    else process.env.AMAZON_ASSOCIATE_TAG = prev;
+  }
+});
+
+test('applyAmazonTag: falls back to the shared tag when no tracking id', () => {
+  const prev = process.env.AMAZON_ASSOCIATE_TAG;
+  process.env.AMAZON_ASSOCIATE_TAG = 'ripple0e9-20';
+  try {
+    const url = applyAmazonTag('https://www.amazon.com/dp/B07FZ8S74R', 'lnk1', null);
+    assert.match(url, /tag=ripple0e9-20/);
+  } finally {
+    if (prev === undefined) delete process.env.AMAZON_ASSOCIATE_TAG;
+    else process.env.AMAZON_ASSOCIATE_TAG = prev;
+  }
 });
 
 test('recordCommission: rejects invalid input (userCents > grossCents)', async () => {

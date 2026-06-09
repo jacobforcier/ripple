@@ -116,6 +116,18 @@ create table if not exists commission_payouts (
 create index if not exists commission_payouts_commission_idx
     on commission_payouts(commission_id);
 
+-- ── Amazon Tracking ID pool ──────────────────────────────────────────────────
+-- Per-user attribution for Amazon: each sharer claims one of (up to 100)
+-- tracking ids; the standard Tracking ID report is read back per id. Pre-seeded
+-- with ids created in Associates Central. See migration 008 + lib/trackingIds.js.
+create table if not exists amazon_tracking_ids (
+    tracking_id  text primary key,
+    user_id      uuid unique references users(id) on delete set null,
+    assigned_at  timestamptz
+);
+create index if not exists amazon_tracking_ids_user_idx on amazon_tracking_ids(user_id);
+-- claim_tracking_id(p_user_id) — atomic claim; see migration 008 for the body.
+
 -- ── Rate limiting ────────────────────────────────────────────────────────────
 -- Per-IP sliding-window store for the API's write endpoints. Postgres-backed
 -- (not in-memory) because the API is serverless and instances don't share
