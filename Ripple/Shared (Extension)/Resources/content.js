@@ -1,127 +1,18 @@
+// Ripple content script — page inspection only.
+//
+// This is NOT registered to run on every page. The popup injects it on demand
+// (via chrome.scripting.executeScript, granted by activeTab) the moment the
+// user clicks the Ripple button, and uses it solely to answer one question:
+// "is this a product page, and what's its title/domain?" No clipboard access,
+// no network calls, no listeners left running on sites you aren't sharing.
 (function () {
   'use strict';
 
-  // ── Ripple link generator with per-URL caching ───────────────
-  // The actual API call lives in the background service worker — content
-  // scripts run in the page's origin and are blocked by CORS. The cache +
-  // inFlight guard avoid duplicate requests and keep links stable when the
-  // same URL is shared repeatedly.
-  const linkCache = new Map();        // sourceUrl -> rippleUrl
-  const inFlight  = new Map();        // sourceUrl -> Promise<rippleUrl>
-
-  function generateRippleLink(productUrl) {
-    if (linkCache.has(productUrl)) return Promise.resolve(linkCache.get(productUrl));
-    if (inFlight.has(productUrl))  return inFlight.get(productUrl);
-
-    const promise = (async () => {
-      const response = await chrome.runtime.sendMessage({
-        type: 'RIPPLE_CREATE_LINK',
-        sourceUrl: productUrl,
-      });
-      if (!response?.ok) {
-        throw new Error(response?.error || 'Failed to create Ripple link');
-      }
-      linkCache.set(productUrl, response.rippleUrl);
-      return response.rippleUrl;
-    })().finally(() => {
-      // Clear the in-flight entry in `finally` (not inside the async body) so
-      // it runs *after* `inFlight.set` below, regardless of response timing.
-      inFlight.delete(productUrl);
-    });
-
-    inFlight.set(productUrl, promise);
-    return promise;
-  }
-
-  // ── Toast notification ────────────────────────────────────────
-  // Inject the keyframes once — not a fresh <style> element on every toast.
-  function ensureToastStyles() {
-    if (document.getElementById('ripple-toast-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'ripple-toast-styles';
-    style.textContent = `
-      @keyframes ripple-slide-up {
-        from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-        to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  function showToast(message) {
-    const existing = document.getElementById('ripple-toast');
-    if (existing) existing.remove();
-
-    ensureToastStyles();
-
-    const toast = document.createElement('div');
-    toast.id = 'ripple-toast';
-    toast.textContent = message;
-    Object.assign(toast.style, {
-      position:     'fixed',
-      bottom:       '28px',
-      left:         '50%',
-      transform:    'translateX(-50%)',
-      background:   'linear-gradient(135deg, #5b8af5, #38bdf8)',
-      color:        '#fff',
-      padding:      '10px 20px',
-      borderRadius: '999px',
-      fontFamily:   '-apple-system, system-ui, sans-serif',
-      fontSize:     '13px',
-      fontWeight:   '600',
-      zIndex:       '2147483647',
-      boxShadow:    '0 4px 24px rgba(91,138,245,0.45)',
-      animation:    'ripple-slide-up 0.2s ease',
-      pointerEvents:'none',
-    });
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.style.transition = 'opacity 0.25s';
-      toast.style.opacity = '0';
-      setTimeout(() => toast.remove(), 250);
-    }, 2200);
-  }
-
-  // ── Silent clipboard interception ─────────────────────────────
-  // Fires when the user copies anything on the page (Cmd+C, Edit→Copy,
-  // right-click→Copy Link). Does NOT fire for address-bar copies —
-  // use the popup for that case.
-  //
-  // This handler MUST stay synchronous: a clipboard event's data can only
-  // be written during the event's dispatch, never after an `await` (by then
-  // the event is done and setData silently no-ops — leaving stale clipboard
-  // content while still showing a success toast). So we warm the link cache
-  // ahead of time and read from it synchronously here.
-  document.addEventListener('copy', (e) => {
-    if (!detectProduct()) return;
-
-    const copied = window.getSelection()?.toString().trim() ||
-                   e.clipboardData?.getData('text/plain')?.trim() || '';
-
-    // Only intercept if what's being copied looks like a URL
-    let isUrl = false;
-    try { new URL(copied); isUrl = true; } catch { /* not a URL */ }
-    if (!isUrl) return;
-
-    const rippleUrl = linkCache.get(location.href);
-    if (rippleUrl) {
-      // Cache is warm — swap the clipboard contents synchronously.
-      e.preventDefault();
-      e.clipboardData.setData('text/plain', rippleUrl);
-      showToast('✓ Ripple link copied');
-    } else {
-      // Not ready yet (a copy before warm-up finished). Let the normal copy
-      // proceed and prime the cache so the next copy is intercepted.
-      generateRippleLink(location.href);
-    }
-  });
-
-  // Warm the link cache as soon as we know this is a product page, so the
-  // copy handler above can read it synchronously on the user's first copy.
-  function warmLinkCache() {
-    if (detectProduct()) generateRippleLink(location.href);
-  }
+  // On-demand injection can run this script more than once on the same page
+  // (e.g. the popup is opened twice). Guard so we register the message
+  // listener exactly once per page.
+  if (window.__rippleContentLoaded) return;
+  window.__rippleContentLoaded = true;
 
   const PRODUCT_DOMAINS = [
     'amazon.com', 'amazon.co.uk', 'amazon.ca', 'amazon.de', 'amazon.fr',
@@ -195,6 +86,4 @@
     });
     return false;
   });
-
-  warmLinkCache();
 })();

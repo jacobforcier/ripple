@@ -97,7 +97,7 @@ private struct EarningsHeader: View {
                 )
             }
 
-            Text("Pending earnings clear after the retailer's return window — usually around 90 days.")
+            Text("Pending earnings are estimates and can change until the sale clears Amazon's return window — about 60 days. Confirmed earnings are paid out monthly.")
                 .font(.caption)
                 .foregroundColor(RippleTheme.muted)
         }

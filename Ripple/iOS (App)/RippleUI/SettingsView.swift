@@ -36,33 +36,18 @@ struct SettingsView: View {
 
     private var extensionCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionLabel("Safari Extension")
+            sectionLabel("How to share")
 
-            Text("Ripple works quietly inside Safari — when you copy a product link, it upgrades it to a Ripple link automatically.")
+            Text("On any product page — in Safari, the Amazon app, anywhere — tap the Share button and choose Ripple. You'll get a shareable link to send a friend. It only acts when you tap it.")
                 .font(.subheadline)
                 .foregroundColor(RippleTheme.muted)
 
             VStack(alignment: .leading, spacing: 8) {
-                instructionRow(number: "1", text: "Open the Settings app")
-                instructionRow(number: "2", text: "Go to Apps → Safari → Extensions")
-                instructionRow(number: "3", text: "Turn on Ripple and allow it on the sites you shop")
+                instructionRow(number: "1", text: "Find a product you'd recommend")
+                instructionRow(number: "2", text: "Tap the Share button, then choose Ripple")
+                instructionRow(number: "3", text: "Send your Ripple link to a friend")
             }
             .padding(.vertical, 4)
-
-            Button {
-                if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url)
-                }
-            } label: {
-                Text("Open Settings")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 11)
-                    .background(RippleTheme.gradient)
-                    .cornerRadius(10)
-            }
-            .buttonStyle(.plain)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .rippleCard()
