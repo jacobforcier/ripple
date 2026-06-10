@@ -29,6 +29,7 @@ actor LiveRippleAPI: RippleAPIClient {
     }
 
     private var cachedUserId: String?
+    private var inFlightUserId: Task<String, Error>?
 
     // MARK: - RippleAPIClient
 
@@ -75,15 +76,35 @@ actor LiveRippleAPI: RippleAPIClient {
     private func userId() async throws -> String {
         if let cachedUserId { return cachedUserId }
 
-        let defaults = sharedDefaults
-        if let stored = defaults.string(forKey: Self.userIdKey) {
+        // A stored id from a previous launch (shared with the Share Extension
+        // via the App Group) always wins.
+        if let stored = sharedDefaults.string(forKey: Self.userIdKey) {
             cachedUserId = stored
             return stored
         }
 
+        // First launch: coalesce concurrent callers (loadAll fires fetchLinks +
+        // fetchEarnings together) onto ONE create request. Actor reentrancy
+        // across the network `await` is what let the naive version POST
+        // /v1/users twice and orphan a user.
+        if let inFlightUserId {
+            return try await inFlightUserId.value
+        }
+
+        let task = Task { try await self.createAnonymousUser() }
+        inFlightUserId = task
+        defer { inFlightUserId = nil }
+
+        let id = try await task.value
+        cachedUserId = id
+        return id
+    }
+
+    /// Creates the anonymous user via POST /v1/users and persists the id to the
+    /// shared App Group (so the main app and Share Extension stay one identity).
+    private func createAnonymousUser() async throws -> String {
         let response: CreateUserResponse = try await send("POST", "/v1/users")
-        defaults.set(response.id, forKey: Self.userIdKey)
-        cachedUserId = response.id
+        sharedDefaults.set(response.id, forKey: Self.userIdKey)
         return response.id
     }
 
