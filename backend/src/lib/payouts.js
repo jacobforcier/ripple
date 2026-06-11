@@ -26,37 +26,75 @@ export async function buildPayoutBatch(db, { minCents = 500 } = {}) {
   // Confirmed = cleared by the network, withdrawable, not yet paid.
   const { data: commissions, error: cErr } = await db
     .from('commissions')
-    .select('id, user_id, user_cents')
+    .select('id, user_id, group_id, user_cents')
     .eq('status', 'confirmed');
   if (cErr) throw new Error(`commission fetch failed: ${cErr.message}`);
   if (!commissions || commissions.length === 0) return [];
 
-  // Sum per user.
+  // Sum per user, and per group pot.
   const byUser = new Map();
+  const byGroup = new Map();
   for (const c of commissions) {
-    if (!c.user_id) continue; // orphaned commission — skip
-    const e = byUser.get(c.user_id) || { user_id: c.user_id, amount_cents: 0, commission_ids: [] };
-    e.amount_cents += c.user_cents;
-    e.commission_ids.push(c.id);
-    byUser.set(c.user_id, e);
+    if (c.group_id) {
+      const e = byGroup.get(c.group_id) || { group_id: c.group_id, amount_cents: 0, commission_ids: [] };
+      e.amount_cents += c.user_cents;
+      e.commission_ids.push(c.id);
+      byGroup.set(c.group_id, e);
+    } else if (c.user_id) {
+      const e = byUser.get(c.user_id) || { user_id: c.user_id, amount_cents: 0, commission_ids: [] };
+      e.amount_cents += c.user_cents;
+      e.commission_ids.push(c.id);
+      byUser.set(c.user_id, e);
+    } // orphaned (neither) — skip
   }
 
-  // Fetch payout-readiness for just those users.
-  const userIds = [...byUser.keys()];
+  // Group pots pay to the group's designated payout_user.
+  if (byGroup.size > 0) {
+    const { data: groups, error: gErr } = await db
+      .from('groups')
+      .select('id, payout_user_id')
+      .in('id', [...byGroup.keys()]);
+    if (gErr) throw new Error(`group fetch failed: ${gErr.message}`);
+    for (const g of groups || []) {
+      const e = byGroup.get(g.id);
+      if (e) e.payout_user_id = g.payout_user_id;
+    }
+  }
+
+  // Fetch payout-readiness for every receiving human (users + group recipients).
+  const userIds = new Set([...byUser.keys()]);
+  for (const e of byGroup.values()) if (e.payout_user_id) userIds.add(e.payout_user_id);
+  if (userIds.size === 0) return [];
   const { data: users, error: uErr } = await db
     .from('users')
     .select('id, stripe_connect_id, connect_onboarded_at')
-    .in('id', userIds);
+    .in('id', [...userIds]);
   if (uErr) throw new Error(`user fetch failed: ${uErr.message}`);
   const userMap = new Map((users || []).map((u) => [u.id, u]));
 
-  // Eligible = onboarded (has an account + payouts enabled) AND >= minimum.
+  const eligible = (uid) => {
+    const u = userMap.get(uid);
+    return u && u.stripe_connect_id && u.connect_onboarded_at ? u : null;
+  };
+
+  // Eligible = onboarded recipient AND >= minimum.
   const batch = [];
   for (const e of byUser.values()) {
-    const u = userMap.get(e.user_id);
-    if (!u || !u.stripe_connect_id || !u.connect_onboarded_at) continue;
-    if (e.amount_cents < minCents) continue;
+    const u = eligible(e.user_id);
+    if (!u || e.amount_cents < minCents) continue;
     batch.push({ ...e, stripe_connect_id: u.stripe_connect_id });
+  }
+  for (const e of byGroup.values()) {
+    const u = e.payout_user_id ? eligible(e.payout_user_id) : null;
+    if (!u || e.amount_cents < minCents) continue;
+    // user_id here = transfer recipient; group_id marks it as a pot payout.
+    batch.push({
+      user_id: e.payout_user_id,
+      group_id: e.group_id,
+      amount_cents: e.amount_cents,
+      commission_ids: e.commission_ids,
+      stripe_connect_id: u.stripe_connect_id,
+    });
   }
   return batch;
 }
@@ -81,14 +119,18 @@ export async function executePayouts(db, stripe, batch, { log = () => {} } = {})
   const results = [];
 
   for (const entry of batch) {
-    const { user_id, amount_cents, commission_ids, stripe_connect_id } = entry;
+    const { user_id, group_id = null, amount_cents, commission_ids, stripe_connect_id } = entry;
     try {
       const transfer = await stripe.transfers.create(
         {
           amount: amount_cents,
           currency: 'usd',
           destination: stripe_connect_id,
-          metadata: { ripple_user_id: user_id, commission_count: String(commission_ids.length) },
+          metadata: {
+            ripple_user_id: user_id,
+            ...(group_id ? { ripple_group_id: group_id } : {}),
+            commission_count: String(commission_ids.length),
+          },
         },
         { idempotencyKey: payoutIdempotencyKey(user_id, commission_ids) }
       );
@@ -97,6 +139,7 @@ export async function executePayouts(db, stripe, batch, { log = () => {} } = {})
         .from('payouts')
         .insert({
           user_id,
+          group_id,
           amount_cents,
           stripe_transfer_id: transfer.id,
           status: 'paid',

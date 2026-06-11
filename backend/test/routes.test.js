@@ -393,10 +393,10 @@ test('recordCommission: throws when the userId does not exist', async () => {
   );
 });
 
-test('recordCommission: requires either a linkId or a userId', async () => {
+test('recordCommission: requires exactly one owner (linkId / userId / groupId)', async () => {
   await assert.rejects(
     () => recordCommission(mockDb(), { retailer: 'Amazon', grossCents: 100, userCents: 50, occurredAt: ISO }),
-    /either linkId or userId/i
+    /exactly one of/i
   );
 });
 
@@ -773,4 +773,101 @@ test('executePayouts: failure path records failed and does not throw', async () 
   const results = await executePayouts(db, stripe, batch);
   assert.equal(results[0].status, 'failed');
   assert.match(results[0].error, /insufficient funds/);
+});
+
+// ── Groups: "earn for us" opt-in mode ─────────────────────────────────────────
+import { makeGroupsRouter } from '../src/routes/groups.js';
+
+const groupsApp = (db) => appWith('/v1/groups', makeGroupsRouter(db));
+
+test('POST /v1/groups: 400 without a name', async () => {
+  const res = await request(groupsApp(mockDb())).post('/v1/groups').send({ user_id: 'u1' });
+  assert.equal(res.status, 400);
+});
+
+test('POST /v1/groups: 201 creates group with a join code', async () => {
+  const db = mockDb({
+    users: { data: { id: 'u1' }, error: null },
+    groups: { data: { id: 'g1', name: 'Book Club', join_code: 'abc1234' }, error: null },
+    group_members: { data: null, error: null },
+  });
+  const res = await request(groupsApp(db)).post('/v1/groups')
+    .send({ name: 'Book Club', user_id: 'u1' });
+  assert.equal(res.status, 201);
+  assert.equal(res.body.join_code, 'abc1234');
+});
+
+test('POST /v1/groups/:code/join: 404 on a bad code', async () => {
+  const db = mockDb({ groups: { data: null, error: null } });
+  const res = await request(groupsApp(db)).post('/v1/groups/zzz/join').send({ user_id: 'u1' });
+  assert.equal(res.status, 404);
+});
+
+test('POST /v1/links with group_id: 403 when the user is not a member', async () => {
+  const db = mockDb({
+    group_members: { data: null, error: null },
+  });
+  const res = await request(linksApp(db)).post('/v1/links')
+    .send({ source_url: 'https://www.amazon.com/dp/B07FZ8S74R', user_id: 'u1', group_id: 'g1' });
+  assert.equal(res.status, 403);
+});
+
+test('POST /v1/links with group_id: 201 for a member (earns for the pot)', async () => {
+  const db = mockDb({
+    group_members: { data: { group_id: 'g1' }, error: null },
+    amazon_tracking_ids: { data: { tracking_id: 'rippleu009-20' }, error: null },
+    links: { error: null },
+  });
+  const res = await request(linksApp(db)).post('/v1/links')
+    .send({ source_url: 'https://www.amazon.com/dp/B07FZ8S74R', user_id: 'u1', group_id: 'g1' });
+  assert.equal(res.status, 201);
+  assert.ok(res.body.ripple_url);
+});
+
+test('recordCommission: attributes to a group directly (groupId path)', async () => {
+  const db = mockDb({
+    groups: { data: { id: 'g1' }, error: null },
+    commissions: { data: { id: 'c1', status: 'confirmed' }, error: null },
+  });
+  const out = await recordCommission(db, {
+    groupId: 'g1', retailer: 'Amazon', grossCents: 1000, userCents: 500,
+    status: 'confirmed', occurredAt: ISO, externalRef: 'gtrack:2026-06',
+  });
+  assert.equal(out.id, 'c1');
+});
+
+test('recordCommission: rejects more than one owner (userId + groupId)', async () => {
+  await assert.rejects(
+    () => recordCommission(mockDb(), {
+      userId: 'u1', groupId: 'g1', retailer: 'Amazon',
+      grossCents: 100, userCents: 50, occurredAt: ISO,
+    }),
+    /exactly one of/i
+  );
+});
+
+test('buildPayoutBatch: group pot pays the designated onboarded recipient', async () => {
+  const db = mockDb({
+    commissions: { data: [
+      { id: 'c1', user_id: null, group_id: 'g1', user_cents: 700 },
+      { id: 'c2', user_id: null, group_id: 'g1', user_cents: 400 },
+    ], error: null },
+    groups: { data: [{ id: 'g1', payout_user_id: 'leader' }], error: null },
+    users: { data: [{ id: 'leader', ...ONBOARDED }], error: null },
+  });
+  const batch = await buildPayoutBatch(db, { minCents: 500 });
+  assert.equal(batch.length, 1);
+  assert.equal(batch[0].group_id, 'g1');
+  assert.equal(batch[0].user_id, 'leader');
+  assert.equal(batch[0].amount_cents, 1100);
+});
+
+test('buildPayoutBatch: group pot skipped when the recipient is not onboarded', async () => {
+  const db = mockDb({
+    commissions: { data: [{ id: 'c1', user_id: null, group_id: 'g1', user_cents: 900 }], error: null },
+    groups: { data: [{ id: 'g1', payout_user_id: 'leader' }], error: null },
+    users: { data: [{ id: 'leader', stripe_connect_id: null, connect_onboarded_at: null }], error: null },
+  });
+  const batch = await buildPayoutBatch(db, { minCents: 500 });
+  assert.equal(batch.length, 0);
 });

@@ -185,3 +185,24 @@ alter table users       enable row level security;
 alter table links       enable row level security;
 alter table clicks      enable row level security;
 alter table commissions enable row level security;
+
+-- ── Ripple Groups ("earn for us", opt-in — individual earning is default) ────
+-- See migration 009. Groups claim their own tracking id; group links carry it;
+-- pot pays out to payout_user_id via the normal payout run.
+create table if not exists groups (
+    id              uuid primary key default gen_random_uuid(),
+    name            text not null,
+    join_code       text unique not null,
+    owner_user_id   uuid references users(id) on delete set null,
+    payout_user_id  uuid references users(id) on delete set null,
+    created_at      timestamptz not null default now()
+);
+create table if not exists group_members (
+    group_id   uuid references groups(id) on delete cascade,
+    user_id    uuid references users(id) on delete cascade,
+    joined_at  timestamptz not null default now(),
+    primary key (group_id, user_id)
+);
+-- links.group_id, commissions.group_id, payouts.group_id,
+-- amazon_tracking_ids.group_id (+ one-owner check), claim_group_tracking_id(),
+-- and the group_earnings view are defined in migration 009.

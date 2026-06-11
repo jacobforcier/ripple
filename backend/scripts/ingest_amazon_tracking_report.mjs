@@ -49,16 +49,16 @@ for (const row of rows) {
   const grossCents = dollarsToCents(row['Total Earnings']);
   if (!trackingId || grossCents <= 0) { skipped++; continue; }
 
-  // Map tracking id → user via the pool.
+  // Map tracking id → its owner (a user, or a group pot) via the pool.
   const { data: pool, error: poolErr } = await db
     .from('amazon_tracking_ids')
-    .select('user_id')
+    .select('user_id, group_id')
     .eq('tracking_id', trackingId)
     .maybeSingle();
   if (poolErr) { console.error(`  ${trackingId}: pool lookup failed: ${poolErr.message}`); skipped++; continue; }
-  if (!pool || !pool.user_id) {
-    // Unassigned id (or the default shared tag) — no user to attribute to.
-    console.log(`  ${trackingId}: no user mapped — skipping ($${(grossCents/100).toFixed(2)})`);
+  if (!pool || (!pool.user_id && !pool.group_id)) {
+    // Unassigned id (or the default shared tag) — no owner to attribute to.
+    console.log(`  ${trackingId}: no owner mapped — skipping ($${(grossCents/100).toFixed(2)})`);
     unmapped++;
     continue;
   }
@@ -66,7 +66,7 @@ for (const row of rows) {
   const userCents = Math.round(grossCents * userShare);
   try {
     await recordCommission(db, {
-      userId: pool.user_id,
+      ...(pool.group_id ? { groupId: pool.group_id } : { userId: pool.user_id }),
       retailer: 'Amazon',
       grossCents,
       userCents,
@@ -75,7 +75,8 @@ for (const row of rows) {
       externalRef: `${trackingId}:${period}`,
     });
     recorded++;
-    console.log(`  ${trackingId} → user ${pool.user_id}: gross $${(grossCents/100).toFixed(2)} / user $${(userCents/100).toFixed(2)}`);
+    const owner = pool.group_id ? `group ${pool.group_id}` : `user ${pool.user_id}`;
+    console.log(`  ${trackingId} → ${owner}: gross $${(grossCents/100).toFixed(2)} / share $${(userCents/100).toFixed(2)}`);
   } catch (err) {
     console.error(`  ${trackingId}: recordCommission failed: ${err.message}`);
     skipped++;

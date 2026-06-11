@@ -27,7 +27,7 @@ export function makeLinksRouter(db, { fetchOG = defaultFetchOG } = {}) {
   //   201:  { id, ripple_url, source_url, retailer }
   //   429:  { error }  — too many creations from this IP
   router.post('/', createLimit, async (req, res) => {
-    const { source_url, user_id } = req.body ?? {};
+    const { source_url, user_id, group_id } = req.body ?? {};
 
     if (!source_url || typeof source_url !== 'string') {
       return res.status(400).json({ error: 'source_url is required' });
@@ -51,11 +51,34 @@ export function makeLinksRouter(db, { fetchOG = defaultFetchOG } = {}) {
     // we store nulls and the redirect page falls back to Ripple's defaults.
     const og = (await fetchOG(source_url)) ?? {};
 
-    // Claim this user's Amazon tracking id (once per request — idempotent). It
-    // becomes the `tag=` on their links so the Tracking ID report attributes
-    // their sales. Best-effort: null (no user, or pool exhausted) → the
-    // affiliate layer falls back to the shared tag.
-    const trackingId = await getOrAssignTrackingId(db, user_id ?? null);
+    // "Earn for: me (default) | group". A group link must come from a member,
+    // and carries the GROUP's tracking id so the Tracking ID report credits
+    // the pot. Personal links are unchanged — individual earning is the default.
+    let trackingId = null;
+    if (group_id) {
+      if (!user_id) {
+        return res.status(400).json({ error: 'user_id is required to share for a group' });
+      }
+      const { data: member, error: mErr } = await db
+        .from('group_members')
+        .select('group_id')
+        .eq('group_id', group_id)
+        .eq('user_id', user_id)
+        .maybeSingle();
+      if (mErr) return res.status(500).json({ error: 'membership lookup failed' });
+      if (!member) return res.status(403).json({ error: 'not a member of that group' });
+
+      const { data: pool } = await db
+        .from('amazon_tracking_ids')
+        .select('tracking_id')
+        .eq('group_id', group_id)
+        .maybeSingle();
+      trackingId = pool?.tracking_id ?? null; // null → shared-tag fallback
+    } else {
+      // Claim this user's Amazon tracking id (once per request — idempotent).
+      // Best-effort: null (no user, or pool exhausted) → shared-tag fallback.
+      trackingId = await getOrAssignTrackingId(db, user_id ?? null);
+    }
 
     // Insert, retrying on the (very unlikely) short-id collision.
     //
@@ -78,6 +101,7 @@ export function makeLinksRouter(db, { fetchOG = defaultFetchOG } = {}) {
       const { error } = await db.from('links').insert({
         id,
         user_id: user_id ?? null,
+        group_id: group_id ?? null,
         source_url,
         affiliate_url,
         retailer,

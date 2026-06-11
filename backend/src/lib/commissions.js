@@ -31,6 +31,7 @@ export async function recordCommission(db, input) {
   const {
     linkId,
     userId,
+    groupId,
     retailer,
     grossCents,
     userCents,
@@ -40,17 +41,15 @@ export async function recordCommission(db, input) {
   } = input ?? {};
 
   // ── Validate ────────────────────────────────────────────────────────────
-  // Attribution comes from EITHER a link (per-link ingestion, e.g. a future
-  // ascsubtag feed) OR a user directly (per-tracking-id ingestion, where the
-  // Amazon report is aggregated by tracking id → user, with no single link).
-  if (!linkId && !userId) {
-    throw new Error('either linkId or userId is required');
+  // Attribution comes from EXACTLY ONE of: a link (per-link ingestion), a user
+  // (per-tracking-id ingestion), or a group (group-claimed tracking id — the
+  // "earn for us" mode; the commission belongs to the pot, not a person).
+  const owners = [linkId, userId, groupId].filter(Boolean).length;
+  if (owners !== 1) {
+    throw new Error('exactly one of linkId, userId, or groupId is required');
   }
-  if (linkId && typeof linkId !== 'string') {
-    throw new Error('linkId must be a string');
-  }
-  if (userId && typeof userId !== 'string') {
-    throw new Error('userId must be a string');
+  for (const [name, v] of [['linkId', linkId], ['userId', userId], ['groupId', groupId]]) {
+    if (v && typeof v !== 'string') throw new Error(`${name} must be a string`);
   }
   if (!retailer || typeof retailer !== 'string') {
     throw new Error('retailer required (string)');
@@ -78,18 +77,22 @@ export async function recordCommission(db, input) {
   let resolvedLinkId = null;
   let resolvedUserId = null;
 
+  let resolvedGroupId = null;
+
   if (linkId) {
-    // Per-link path: the commission inherits the user from the link's creator.
+    // Per-link path: the commission inherits the link's owner — its group when
+    // it earns for one, otherwise its creator.
     const { data: link, error: linkErr } = await db
       .from('links')
-      .select('id, user_id')
+      .select('id, user_id, group_id')
       .eq('id', linkId)
       .maybeSingle();
     if (linkErr) throw new Error(`link lookup failed: ${linkErr.message}`);
     if (!link) throw new Error(`link not found: ${linkId}`);
     resolvedLinkId = link.id;
-    resolvedUserId = link.user_id;
-  } else {
+    if (link.group_id) resolvedGroupId = link.group_id;
+    else resolvedUserId = link.user_id;
+  } else if (userId) {
     // Per-user path: verify the user exists, attribute directly (link_id null).
     const { data: user, error: userErr } = await db
       .from('users')
@@ -99,12 +102,23 @@ export async function recordCommission(db, input) {
     if (userErr) throw new Error(`user lookup failed: ${userErr.message}`);
     if (!user) throw new Error(`user not found: ${userId}`);
     resolvedUserId = user.id;
+  } else {
+    // Per-group path: the commission belongs to the pot, not a person.
+    const { data: group, error: groupErr } = await db
+      .from('groups')
+      .select('id')
+      .eq('id', groupId)
+      .maybeSingle();
+    if (groupErr) throw new Error(`group lookup failed: ${groupErr.message}`);
+    if (!group) throw new Error(`group not found: ${groupId}`);
+    resolvedGroupId = group.id;
   }
 
   // ── Build the row ───────────────────────────────────────────────────────
   const row = {
     link_id: resolvedLinkId,
     user_id: resolvedUserId,
+    group_id: resolvedGroupId,
     retailer,
     gross_cents: grossCents,
     user_cents: userCents,
