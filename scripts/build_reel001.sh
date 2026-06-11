@@ -8,12 +8,12 @@ FRAMES="marketing/output/reel001_frames"
 SFX="marketing/sfx"
 OUT="marketing/output/reel001_v1.mp4"
 
-# SFX timeline (ms): pop=ask, whoosh=send, pop=typing, ding=SOLD,
+# SFX timeline (ms): pop=ask, send-swoop=card send, pop=typing, ding=SOLD,
 # 3 quiet pops=ledger ticks, thud=$0.00, ding=$1.80 flip, pop=loop bubble
 ffmpeg -y \
   -framerate 30 -i "$FRAMES/%04d.png" \
   -i "$SFX/pop.wav"    \
-  -i "$SFX/whoosh.wav" \
+  -i "$SFX/send.wav"   \
   -i "$SFX/pop.wav"    \
   -i "$SFX/ding.wav"   \
   -i "$SFX/pop.wav"    \
