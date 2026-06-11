@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { rateLimit } from '../lib/rateLimit.js';
+import { computeMilestones } from '../lib/milestones.js';
 
 // The `db` client is injected so the routes can be tested with a mock.
 export function makeUsersRouter(db) {
@@ -68,6 +69,20 @@ export function makeUsersRouter(db) {
         paid_cents: 0,
       }
     );
+  });
+
+  // ── GET /v1/users/:id/milestones ───────────────────────────────────────────
+  // Tier card + milestone checklist, computed from existing data (no writes).
+  // Backs the earnings screen's progression UI and the app's celebration
+  // moments (first click, earnings landing, tier-up).
+  router.get('/:id/milestones', async (req, res) => {
+    try {
+      const payload = await computeMilestones(db, req.params.id);
+      return res.json({ user_id: req.params.id, ...payload });
+    } catch (err) {
+      console.error('[users] milestones failed:', err);
+      return res.status(500).json({ error: 'Failed to load milestones' });
+    }
   });
 
   return router;

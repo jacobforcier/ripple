@@ -871,3 +871,66 @@ test('buildPayoutBatch: group pot skipped when the recipient is not onboarded', 
   const batch = await buildPayoutBatch(db, { minCents: 500 });
   assert.equal(batch.length, 0);
 });
+
+// ── Tiers + milestones (Drop → Ripple → Wave → Tide) ──────────────────────────
+import { tierForEarnings, tierProgress, ingestRateFor, TIERS } from '../src/lib/tiers.js';
+
+test('tiers: ladder boundaries are exact', () => {
+  assert.equal(tierForEarnings(0).name, 'Drop');
+  assert.equal(tierForEarnings(1).name, 'Ripple');      // first confirmed cent
+  assert.equal(tierForEarnings(999).name, 'Ripple');
+  assert.equal(tierForEarnings(1000).name, 'Wave');     // $10
+  assert.equal(tierForEarnings(4999).name, 'Wave');
+  assert.equal(tierForEarnings(5000).name, 'Tide');     // $50
+  assert.equal(tierForEarnings(999999).name, 'Tide');   // top never overflows
+});
+
+test('tiers: progress shows the next rung and remaining cents', () => {
+  const p = tierProgress(400); // Ripple, $6 to Wave
+  assert.equal(p.tier, 'Ripple');
+  assert.equal(p.rate, 0.45);
+  assert.equal(p.next.tier, 'Wave');
+  assert.equal(p.next.remaining_cents, 600);
+  assert.equal(tierProgress(5000).next, null); // Tide = top of the ladder
+});
+
+test('tiers: ingest rate follows the user tier; groups stay flat 50%', () => {
+  assert.equal(ingestRateFor({ lifetimeConfirmedCents: 0 }), 0.40);
+  assert.equal(ingestRateFor({ lifetimeConfirmedCents: 1200 }), 0.50);
+  assert.equal(ingestRateFor({ lifetimeConfirmedCents: 0, isGroup: true }), 0.50);
+  assert.ok(TIERS.every((t, i) => i === 0 || t.rate > TIERS[i - 1].rate), 'rates only climb');
+});
+
+test('GET /v1/users/:id/milestones: computes checklist + tier from existing data', async () => {
+  const db = mockDb({
+    links: { data: [{ retailer: 'Amazon' }, { retailer: 'Target' }], error: null },
+    link_stats: { data: [{ click_count: 7 }, { click_count: 5 }], error: null },
+    group_members: { data: [{ group_id: 'g1' }], error: null },
+    user_earnings: { data: { user_id: 'u1', lifetime_cents: 1500, pending_cents: 300, confirmed_cents: 900, paid_cents: 300 }, error: null },
+  });
+  const res = await request(appWith('/v1/users', makeUsersRouter(db))).get('/v1/users/u1/milestones');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.tier.tier, 'Wave'); // 900 + 300 = 1200 confirmed lifetime
+  assert.equal(res.body.tier.rate, 0.50);
+  const byId = Object.fromEntries(res.body.milestones.map((m) => [m.id, m]));
+  assert.equal(byId.first_link.achieved, true);
+  assert.equal(byId.first_click.achieved, true);
+  assert.equal(byId.ten_clicks.achieved, true);      // 12 clicks
+  assert.equal(byId.three_retailers.achieved, false); // 2/3
+  assert.equal(byId.first_group.achieved, true);
+  assert.equal(byId.first_payout.achieved, true);
+});
+
+test('GET /v1/users/:id/milestones: brand-new user is a Drop with nothing achieved', async () => {
+  const db = mockDb({
+    links: { data: [], error: null },
+    link_stats: { data: [], error: null },
+    group_members: { data: [], error: null },
+    user_earnings: { data: null, error: null },
+  });
+  const res = await request(appWith('/v1/users', makeUsersRouter(db))).get('/v1/users/u9/milestones');
+  assert.equal(res.status, 200);
+  assert.equal(res.body.tier.tier, 'Drop');
+  assert.equal(res.body.tier.next.tier, 'Ripple');
+  assert.ok(res.body.milestones.every((m) => !m.achieved));
+});

@@ -7,7 +7,9 @@
 //
 // Usage, from backend/:
 //   node scripts/ingest_amazon_tracking_report.mjs <report.csv> --period=2026-05
-//   (optional)  --split=0.5   user's share of gross (default 0.5 = 50/50)
+//   (optional)  --split=0.5   FLAT override of the user's share. Without it,
+//   each user's share comes from their TIER (Drop 40% → Tide 55%, see
+//   lib/tiers.js); groups are flat 50%.
 //
 // Idempotent: external_ref = "<tracking_id>:<period>", so re-ingesting the same
 // month UPDATES that user's commission row to the latest total instead of
@@ -22,6 +24,7 @@ import { readFileSync } from 'node:fs';
 import { parse } from 'csv-parse/sync';
 import { createClient } from '@supabase/supabase-js';
 import { recordCommission } from '../src/lib/commissions.js';
+import { ingestRateFor } from '../src/lib/tiers.js';
 
 const [csvPath] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const periodArg = process.argv.find((a) => a.startsWith('--period='));
@@ -63,7 +66,26 @@ for (const row of rows) {
     continue;
   }
 
-  const userCents = Math.round(grossCents * userShare);
+  // Split rate: the owner's TIER (Drop→Tide) decides the user's share, based
+  // on their lifetime confirmed earnings BEFORE this row. Groups stay at 50%.
+  // An explicit --split=X on the command line overrides tiers entirely.
+  let rate = userShare;
+  if (!splitArg) {
+    if (pool.group_id) {
+      rate = ingestRateFor({ isGroup: true });
+    } else {
+      const { data: earn } = await db
+        .from('user_earnings')
+        .select('confirmed_cents, paid_cents')
+        .eq('user_id', pool.user_id)
+        .maybeSingle();
+      rate = ingestRateFor({
+        lifetimeConfirmedCents: (earn?.confirmed_cents ?? 0) + (earn?.paid_cents ?? 0),
+      });
+    }
+  }
+
+  const userCents = Math.round(grossCents * rate);
   try {
     await recordCommission(db, {
       ...(pool.group_id ? { groupId: pool.group_id } : { userId: pool.user_id }),
