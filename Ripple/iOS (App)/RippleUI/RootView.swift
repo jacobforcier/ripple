@@ -9,31 +9,47 @@ import SwiftUI
 
 struct RootView: View {
 
-    // Talks to the real backend. Swap to MockRippleAPI() for offline work or
-    // SwiftUI previews — nothing else in the app needs to change.
-    @StateObject private var store = RippleStore(api: LiveRippleAPI())
+    // Talks to the real backend. Launch with the -mockAPI argument (simulator
+    // tooling / UI iteration) to swap in sample data — nothing else changes.
+    @StateObject private var store = RippleStore(
+        api: ProcessInfo.processInfo.arguments.contains("-mockAPI")
+            ? MockRippleAPI() : LiveRippleAPI()
+    )
     @StateObject private var celebrator = ProgressionCelebrator()
 
     init() {
         Self.configureAppearance()
     }
 
+    // Dev affordance: `-startTab 2` opens on a given tab (simulator tooling).
+    @State private var selectedTab: Int = {
+        let args = ProcessInfo.processInfo.arguments
+        if let i = args.firstIndex(of: "-startTab"), i + 1 < args.count,
+           let n = Int(args[i + 1]) { return n }
+        return 0
+    }()
+
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             LinksView()
                 .tabItem { Label("Links", systemImage: "link") }
+                .tag(0)
 
             ShareView()
                 .tabItem { Label("Share", systemImage: "square.and.arrow.up") }
+                .tag(1)
 
             JourneyView()
                 .tabItem { Label("Journey", systemImage: "water.waves") }
+                .tag(2)
 
             RatesView()
                 .tabItem { Label("Rates", systemImage: "percent") }
+                .tag(3)
 
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tag(4)
         }
         .tint(RippleTheme.accent)
         .environmentObject(store)

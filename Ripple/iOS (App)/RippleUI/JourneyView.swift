@@ -39,14 +39,21 @@ struct JourneyView: View {
 struct WaveTierHeader: View {
     let progress: TierProgress
     @State private var showShare = false
-    @State private var fillLevel: CGFloat = 0
 
-    /// 0…1 progress within the current rung.
+    /// 0…1 progress within the current rung. Floor keeps the water visible
+    /// and alive even at $0 — the feature should never look "empty".
     private var rungFraction: CGFloat {
-        guard let next = progress.next else { return 1 }
+        guard let next = progress.next else { return 0.92 }
         let total = progress.lifetimeConfirmedCents + next.remainingCents
-        guard total > 0 else { return 0.06 }
-        return max(0.06, CGFloat(progress.lifetimeConfirmedCents) / CGFloat(total))
+        guard total > 0 else { return 0.18 }
+        return min(0.92, max(0.18, CGFloat(progress.lifetimeConfirmedCents) / CGFloat(total)))
+    }
+
+    private var percentToNext: Int {
+        guard let next = progress.next else { return 100 }
+        let total = progress.lifetimeConfirmedCents + next.remainingCents
+        guard total > 0 else { return 0 }
+        return Int((Double(progress.lifetimeConfirmedCents) / Double(total)) * 100)
     }
 
     private var nextLine: String {
@@ -79,19 +86,54 @@ struct WaveTierHeader: View {
     }
 
     private func drawWater(context: GraphicsContext, size: CGSize, time: Double) {
-        let level: CGFloat = (1 - fillLevel) * size.height
-        let front = wavePath(size: size, level: level, time: time,
-                             freq: 2, speed: 1.6, amp: 7,
-                             freq2: 4, speed2: 2.4, amp2: 4)
+        // Level comes straight from real progress every frame (no animation
+        // state to go stale), with a slow breathing bob so it's always alive.
+        let bob = CGFloat(sin(time * 0.6)) * 4
+        let level: CGFloat = (1 - rungFraction) * size.height + bob
+
         let back = wavePath(size: size, level: level, time: time,
-                            freq: 2, speed: 1.6, amp: 9, phase: 1.8)
-        context.fill(back, with: .color(RippleTheme.accent.opacity(0.25)))
+                            freq: 2, speed: 1.1, amp: 13, phase: 1.8)
+        let front = wavePath(size: size, level: level, time: time,
+                             freq: 2, speed: 1.7, amp: 10,
+                             freq2: 5, speed2: 2.6, amp2: 5)
+
+        context.fill(back, with: .color(RippleTheme.accent.opacity(0.28)))
         context.fill(front, with: .linearGradient(
-            Gradient(colors: [RippleTheme.accent.opacity(0.55),
-                              RippleTheme.accent2.opacity(0.85)]),
+            Gradient(colors: [RippleTheme.accent2.opacity(0.85),
+                              RippleTheme.accent.opacity(0.45)]),
             startPoint: CGPoint(x: 0, y: level),
             endPoint: CGPoint(x: 0, y: size.height)
         ))
+        // Glowing crest line along the front wave surface.
+        var crest = Path()
+        var x: CGFloat = 0
+        var first = true
+        while x <= size.width {
+            let u = Double(x / size.width)
+            var y = level + 10 * CGFloat(sin(u * .pi * 2 + time * 1.7))
+            y += 5 * CGFloat(sin(u * .pi * 5 + time * 2.6))
+            if first { crest.move(to: CGPoint(x: x, y: y)); first = false }
+            else { crest.addLine(to: CGPoint(x: x, y: y)) }
+            x += 4
+        }
+        context.stroke(crest, with: .color(RippleTheme.accent2.opacity(0.9)), lineWidth: 2)
+
+        // Bubbles drifting up through the water.
+        for i in 0..<6 {
+            let seed = Double(i) * 1.7 + 1
+            let cycle = 6.0 + Double(i % 3)
+            let phase = (time / cycle + seed * 0.37).truncatingRemainder(dividingBy: 1)
+            let bx = CGFloat((seed * 137.5).truncatingRemainder(dividingBy: 1)) * size.width * 0.9
+                   + size.width * 0.05
+                   + CGFloat(sin(time * 1.2 + seed)) * 6
+            let depth = size.height - level
+            guard depth > 24 else { continue }
+            let by = size.height - CGFloat(phase) * (depth - 14)
+            let r = 2.0 + CGFloat(i % 3)
+            let alpha = 0.5 * (1 - phase)
+            context.fill(Path(ellipseIn: CGRect(x: bx - r, y: by - r, width: r * 2, height: r * 2)),
+                         with: .color(.white.opacity(alpha)))
+        }
     }
 
     var body: some View {
@@ -104,6 +146,14 @@ struct WaveTierHeader: View {
                         drawWater(context: context, size: size, time: t)
                     }
                 }
+
+                // Soft glow halo behind the tier name.
+                RadialGradient(
+                    colors: [RippleTheme.accent.opacity(0.35), .clear],
+                    center: .center, startRadius: 10, endRadius: 150
+                )
+                .frame(width: 300, height: 220)
+                .offset(y: -20)
 
                 VStack(spacing: 6) {
                     Text("YOUR TIER")
@@ -127,8 +177,25 @@ struct WaveTierHeader: View {
                         .padding(.top, 6)
                 }
                 .padding(.horizontal, 20)
+                .offset(y: -16)
+
+                // Progress chip riding the lower-right, above the water.
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Text(progress.next == nil ? "MAX" : "\(percentToNext)% to \(progress.next!.tier)")
+                            .font(.caption2.weight(.bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(Capsule().fill(Color.black.opacity(0.35)))
+                            .overlay(Capsule().stroke(RippleTheme.accent2.opacity(0.5), lineWidth: 1))
+                            .padding(12)
+                    }
+                }
             }
-            .frame(height: 210)
+            .frame(height: 250)
 
             // Ladder rungs + share
             HStack {
@@ -163,12 +230,6 @@ struct WaveTierHeader: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(RippleTheme.border, lineWidth: 1)
         )
-        .onAppear {
-            withAnimation(.easeOut(duration: 1.4)) { fillLevel = rungFraction }
-        }
-        .onChange(of: progress) { _ in
-            withAnimation(.easeOut(duration: 1.4)) { fillLevel = rungFraction }
-        }
         .sheet(isPresented: $showShare) {
             ShareSheet(items: [
                 "I just became a \(progress.tier) on Ripple 🌊 — my recommendations are paying me back. sharewithripple.com"
