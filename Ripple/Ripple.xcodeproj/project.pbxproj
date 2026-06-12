@@ -13,6 +13,7 @@
 		4C6162D689DF73375234CBF8 /* LiveRippleAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF41C91A445D15BB096E80F9 /* LiveRippleAPI.swift */; };
 		4DE946257D565E6E0BA68A77 /* RippleAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020382C60B8DA4025E7CBE2F /* RippleAPI.swift */; };
 		50FFC0FC006A546F0A62930D /* LinksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */; };
+		FE98DC76BA54FE98DC76BA54 /* ProgressionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB12CD34EF56AB12CD34EF56 /* ProgressionView.swift */; };
 		5F9801FDF38A7D43E9DCA68A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */; };
 		5FCDAA0EFEC157062AB21957 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E14D3C941A51164A97C849 /* ShareViewController.swift */; };
 		8C9F79902FA1444100A65CCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F798F2FA1444100A65CCD /* AppDelegate.swift */; };
@@ -156,6 +157,7 @@
 		8CCF33012FA1A53B00F80B40 /* Ripple Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Ripple Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AADA189496906C1ED9F17981 /* TrendingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TrendingView.swift; sourceTree = "<group>"; };
 		B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LinksView.swift; sourceTree = "<group>"; };
+		AB12CD34EF56AB12CD34EF56 /* ProgressionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressionView.swift; sourceTree = "<group>"; };
 		B0E14D3C941A51164A97C849 /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		CCF05E60A5B4AFBE04BCF280 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -243,6 +245,7 @@
 				372453C916690EE7A273524F /* RippleStore.swift */,
 				3219112CFDD972CC07554D58 /* RootView.swift */,
 				B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */,
+				AB12CD34EF56AB12CD34EF56 /* ProgressionView.swift */,
 				ED65B61FC7B4C65442F8DA27 /* ShareView.swift */,
 				F63FBF41D47363F3CA3358C8 /* RatesView.swift */,
 				D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */,
@@ -641,6 +644,7 @@
 				90575BCA56A89EFE4BE6526C /* RippleStore.swift in Sources */,
 				8D345F6E170E52B50DD85528 /* RootView.swift in Sources */,
 				50FFC0FC006A546F0A62930D /* LinksView.swift in Sources */,
+				FE98DC76BA54FE98DC76BA54 /* ProgressionView.swift in Sources */,
 				C548CAE3EE9A6CCFA39318E9 /* ShareView.swift in Sources */,
 				2FA781BF88DD77AAB17C8297 /* RatesView.swift in Sources */,
 				5F9801FDF38A7D43E9DCA68A /* SettingsView.swift in Sources */,
