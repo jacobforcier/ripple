@@ -9,19 +9,12 @@ import SwiftUI
 
 struct LinksView: View {
     @EnvironmentObject private var store: RippleStore
-    @StateObject private var celebrator = ProgressionCelebrator()
 
     var body: some View {
         NavigationView {
             ScrollView {
                 LazyVStack(spacing: 16) {
                     EarningsHeader(earnings: store.earnings)
-
-                    TierCard(progress: store.milestones.tier)
-
-                    if !store.milestones.milestones.isEmpty {
-                        MilestonesCard(milestones: store.milestones.milestones)
-                    }
 
                     if store.isLoading && !store.hasLoadedOnce {
                         LoadingRow()
@@ -63,16 +56,6 @@ struct LinksView: View {
         .navigationViewStyle(.stack)
         .task {
             if !store.hasLoadedOnce { await store.loadAll() }
-        }
-        .onChange(of: store.milestones) { payload in
-            celebrator.process(payload)
-        }
-        .overlay {
-            if let celebration = celebrator.current {
-                CelebrationOverlay(celebration: celebration) {
-                    celebrator.dismiss()
-                }
-            }
         }
     }
 }

@@ -12,6 +12,7 @@ struct RootView: View {
     // Talks to the real backend. Swap to MockRippleAPI() for offline work or
     // SwiftUI previews — nothing else in the app needs to change.
     @StateObject private var store = RippleStore(api: LiveRippleAPI())
+    @StateObject private var celebrator = ProgressionCelebrator()
 
     init() {
         Self.configureAppearance()
@@ -25,8 +26,8 @@ struct RootView: View {
             ShareView()
                 .tabItem { Label("Share", systemImage: "square.and.arrow.up") }
 
-            TrendingView()
-                .tabItem { Label("Trending", systemImage: "chart.line.uptrend.xyaxis") }
+            JourneyView()
+                .tabItem { Label("Journey", systemImage: "water.waves") }
 
             RatesView()
                 .tabItem { Label("Rates", systemImage: "percent") }
@@ -36,6 +37,17 @@ struct RootView: View {
         }
         .tint(RippleTheme.accent)
         .environmentObject(store)
+        // Celebrations fire at the root so they show on any tab.
+        .onChange(of: store.milestones) { payload in
+            celebrator.process(payload)
+        }
+        .overlay {
+            if let celebration = celebrator.current {
+                CelebrationOverlay(celebration: celebration) {
+                    celebrator.dismiss()
+                }
+            }
+        }
     }
 
     /// Dark, brand-colored nav bars and tab bar across the app.
