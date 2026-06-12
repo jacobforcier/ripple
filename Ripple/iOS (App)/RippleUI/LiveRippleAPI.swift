@@ -44,6 +44,11 @@ actor LiveRippleAPI: RippleAPIClient {
         return try await send("GET", "/v1/users/\(uid)/earnings")
     }
 
+    func fetchMilestones() async throws -> MilestonesResponse {
+        let uid = try await userId()
+        return try await send("GET", "/v1/users/\(uid)/milestones")
+    }
+
     func createLink(sourceURL: String) async throws -> CreatedLink {
         // Validate client-side first for an immediate, friendly error.
         guard let url = URL(string: sourceURL),

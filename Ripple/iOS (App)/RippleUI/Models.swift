@@ -122,6 +122,59 @@ struct RetailerRate: Identifiable, Equatable {
     let rateText: String
 }
 
+// MARK: - Tiers & milestones
+
+/// The user's earning tier + progress. Mirrors the `tier` object of
+/// `GET /v1/users/:id/milestones`. `rate` is the user's share (0.40…0.55).
+struct TierProgress: Codable, Equatable {
+    let tier: String
+    let rate: Double
+    let lifetimeConfirmedCents: Int
+    let next: NextTier?
+
+    struct NextTier: Codable, Equatable {
+        let tier: String
+        let rate: Double
+        let remainingCents: Int
+
+        enum CodingKeys: String, CodingKey {
+            case tier, rate
+            case remainingCents = "remaining_cents"
+        }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case tier, rate, next
+        case lifetimeConfirmedCents = "lifetime_confirmed_cents"
+    }
+
+    static let zero = TierProgress(
+        tier: "Drop", rate: 0.40, lifetimeConfirmedCents: 0,
+        next: NextTier(tier: "Ripple", rate: 0.45, remainingCents: 1)
+    )
+
+    /// Ladder position (Drop=0 … Tide=3) for progress visuals.
+    var ladderIndex: Int {
+        ["Drop": 0, "Ripple": 1, "Wave": 2, "Tide": 3][tier] ?? 0
+    }
+}
+
+/// One milestone row. Mirrors `milestones[]` of GET /v1/users/:id/milestones.
+struct Milestone: Codable, Identifiable, Equatable {
+    let id: String
+    let title: String
+    let achieved: Bool
+    let detail: String
+}
+
+/// Full payload of GET /v1/users/:id/milestones.
+struct MilestonesResponse: Codable, Equatable {
+    let tier: TierProgress
+    let milestones: [Milestone]
+
+    static let empty = MilestonesResponse(tier: .zero, milestones: [])
+}
+
 // MARK: - Formatting helpers
 
 /// Formats a cent amount as a localized USD currency string.

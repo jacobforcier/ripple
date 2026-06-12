@@ -15,6 +15,7 @@ final class RippleStore: ObservableObject {
 
     @Published var links: [RippleLink] = []
     @Published var earnings: EarningsSummary = .zero
+    @Published var milestones: MilestonesResponse = .empty
     @Published var rates: [RetailerRate] = []
     @Published var trending: [TrendingMerchant] = []
 
@@ -36,10 +37,12 @@ final class RippleStore: ObservableObject {
         do {
             async let links = api.fetchLinks()
             async let earnings = api.fetchEarnings()
+            async let milestones = api.fetchMilestones()
             async let rates = api.fetchRetailerRates()
             async let trending = api.fetchTrending()
             self.links = try await links
             self.earnings = try await earnings
+            self.milestones = try await milestones
             self.rates = try await rates
             self.trending = try await trending
         } catch {

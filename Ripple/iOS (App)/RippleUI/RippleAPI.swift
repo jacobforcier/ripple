@@ -19,6 +19,7 @@ import Foundation
 protocol RippleAPIClient {
     func fetchLinks() async throws -> [RippleLink]
     func fetchEarnings() async throws -> EarningsSummary
+    func fetchMilestones() async throws -> MilestonesResponse
     func createLink(sourceURL: String) async throws -> CreatedLink
     func fetchRetailerRates() async throws -> [RetailerRate]
     func fetchTrending() async throws -> [TrendingMerchant]
@@ -153,6 +154,27 @@ actor MockRippleAPI: RippleAPIClient {
     func fetchLinks() async throws -> [RippleLink] {
         try await Task.sleep(nanoseconds: 350_000_000)
         return links.sorted { $0.createdAt > $1.createdAt }
+    }
+
+    func fetchMilestones() async throws -> MilestonesResponse {
+        try await Task.sleep(nanoseconds: 350_000_000)
+        // Mid-progression sample: a Ripple-tier user partway to Wave.
+        return MilestonesResponse(
+            tier: TierProgress(
+                tier: "Ripple", rate: 0.45, lifetimeConfirmedCents: 420,
+                next: TierProgress.NextTier(tier: "Wave", rate: 0.50, remainingCents: 580)
+            ),
+            milestones: [
+                Milestone(id: "first_link",      title: "Share your first link",            achieved: true,  detail: "4 links created"),
+                Milestone(id: "first_click",     title: "A friend clicks your link",        achieved: true,  detail: "15 clicks so far"),
+                Milestone(id: "three_retailers", title: "Share from 3 different retailers", achieved: true,  detail: "4/3 retailers"),
+                Milestone(id: "ten_clicks",      title: "10 clicks across your links",      achieved: true,  detail: "10/10 clicks"),
+                Milestone(id: "first_group",     title: "Join or start a group",            achieved: false, detail: "not yet"),
+                Milestone(id: "first_earnings",  title: "First earnings ripple in",         achieved: true,  detail: "$7.47 lifetime"),
+                Milestone(id: "first_confirmed", title: "Earnings confirmed & cashable",    achieved: true,  detail: "$4.20 confirmed"),
+                Milestone(id: "first_payout",    title: "Your first payout",                achieved: false, detail: "monthly, $10 minimum"),
+            ]
+        )
     }
 
     func fetchEarnings() async throws -> EarningsSummary {
