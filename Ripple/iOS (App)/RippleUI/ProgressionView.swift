@@ -19,8 +19,8 @@ struct TierCard: View {
     @State private var showShare = false
 
     private var nextLine: String {
-        guard let next = progress.next else { return "Top of the ladder — every link earns the most." }
-        return "\(formatCents(next.remainingCents)) more confirmed → \(next.tier) (\(Int(next.rate * 100))%)"
+        guard let next = progress.next else { return "Top of the ladder — maximum bonus on every ripple." }
+        return "\(formatCents(next.remainingCents)) more confirmed → \(next.tier) (+\(next.bonusPoints)% bonus)"
     }
 
     /// Progress within the current rung, for the bar (0…1).
@@ -54,13 +54,13 @@ struct TierCard: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("you earn")
+                    Text(progress.bonusPoints > 0 ? "earnings bonus" : "your rate")
                         .font(.caption2)
                         .foregroundColor(RippleTheme.muted)
-                    Text("\(Int(progress.rate * 100))%")
+                    Text(progress.bonusPoints > 0 ? "+\(progress.bonusPoints)%" : "Base")
                         .font(.system(size: 26, weight: .bold))
                         .overlay(RippleTheme.gradient.mask(
-                            Text("\(Int(progress.rate * 100))%")
+                            Text(progress.bonusPoints > 0 ? "+\(progress.bonusPoints)%" : "Base")
                                 .font(.system(size: 26, weight: .bold))
                         ))
                 }
@@ -212,7 +212,7 @@ final class ProgressionCelebrator: ObservableObject {
         if payload.tier.ladderIndex > lastTier && !isFirstRun {
             queue.append(Celebration(
                 title: "You're a \(payload.tier.tier)!",
-                subtitle: "Every link now earns you \(Int(payload.tier.rate * 100))%",
+                subtitle: "Every ripple now earns a +\(payload.tier.bonusPoints)% bonus",
                 isTierUp: true
             ))
         }

@@ -934,3 +934,11 @@ test('GET /v1/users/:id/milestones: brand-new user is a Drop with nothing achiev
   assert.equal(res.body.tier.next.tier, 'Ripple');
   assert.ok(res.body.milestones.every((m) => !m.achieved));
 });
+
+test('tiers: progress exposes base+bonus framing (bonus_points above Drop)', () => {
+  assert.equal(tierProgress(0).bonus_points, 0);        // Drop = base rate
+  assert.equal(tierProgress(500).bonus_points, 5);      // Ripple = +5
+  assert.equal(tierProgress(1500).bonus_points, 10);    // Wave = +10
+  assert.equal(tierProgress(9000).bonus_points, 15);    // Tide = +15
+  assert.equal(tierProgress(0).next.bonus_points, 5);   // next rung's bonus
+});

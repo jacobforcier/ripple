@@ -161,8 +161,8 @@ actor MockRippleAPI: RippleAPIClient {
         // Mid-progression sample: a Ripple-tier user partway to Wave.
         return MilestonesResponse(
             tier: TierProgress(
-                tier: "Ripple", rate: 0.45, lifetimeConfirmedCents: 420,
-                next: TierProgress.NextTier(tier: "Wave", rate: 0.50, remainingCents: 580)
+                tier: "Ripple", rate: 0.45, bonusPoints: 5, lifetimeConfirmedCents: 420,
+                next: TierProgress.NextTier(tier: "Wave", rate: 0.50, bonusPoints: 10, remainingCents: 580)
             ),
             milestones: [
                 Milestone(id: "first_link",      title: "Share your first link",            achieved: true,  detail: "4 links created"),

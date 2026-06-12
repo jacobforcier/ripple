@@ -129,28 +129,34 @@ struct RetailerRate: Identifiable, Equatable {
 struct TierProgress: Codable, Equatable {
     let tier: String
     let rate: Double
+    /// Percentage points above the base (Drop) rate: 0 / 5 / 10 / 15.
+    /// FRAMING RULE: the UI shows base + bonus, never the absolute split.
+    let bonusPoints: Int
     let lifetimeConfirmedCents: Int
     let next: NextTier?
 
     struct NextTier: Codable, Equatable {
         let tier: String
         let rate: Double
+        let bonusPoints: Int
         let remainingCents: Int
 
         enum CodingKeys: String, CodingKey {
             case tier, rate
+            case bonusPoints = "bonus_points"
             case remainingCents = "remaining_cents"
         }
     }
 
     enum CodingKeys: String, CodingKey {
         case tier, rate, next
+        case bonusPoints = "bonus_points"
         case lifetimeConfirmedCents = "lifetime_confirmed_cents"
     }
 
     static let zero = TierProgress(
-        tier: "Drop", rate: 0.40, lifetimeConfirmedCents: 0,
-        next: NextTier(tier: "Ripple", rate: 0.45, remainingCents: 1)
+        tier: "Drop", rate: 0.40, bonusPoints: 0, lifetimeConfirmedCents: 0,
+        next: NextTier(tier: "Ripple", rate: 0.45, bonusPoints: 5, remainingCents: 1)
     )
 
     /// Ladder position (Drop=0 … Tide=3) for progress visuals.

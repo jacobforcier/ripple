@@ -26,18 +26,33 @@ export function tierForEarnings(lifetimeConfirmedCents) {
   return current;
 }
 
-/** Tier + progress payload for the API/app. */
+/**
+ * Tier + progress payload for the API/app.
+ *
+ * FRAMING (decided 2026-06-11): the UI never shows the absolute split. Tiers
+ * present as BASE + BONUS — Drop is "base rate", higher tiers are "+5/10/15%
+ * bonus on every ripple". `bonus_points` = percentage points above Drop; the
+ * raw `rate` stays in the payload for ingest/debugging but clients should
+ * display the bonus, not the rate.
+ */
 export function tierProgress(lifetimeConfirmedCents) {
   const cents = Math.max(0, lifetimeConfirmedCents | 0);
   const current = tierForEarnings(cents);
   const idx = TIERS.indexOf(current);
   const next = TIERS[idx + 1] ?? null;
+  const bonusPoints = (t) => Math.round((t.rate - TIERS[0].rate) * 100);
   return {
     tier: current.name,
     rate: current.rate,
+    bonus_points: bonusPoints(current),          // 0 | 5 | 10 | 15
     lifetime_confirmed_cents: cents,
     next: next
-      ? { tier: next.name, rate: next.rate, remaining_cents: Math.max(0, next.minCents - cents) }
+      ? {
+          tier: next.name,
+          rate: next.rate,
+          bonus_points: bonusPoints(next),
+          remaining_cents: Math.max(0, next.minCents - cents),
+        }
       : null, // top of the ladder
   };
 }
