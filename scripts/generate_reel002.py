@@ -134,6 +134,7 @@ def draw_water(img, t, surf):
                                         (-12, 13, 1.2, 1.1, (*ACCENT2, 55))]:
         pts = surface_pts(t, surf + off, amp, 2, speed, phase)
         ld.polygon([(0, H)] + pts + [(W, H)], fill=col)
+    layer = layer.filter(ImageFilter.GaussianBlur(5))
     img.paste(layer, (0, 0), layer)
 
     # main body: per-pixel gradient masked by the front wave shape; gradient
@@ -157,17 +158,26 @@ def draw_water(img, t, surf):
     cl = cl.filter(ImageFilter.GaussianBlur(70))
     img.paste(cl, (0, 0), cl)
 
-    # crest: blurred glow + sharp line
-    gl = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    gd = ImageDraw.Draw(gl)
-    gd.line(front, fill=(*ACCENT2, 200), width=10)
-    band_top = max(0, int(surf) - 60)
-    band = gl.crop((0, band_top, W, min(H, int(surf) + 60)))
-    band = band.filter(ImageFilter.GaussianBlur(12))
-    gl.paste(band, (0, band_top))
-    img.paste(gl, (0, 0), gl)
+    # crest: soft luminous edge — the wave-shape mask minus itself shifted
+    # down gives a thin surface band; blur it so nothing reads as a stroke
+    shifted = Image.new("L", (W, H), 0)
+    shifted.paste(mask, (0, 34))
+    from PIL import ImageChops
+    band = ImageChops.subtract(mask, shifted)
+    edge = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    edge.paste(Image.new("RGBA", (W, H), (170, 225, 255, 190)), (0, 0), band)
+    edge = edge.filter(ImageFilter.GaussianBlur(7))
+    img.paste(edge, (0, 0), edge)
+    # faint foam sparkles drifting along the surface
     d = ImageDraw.Draw(img, "RGBA")
-    d.line(front, fill=(210, 240, 255, 230), width=3)
+    for i in range(14):
+        u = ((i * 79.3 + t * 14) % 100) / 100
+        fx = u * W
+        fy = surf + 11 * math.sin(u * math.pi * 2 + t * 1.5)              + 11 * 0.4 * math.sin(u * math.pi * 4.6 + t * 2.55) - 3
+        a = int(90 + 70 * math.sin(t * 2.0 + i * 1.3))
+        rr = 1.6 + (i % 3) * 0.7
+        d.ellipse((fx - rr, fy - rr, fx + rr, fy + rr),
+                  fill=(225, 245, 255, max(0, a)))
 
     # bubbles
     for i in range(8):
@@ -211,13 +221,28 @@ def draw_drops(d, t):
         if tt <= t < tt + 1.0:
             p = (t - tt) / 1.0
             sy = level_y(t)
-            for k in range(3):                            # expanding rings
-                rp = clamp01(p * 1.35 - k * 0.18)
+            # impact light bloom on the water
+            if p < 0.5:
+                ba = int(90 * (1 - p / 0.5))
+                radial_glow(d, x, sy, 26, (170, 225, 255), steps=4, a0=ba)
+            # soft expanding rings: filled bands on a tile, blurred (no strokes)
+            tile_w, tile_h = 560, 200
+            tile = Image.new("RGBA", (tile_w, tile_h), (0, 0, 0, 0))
+            td = ImageDraw.Draw(tile)
+            cx0, cy0 = tile_w // 2, tile_h // 2
+            for k in range(2):
+                rp = clamp01(p * 1.3 - k * 0.22)
                 if rp <= 0: continue
-                rw = 26 + 190 * ease_out(rp)
-                a = int(150 * (1 - rp))
-                d.ellipse((x - rw, sy - rw * 0.20, x + rw, sy + rw * 0.20),
-                          outline=(170, 225, 255, a), width=4)
+                rw = 26 + 180 * ease_out(rp)
+                a = int(120 * (1 - rp))
+                td.ellipse((cx0 - rw, cy0 - rw * 0.20, cx0 + rw, cy0 + rw * 0.20),
+                           fill=(190, 232, 255, a))
+                inner = rw * 0.72
+                td.ellipse((cx0 - inner, cy0 - inner * 0.20,
+                            cx0 + inner, cy0 + inner * 0.20),
+                           fill=(0, 0, 0, 0))
+            tile = tile.filter(ImageFilter.GaussianBlur(5))
+            d._image.paste(tile, (int(x - tile_w / 2), int(sy - tile_h / 2)), tile)
             if p < 0.35:                                  # crown splash
                 pr = ease_out(p / 0.35)
                 for k in range(7):
@@ -332,19 +357,29 @@ def render_audio():
         for j, v in enumerate(samples):
             if i0 + j < len(buf): buf[i0 + j] += v
     def bloop(f0):
-        """Real drip: soft noise tap + bubble resonance with RISING pitch."""
-        out = []
-        n_tap = int(0.012 * sr)
-        for i in range(n_tap):                       # tiny splash transient
-            out.append(random.uniform(-1, 1) * 0.18 * (1 - i / n_tap))
-        n = int(0.16 * sr)
-        phase = 0.0
-        for i in range(n):
+        """Kitchen-sink plop: low thump + filtered noise splash + a VERY short
+        rising bubble chirp. Length is what reads as 'space' — keep it tight."""
+        n = int(0.11 * sr)
+        out = [0.0] * n
+        # low water thump
+        for i in range(int(0.045 * sr)):
             tt = i / sr
-            f = f0 * (1 + 0.9 * (1 - math.exp(-tt * 28)))   # pitch RISES
+            out[i] += math.sin(2 * math.pi * 165 * tt) * 0.5 * math.exp(-tt * 70)
+        # band-limited noise splash (differenced noise ≈ high-pass, then smooth)
+        prev_n, lp = 0.0, 0.0
+        for i in range(int(0.05 * sr)):
+            tt = i / sr
+            rn = random.uniform(-1, 1)
+            hp = rn - prev_n; prev_n = rn
+            lp += 0.25 * (hp - lp)
+            out[i] += lp * 1.4 * math.exp(-tt * 90)
+        # short rising bubble chirp (the 'plip'), ~45ms only
+        phase = 0.0
+        for i in range(int(0.045 * sr)):
+            tt = i / sr
+            f = f0 * (0.8 + 1.1 * (1 - math.exp(-tt * 60)))
             phase += 2 * math.pi * f / sr
-            env = math.exp(-tt * 22) * (1 - math.exp(-tt * 900))
-            out.append(math.sin(phase) * 0.6 * env)
+            out[i + int(0.008 * sr)] += math.sin(phase) * 0.38 * math.exp(-tt * 48)
         return out
     def chord():
         n = int(2.4 * sr)
@@ -360,10 +395,10 @@ def render_audio():
         return out
     random.seed(3)
     for k, (tt, *_ ) in enumerate(DROPS):
-        add(tt, bloop(330 + k * 26))                 # gentle rising scale
+        add(tt, bloop(420 + k * 22 + random.uniform(-20, 20)))  # subtle rise, natural variance
     add(11.4, chord())
     # simple feedback-delay reverb → roomy, zen
-    for delay_s, g in [(0.043, 0.30), (0.061, 0.24), (0.089, 0.18)]:
+    for delay_s, g in [(0.047, 0.22), (0.067, 0.16), (0.097, 0.11)]:
         ds = int(delay_s * sr)
         for i in range(ds, len(buf)):
             buf[i] += buf[i - ds] * g
