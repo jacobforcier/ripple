@@ -172,7 +172,9 @@ struct MilestonesCard: View {
 
 /// Watches milestone payloads and fires each celebration exactly once per
 /// device (achieved ids + last tier persisted in UserDefaults). One at a time.
-@MainActor
+/// Always called from SwiftUI view context (main thread) — deliberately not
+/// @MainActor: an isolated ObservableObject conformance fails to type-check
+/// at @StateObject under Swift 6 strict concurrency.
 final class ProgressionCelebrator: ObservableObject {
     @Published var current: Celebration?
 
