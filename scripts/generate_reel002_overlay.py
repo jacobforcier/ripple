@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Reel 002 — overlay layer for the Veo water hero shot.
+Reel 002 — overlay layer for the Veo water hero shot (v2: editorial cut).
 
-Renders TRANSPARENT PNG frames (1080x1920, 30fps) that get composited over
-marketing/raw/veo_water.mp4 by build_reel002.sh. The video brings the (real)
-water + (real) audio; this layer brings the on-brand story:
-  - hook (0–2s)
-  - a running earnings counter, top-right, ticking through the month
-  - floating purchase labels near the splashes (+$1.20 blender …)
-  - end card (8.2s+): dark settle scrim → total → "word of mouth, finally
-    rewarded." → ripple
+The water has a slow, meditative rhythm — three real splashes at ~2.0s, 5.0s,
+7.5s (measured from the clip's brightness, not guessed). This overlay matches
+that calm instead of fighting it:
+  - lowercase, letter-spaced type, NO boxes — text rests in the dark band with
+    a soft shadow, fades in slowly with a subtle drift
+  - exactly three text moments, each synced to a splash
+  - one elegant total that counts up smoothly (no HUD pill)
+  - a settled end card: total → "word of mouth, finally rewarded." → ripple
 
-Also writes a short end-chord WAV (music, not a fake water sound).
+Composited over marketing/raw/veo_water.mp4 by build_reel002.sh.
 """
 
 import math
@@ -29,134 +29,130 @@ W, H = 1080, 1920
 FPS = 30
 DUR = 12.0
 N = int(DUR * FPS)
+END = 8.2
 
-TEXT   = (240, 240, 255)
-ACCENT = (91, 138, 245)
-CYAN   = (120, 210, 255)
-GREEN  = (74, 222, 168)
+WHITE = (238, 242, 252)
+MINT  = (150, 235, 190)
+ACCENT = (120, 165, 255)
 
 _fc = {}
-def F(size, weight="Bold"):
+def F(size, weight="Medium"):
     if (size, weight) not in _fc:
         f = ImageFont.truetype(INTER, size); f.set_variation_by_name(weight)
         _fc[(size, weight)] = f
     return _fc[(size, weight)]
 
-def ease_out(x): return 1 - (1 - x) ** 3
 def clamp01(x): return max(0.0, min(1.0, x))
-def tsize(d, s, f):
-    b = d.textbbox((0, 0), s, font=f); return b[2] - b[0], b[3] - b[1]
+def ease_out(x): return 1 - (1 - x) ** 3
+def smooth(x): x = clamp01(x); return x * x * (3 - 2 * x)
 
-# Counter ticks through all 11; labels shown for the starred subset.
-# (impact time, label, cents, x-fraction, show_label)
-DROPS = [
-    (2.2, "dog toy",        40, 0.28, True),
-    (2.7, "book",           25, 0.62, False),
-    (3.4, "blender",       120, 0.62, True),
-    (3.9, "sunscreen",      45, 0.70, False),
-    (4.5, "board game",     80, 0.28, False),
-    (5.1, "running shoes", 190, 0.36, True),
-    (5.7, "coffee maker",  145, 0.66, False),
-    (6.3, "dog bed",        95, 0.30, False),
-    (6.9, "stroller",      210, 0.60, True),
-    (7.3, "water bottle",   50, 0.40, False),
-    (7.7, "desk lamp",     180, 0.34, True),
-]
-TOTAL = sum(c for _, _, c, _, _ in DROPS)   # 1180 = $11.80
-END = 8.2                                    # end card begins
+# ── premium text: lowercase, letter-spaced, soft shadow, no box ──────────────
+def tracked_w(d, text, font, tr):
+    return sum(d.textlength(c, font=font) for c in text) + tr * (len(text) - 1)
 
-def total_at(t):
-    return sum(c for tt, _, c, _, _ in DROPS if t >= tt)
-
-def glow_text(img, s, font, center, color, alpha=255):
+def draw_line(img, text, font, cx, y, color, alpha, tr=3, shadow=0.55):
+    if alpha <= 1: return
     layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
-    tw, th = tsize(d, s, font)
-    d.text((center[0] - tw/2, center[1] - th/2), s, font=font, fill=(*color, alpha))
-    img.alpha_composite(layer.filter(ImageFilter.GaussianBlur(26)))
-    img.alpha_composite(layer.filter(ImageFilter.GaussianBlur(8)))
+    x = cx - tracked_w(d, text, font, tr) / 2
+    for c in text:
+        d.text((x, y), c, font=font, fill=(*color, 255))
+        x += d.textlength(c, font=font) + tr
+    if alpha < 255:
+        layer.putalpha(layer.getchannel("A").point(lambda v: int(v * alpha / 255)))
+    if shadow > 0:
+        sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        sh.paste((0, 0, 0, 255), (0, 0), layer.getchannel("A"))
+        sh = sh.filter(ImageFilter.GaussianBlur(9))
+        sh.putalpha(sh.getchannel("A").point(lambda v: int(v * shadow)))
+        img.alpha_composite(sh)
     img.alpha_composite(layer)
 
-def draw_hook(d, t):
-    if t >= 2.3: return
-    fade = clamp01(t / 0.4) * (1 - clamp01((t - 1.9) / 0.4))
-    a = int(255 * fade)
-    if a <= 0: return
-    y = 250
-    f = F(52, "Black")
-    for ln in ["my friends don't buy", "anything without", "asking me first"]:
-        tw = tsize(d, ln, f)[0]
-        d.rounded_rectangle((W/2 - tw/2 - 30, y - 12, W/2 + tw/2 + 30, y + 70),
-                            radius=22, fill=(8, 10, 16, int(200 * fade)))
-        d.text((W/2 - tw/2, y), ln, font=f, fill=(*TEXT, a))
-        y += 100
+def fade_drift(t, t0, t1, fin=0.75, fout=0.6):
+    """Returns (alpha 0-255, y-offset). Slow fade-in with upward drift."""
+    if t < t0 or t > t1: return 0, 0
+    ain = clamp01((t - t0) / fin)
+    aout = 1 - clamp01((t - (t1 - fout)) / fout)
+    alpha = 255 * ease_out(ain) * aout
+    yoff = (1 - ease_out(ain)) * 14 - clamp01((t - (t1 - fout)) / fout) * 8
+    return alpha, yoff
 
-def draw_counter(d, t):
-    if t < DROPS[0][0] or t >= END: return
-    bump = 0.0
-    for tt, *_ in DROPS:
-        if 0 <= t - tt < 0.3:
-            bump = (1 - (t - tt) / 0.3) * 0.16
-    f = F(int(46 * (1 + bump)), "Black")
-    s = f"${total_at(t)/100:.2f}"
-    tw = tsize(d, s, f)[0]
-    appear = clamp01((t - DROPS[0][0]) / 0.4)
-    a = int(255 * appear)
-    d.rounded_rectangle((W - tw - 122, 64, W - 48, 146), radius=24,
-                        fill=(8, 10, 16, int(170 * appear)))
-    d.rounded_rectangle((W - tw - 122, 64, W - 48, 146), radius=24,
-                        outline=(*CYAN, int(120 * appear)), width=2)
-    d.text((W - tw - 86, 82), s, font=f, fill=(*GREEN, a))
+# ── the cut: three lines, synced to splashes at ~2.0 / 5.0 / 7.5 ─────────────
+LINES = [
+    ("you're the one they ask.",        0.5, 2.9, 430),
+    ("a drop for every friend.",         3.6, 6.1, 430),
+]
+TOTAL = 11.80
+CT0, CT1 = 2.0, 7.8           # counter climb window
 
-def draw_labels(d, t):
-    for tt, label, cents, xf, show in DROPS:
-        if not show or not (tt <= t < tt + 1.15) or t >= END: continue
-        p = (t - tt) / 1.15
-        a = int(255 * min(1, p * 6) * (1 - clamp01((p - 0.65) / 0.35)))
-        rise = 26 * ease_out(min(1, p * 2.5))
-        cx = min(max(xf * W, 170), W - 170)
-        cy = 350 + (int(xf * 1000) % 150) - rise       # scatter in dark band
-        s1, s2 = f"+${cents/100:.2f}", label
-        f1, f2 = F(54, "Black"), F(32, "Medium")
-        w1, w2 = tsize(d, s1, f1)[0], tsize(d, s2, f2)[0]
-        d.text((cx - w1/2 + 2, cy + 2), s1, font=f1, fill=(0, 0, 0, a))
-        d.text((cx - w1/2, cy), s1, font=f1, fill=(*GREEN, a))
-        d.text((cx - w2/2, cy + 64), s2, font=f2, fill=(*TEXT, int(a * 0.85)))
+def counter_val(t):
+    return TOTAL * smooth((t - CT0) / (CT1 - CT0))
+
+# settle scrim — smooth vertical gradient, darkest through the text band
+def build_scrim():
+    g = Image.new("L", (1, H))
+    px = g.load()
+    for y in range(H):
+        c = 1 - abs(0.5 - y / H) * 2
+        px[0, y] = int(150 + 95 * c)
+    g = g.resize((W, H))
+    scrim = Image.new("RGBA", (W, H), (6, 9, 20, 0))
+    scrim.putalpha(g)
+    return scrim
+SCRIM = build_scrim()
+
+def glow_line(img, text, font, cx, y, color, alpha, tr=4):
+    layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    x = cx - tracked_w(d, text, font, tr) / 2
+    for c in text:
+        d.text((x, y), c, font=font, fill=(*color, 255))
+        x += d.textlength(c, font=font) + tr
+    if alpha < 255:
+        layer.putalpha(layer.getchannel("A").point(lambda v: int(v * alpha / 255)))
+    img.alpha_composite(layer.filter(ImageFilter.GaussianBlur(28)))
+    img.alpha_composite(layer.filter(ImageFilter.GaussianBlur(9)))
+    img.alpha_composite(layer)
 
 def render():
     os.makedirs(OUT, exist_ok=True)
+    fnar = F(54, "Medium")
+    fcount = F(40, "Medium")
     for fi in range(N):
         t = fi / FPS
         img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        d = ImageDraw.Draw(img, "RGBA")
-        draw_hook(d, t)
-        draw_counter(d, t)
-        draw_labels(d, t)
 
-        if t >= END - 0.2:
-            # settle scrim — dark vertical gradient fades in to calm the water
-            sa = ease_out(clamp01((t - (END - 0.2)) / 0.7))
-            scrim = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-            sd = ImageDraw.Draw(scrim)
-            for y in range(0, H, 8):
-                edge = min(y, H - y) / (H / 2)         # darker center band
-                aa = int(205 * sa * (0.45 + 0.55 * (1 - abs(0.5 - y / H) * 2)))
-                sd.rectangle((0, y, W, y + 8), fill=(6, 9, 18, max(0, aa)))
-            img.alpha_composite(scrim)
-            p = ease_out(clamp01((t - END) / 0.6))
-            glow_text(img, f"${TOTAL/100:.2f}", F(150, "Black"),
-                      (W/2, 720), GREEN, int(255 * p))
-            d = ImageDraw.Draw(img, "RGBA")
-            a2 = int(255 * ease_out(clamp01((t - (END + 0.6)) / 0.5)))
-            s = "word of mouth, finally rewarded."
-            f = F(48, "Bold"); tw = tsize(d, s, f)[0]
-            d.text((W/2 - tw/2, 910), s, font=f, fill=(*TEXT, a2))
-            if t >= END + 1.2:
-                glow_text(img, "ripple", F(56, "Black"), (W/2, 1050), ACCENT,
-                          int(255 * ease_out(clamp01((t - (END + 1.2)) / 0.5))))
+        if t < END:
+            for text, t0, t1, y in LINES:
+                a, yo = fade_drift(t, t0, t1)
+                draw_line(img, text, fnar, W/2, y + yo, WHITE, a, tr=3)
+            # smooth-counting total, top-center, no box
+            ca = 255 * clamp01((t - CT0) / 0.4) * (1 - clamp01((t - 7.9) / 0.2))
+            if ca > 1:
+                draw_line(img, f"${counter_val(t):.2f}", fcount, W/2, 150,
+                          MINT, ca, tr=2, shadow=0.5)
+        else:
+            sa = ease_out(clamp01((t - END) / 0.7))
+            img.alpha_composite(SCRIM.point(lambda v: 0) if False else _scaled(SCRIM, sa))
+            p = clamp01((t - (END + 0.1)) / 0.6)
+            glow_line(img, f"${TOTAL:.2f}", F(132, "SemiBold"), W/2, 660,
+                      MINT, int(255 * ease_out(p)), tr=2)
+            a2 = 255 * ease_out(clamp01((t - (END + 0.7)) / 0.5))
+            draw_line(img, "word of mouth, finally rewarded.", F(46, "Regular"),
+                      W/2, 870, WHITE, a2, tr=2)
+            a3 = ease_out(clamp01((t - (END + 1.3)) / 0.5))
+            if a3 > 0:
+                glow_line(img, "ripple", F(58, "SemiBold"), W/2, 1010,
+                          ACCENT, int(255 * a3), tr=3)
         img.save(os.path.join(OUT, f"{fi:04d}.png"))
         if fi % 90 == 0: print(f"  {fi}/{N}")
     print(f"✓ {N} overlay frames → {OUT}")
+
+def _scaled(scrim, factor):
+    if factor >= 1: return scrim
+    out = scrim.copy()
+    out.putalpha(scrim.getchannel("A").point(lambda v: int(v * factor)))
+    return out
 
 def render_chord():
     sr = 44100
@@ -165,15 +161,15 @@ def render_chord():
     for i in range(n):
         tt = i / sr
         v = 0.0
-        for k, fq in enumerate([392.0, 523.25, 659.25]):   # G–C–E
-            if tt >= k * 0.10:
-                t2 = tt - k * 0.10
-                v += math.sin(2 * math.pi * fq * t2) * 0.16 * math.exp(-t2 * 1.7)
+        for k, fq in enumerate([392.0, 523.25, 659.25]):   # G–C–E, warm
+            if tt >= k * 0.11:
+                t2 = tt - k * 0.11
+                v += math.sin(2 * math.pi * fq * t2) * 0.15 * math.exp(-t2 * 1.6)
         buf.append(v)
     peak = max(abs(v) for v in buf) or 1
     with wave.open(CHORD, "w") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
-        w.writeframes(b"".join(struct.pack("<h", int(v / peak * 22000)) for v in buf))
+        w.writeframes(b"".join(struct.pack("<h", int(v / peak * 20000)) for v in buf))
     print(f"✓ end chord → {CHORD}")
 
 if __name__ == "__main__":
