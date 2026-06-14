@@ -1,0 +1,28 @@
+# Marketing video pipeline — commit the SOURCE, ignore everything regenerable.
+#
+# Kept in git: build.sh, the generator scripts (in ../scripts/), the source
+# voiceover + music (audio/*.mp3), and the Whisper timing JSON. Everything
+# below is produced by running the scripts/build and can be regenerated, or is
+# a bulky intermediate / Jacob's raw clips.
+
+# Rendered videos + per-slot render intermediates
+output/
+
+# Generated cards (PNGs + counter/hook MP4s) — from generate_video_assets.py,
+# generate_counter.py, generate_hook.py
+cards/
+
+# Synthesized sound effects — from generate_sfx.py
+sfx/
+
+# Burned-caption file — from build_captions.py
+captions.ass
+
+# Uncompressed audio intermediates (regenerated from the .mp3 via ffmpeg)
+audio/*.wav
+
+# Jacob's raw iPhone clips + product screenshots (large, local-only)
+raw/
+
+# macOS cruft
+.DS_Store
