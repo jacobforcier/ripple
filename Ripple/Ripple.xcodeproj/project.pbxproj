@@ -7,16 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0273785F735CAFCD9F48536D /* RippleMessageCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DDA7F99EECF8FF1EDB8605D /* RippleMessageCard.swift */; };
 		222B717A4FBA4A48A14EB1BD /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3BE300B8B362E82EF69311D /* Theme.swift */; };
+		27CD8B63B90C9DC4A248565B /* ComposerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C88F556C47BA5B295342B0E9 /* ComposerView.swift */; };
 		2FA781BF88DD77AAB17C8297 /* RatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F63FBF41D47363F3CA3358C8 /* RatesView.swift */; };
 		3CD6CA5E11AF14BFF211A90E /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF05E60A5B4AFBE04BCF280 /* Models.swift */; };
+		4490056A6CCECC989D3D8705 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E7DAC3D4596F915E5A62E156 /* Assets.xcassets */; };
 		4C6162D689DF73375234CBF8 /* LiveRippleAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF41C91A445D15BB096E80F9 /* LiveRippleAPI.swift */; };
 		4DE946257D565E6E0BA68A77 /* RippleAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 020382C60B8DA4025E7CBE2F /* RippleAPI.swift */; };
 		50FFC0FC006A546F0A62930D /* LinksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */; };
-		FE98DC76BA54FE98DC76BA54 /* ProgressionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB12CD34EF56AB12CD34EF56 /* ProgressionView.swift */; };
-		6F5E4D3C2B1A6F5E4D3C2B1A /* JourneyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F1A2B3C4D5E6F /* JourneyView.swift */; };
 		5F9801FDF38A7D43E9DCA68A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */; };
 		5FCDAA0EFEC157062AB21957 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E14D3C941A51164A97C849 /* ShareViewController.swift */; };
+		6F5E4D3C2B1A6F5E4D3C2B1A /* JourneyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F1A2B3C4D5E6F /* JourneyView.swift */; };
+		7402CB28CD81E4086D124AB2 /* Ripple Messages.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5E552E7D90D1978CDBC61449 /* Ripple Messages.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8C9F79902FA1444100A65CCD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F798F2FA1444100A65CCD /* AppDelegate.swift */; };
 		8C9F79922FA1444100A65CCD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C9F79912FA1444100A65CCD /* SceneDelegate.swift */; };
 		8C9F79952FA1444100A65CCD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C9F79932FA1444100A65CCD /* LaunchScreen.storyboard */; };
@@ -55,13 +58,25 @@
 		8D345F6E170E52B50DD85528 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3219112CFDD972CC07554D58 /* RootView.swift */; };
 		90575BCA56A89EFE4BE6526C /* RippleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 372453C916690EE7A273524F /* RippleStore.swift */; };
 		9A96CFE276924167E9EA91BD /* Ripple Share Mac.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 708E241288665B25479DB7FB /* Ripple Share Mac.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9CDAB684BB57793D73C60A67 /* Messages.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A06B3BD1CC065B32CAE9220 /* Messages.framework */; };
 		AB708D167AF9401AF4E4CA1A /* TrendingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AADA189496906C1ED9F17981 /* TrendingView.swift */; };
 		C548CAE3EE9A6CCFA39318E9 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED65B61FC7B4C65442F8DA27 /* ShareView.swift */; };
 		CB9EBF05FD2FF0CECB09219A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DD8DCE44249E73697B5225F0 /* Cocoa.framework */; };
+		D4F7C4A882E1962FAD6E3C5A /* RippleLinkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C37139FB4C75929CAD3C41 /* RippleLinkService.swift */; };
 		E6F9548FE48AE4DDF4E77C66 /* RippleLinkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C315D5750C90CBC9E8593BC /* RippleLinkService.swift */; };
+		F87AE58327EDDAE0E1EA1FC4 /* MessagesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7D07365DC1E58763224299 /* MessagesViewController.swift */; };
+		FDF1BDE9C36224D1E4EE7ADF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DBB98FC14CDB2464362808B4 /* Foundation.framework */; };
+		FE98DC76BA54FE98DC76BA54 /* ProgressionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB12CD34EF56AB12CD34EF56 /* ProgressionView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		6A6B4FB88DCD77979D5A14F4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C9F79792FA1443F00A65CCD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90B0D5EEFE2F800E2B968D6A;
+			remoteInfo = "Ripple Messages";
+		};
 		8C9F79AC2FA1444100A65CCD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8C9F79792FA1443F00A65CCD /* Project object */;
@@ -101,6 +116,7 @@
 			files = (
 				8C9F79AB2FA1444100A65CCD /* Ripple Extension.appex in Embed Foundation Extensions */,
 				8CCF330B2FA1A53B00F80B40 /* Ripple Share.appex in Embed Foundation Extensions */,
+				7402CB28CD81E4086D124AB2 /* Ripple Messages.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -120,14 +136,21 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01C37139FB4C75929CAD3C41 /* RippleLinkService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RippleLinkService.swift; sourceTree = "<group>"; };
 		020382C60B8DA4025E7CBE2F /* RippleAPI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RippleAPI.swift; sourceTree = "<group>"; };
 		0951EFEA6B95AD81B82BA301 /* RippleShareMac.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = RippleShareMac.entitlements; sourceTree = "<group>"; };
+		1A2B3C4D5E6F1A2B3C4D5E6F /* JourneyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JourneyView.swift; sourceTree = "<group>"; };
+		1DDA7F99EECF8FF1EDB8605D /* RippleMessageCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RippleMessageCard.swift; sourceTree = "<group>"; };
+		2F989D2CD7DE134019AB2BBF /* RippleMessages.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = RippleMessages.entitlements; sourceTree = "<group>"; };
 		3219112CFDD972CC07554D58 /* RootView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		324EE8076D7975830B907DB9 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		372453C916690EE7A273524F /* RippleStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RippleStore.swift; sourceTree = "<group>"; };
 		4C315D5750C90CBC9E8593BC /* RippleLinkService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RippleLinkService.swift; sourceTree = "<group>"; };
+		5E552E7D90D1978CDBC61449 /* Ripple Messages.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Ripple Messages.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6BD102EC98F9B34592459C14 /* RippleApp.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = RippleApp.entitlements; sourceTree = "<group>"; };
+		6F1B94B5A1F41025A2C85F87 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		708E241288665B25479DB7FB /* Ripple Share Mac.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Ripple Share Mac.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7A06B3BD1CC065B32CAE9220 /* Messages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Messages.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Messages.framework; sourceTree = DEVELOPER_DIR; };
 		8C9F79802FA1443F00A65CCD /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
 		8C9F79812FA1443F00A65CCD /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
 		8C9F79822FA1443F00A65CCD /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
@@ -157,14 +180,17 @@
 		8C9F79DE2FA1444200A65CCD /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = ../../extension/content.js; sourceTree = "<group>"; };
 		8CCF33012FA1A53B00F80B40 /* Ripple Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Ripple Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AADA189496906C1ED9F17981 /* TrendingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TrendingView.swift; sourceTree = "<group>"; };
-		B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LinksView.swift; sourceTree = "<group>"; };
 		AB12CD34EF56AB12CD34EF56 /* ProgressionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressionView.swift; sourceTree = "<group>"; };
-		1A2B3C4D5E6F1A2B3C4D5E6F /* JourneyView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JourneyView.swift; sourceTree = "<group>"; };
+		B0CC5B0BDE1E03D8F5B7FAE7 /* LinksView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LinksView.swift; sourceTree = "<group>"; };
 		B0E14D3C941A51164A97C849 /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		BC7D07365DC1E58763224299 /* MessagesViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MessagesViewController.swift; sourceTree = "<group>"; };
+		C88F556C47BA5B295342B0E9 /* ComposerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ComposerView.swift; sourceTree = "<group>"; };
 		CCF05E60A5B4AFBE04BCF280 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		D3D8A3D2B5D642AB71064A9A /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		DBB98FC14CDB2464362808B4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		DD8DCE44249E73697B5225F0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		E3BE300B8B362E82EF69311D /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		E7DAC3D4596F915E5A62E156 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ED65B61FC7B4C65442F8DA27 /* ShareView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		F63FBF41D47363F3CA3358C8 /* RatesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RatesView.swift; sourceTree = "<group>"; };
 		FF41C91A445D15BB096E80F9 /* LiveRippleAPI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiveRippleAPI.swift; sourceTree = "<group>"; };
@@ -192,6 +218,15 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		09BC4C5F0DE72708806C52C0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FDF1BDE9C36224D1E4EE7ADF /* Foundation.framework in Frameworks */,
+				9CDAB684BB57793D73C60A67 /* Messages.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4C33C9B53DF595563E1AF8C3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -238,6 +273,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0EBB10F8C40C10A2FAB9400E /* Ripple Messages */ = {
+			isa = PBXGroup;
+			children = (
+				BC7D07365DC1E58763224299 /* MessagesViewController.swift */,
+				C88F556C47BA5B295342B0E9 /* ComposerView.swift */,
+				1DDA7F99EECF8FF1EDB8605D /* RippleMessageCard.swift */,
+				01C37139FB4C75929CAD3C41 /* RippleLinkService.swift */,
+				6F1B94B5A1F41025A2C85F87 /* Info.plist */,
+				2F989D2CD7DE134019AB2BBF /* RippleMessages.entitlements */,
+				E7DAC3D4596F915E5A62E156 /* Assets.xcassets */,
+			);
+			name = "Ripple Messages";
+			path = "Ripple Messages";
+			sourceTree = "<group>";
+		};
 		1845FD71E675F434446954F8 /* RippleUI */ = {
 			isa = PBXGroup;
 			children = (
@@ -262,6 +312,7 @@
 			isa = PBXGroup;
 			children = (
 				96D6FCB7DDC9298DFE7F787B /* OS X */,
+				BD557CDE9072CADC873434A7 /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -279,6 +330,7 @@
 				8C9F798D2FA1444100A65CCD /* Products */,
 				601DDC7735768C5FEDDFF7CD /* Frameworks */,
 				E174642234B44BFEC58AEDC8 /* Ripple Share Mac */,
+				0EBB10F8C40C10A2FAB9400E /* Ripple Messages */,
 			);
 			sourceTree = "<group>";
 		};
@@ -321,6 +373,7 @@
 				8C9F79B42FA1444100A65CCD /* Ripple Extension.appex */,
 				8CCF33012FA1A53B00F80B40 /* Ripple Share.appex */,
 				708E241288665B25479DB7FB /* Ripple Share Mac.appex */,
+				5E552E7D90D1978CDBC61449 /* Ripple Messages.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -387,6 +440,15 @@
 			name = "OS X";
 			sourceTree = "<group>";
 		};
+		BD557CDE9072CADC873434A7 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				DBB98FC14CDB2464362808B4 /* Foundation.framework */,
+				7A06B3BD1CC065B32CAE9220 /* Messages.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 		E174642234B44BFEC58AEDC8 /* Ripple Share Mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -432,6 +494,7 @@
 			dependencies = (
 				8C9F79AD2FA1444100A65CCD /* PBXTargetDependency */,
 				8CCF330A2FA1A53B00F80B40 /* PBXTargetDependency */,
+				E2D48F1A03FEF555F0235597 /* PBXTargetDependency */,
 			);
 			name = "Ripple (iOS)";
 			productName = "Ripple (iOS)";
@@ -512,6 +575,23 @@
 			productReference = 8CCF33012FA1A53B00F80B40 /* Ripple Share.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		90B0D5EEFE2F800E2B968D6A /* Ripple Messages */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BA5D2A16D94C1E756636159E /* Build configuration list for PBXNativeTarget "Ripple Messages" */;
+			buildPhases = (
+				4F9156939B9BD185813907BC /* Sources */,
+				09BC4C5F0DE72708806C52C0 /* Frameworks */,
+				151ECAA64F4A3F7919635754 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Ripple Messages";
+			productName = "Ripple Messages";
+			productReference = 5E552E7D90D1978CDBC61449 /* Ripple Messages.appex */;
+			productType = "com.apple.product-type.app-extension.messages";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -559,11 +639,20 @@
 				8C9F79B32FA1444100A65CCD /* Ripple Extension (macOS) */,
 				8CCF33002FA1A53B00F80B40 /* Ripple Share */,
 				10E667F585275FF9B55C3984 /* Ripple Share Mac */,
+				90B0D5EEFE2F800E2B968D6A /* Ripple Messages */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		151ECAA64F4A3F7919635754 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4490056A6CCECC989D3D8705 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8C9F798A2FA1444100A65CCD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -634,6 +723,17 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4F9156939B9BD185813907BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F87AE58327EDDAE0E1EA1FC4 /* MessagesViewController.swift in Sources */,
+				27CD8B63B90C9DC4A248565B /* ComposerView.swift in Sources */,
+				0273785F735CAFCD9F48536D /* RippleMessageCard.swift in Sources */,
+				D4F7C4A882E1962FAD6E3C5A /* RippleLinkService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8C9F79882FA1444100A65CCD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -722,6 +822,12 @@
 			target = 8CCF33002FA1A53B00F80B40 /* Ripple Share */;
 			targetProxy = 8CCF33092FA1A53B00F80B40 /* PBXContainerItemProxy */;
 		};
+		E2D48F1A03FEF555F0235597 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Ripple Messages";
+			target = 90B0D5EEFE2F800E2B968D6A /* Ripple Messages */;
+			targetProxy = 6A6B4FB88DCD77979D5A14F4 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -789,6 +895,34 @@
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
+		};
+		7574B1C811C347D3C02A86FA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "Ripple Messages/RippleMessages.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 856ZD9L98G;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Ripple Messages/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple.Messages;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
 		};
 		8C9F79C82FA1444100A65CCD /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1305,6 +1439,33 @@
 			};
 			name = Release;
 		};
+		DCC2FDDC2CA640F72644B39B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "iMessage App Icon";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "Ripple Messages/RippleMessages.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 856ZD9L98G;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Ripple Messages/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ripple.sharewithripple.Messages;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1358,6 +1519,15 @@
 			buildConfigurations = (
 				8CCF330C2FA1A53B00F80B40 /* Debug */,
 				8CCF330D2FA1A53B00F80B40 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BA5D2A16D94C1E756636159E /* Build configuration list for PBXNativeTarget "Ripple Messages" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7574B1C811C347D3C02A86FA /* Release */,
+				DCC2FDDC2CA640F72644B39B /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
